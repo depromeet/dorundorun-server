@@ -1,0 +1,46 @@
+name: Java CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: AWS login and docker image pull and run
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          port: 22
+          script: |
+            set -euo pipefail
+            APP="sixpack"
+            IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/${APP}:latest"
+            
+            echo "[1] docker login"
+            echo "${{ secrets.DOCKERHUB_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            
+            echo "[2] 대상 컨테이너만 정리"
+            if sudo docker ps -a --format '{{.Names}}' | grep -q "^${APP}$"; then
+              sudo docker rm -f "${APP}"
+            fi
+
+            echo "[3] 이미지 Pull (latest)"
+            sudo docker pull "${IMAGE}"
+            echo "docker pull 성공: ${IMAGE}"
+
+            echo "[4] 새 컨테이너 실행"
+            sudo docker run -d -p 80:8080 \
+              --name "${APP}" \
+              --restart unless-stopped \
+              "${IMAGE}"
+
+            echo "[5] 미사용 이미지 정리"
+            sudo docker image prune -f
+            echo "✅ 배포 완료"
