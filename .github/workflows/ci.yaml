@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  spotless-and-build:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -19,6 +19,7 @@ jobs:
 
       - name: Set YML
         run: |
+          mkdir -p ./src/main/resources
           echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > ./src/main/resources/application.yml
           echo "${{ secrets.APPLICATION_YML_PROD }}" | base64 --decode > ./src/main/resources/application-prod.yml
 
@@ -44,8 +45,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Docker build & push
-        run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/sixpack .
-          echo "docker 빌드 성공"
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/sixpack
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sixpack:latest
