@@ -7,6 +7,21 @@ RUN chmod +x ./gradlew && ./gradlew clean bootJar -x test
 # ---------- Run stage ----------
 FROM eclipse-temurin:17-jre
 WORKDIR /app
+
+# 앱 JAR 복사
 COPY --from=build /app/build/libs/app.jar app.jar
+
+# OpenTelemetry Java Agent 추가
+ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar /otel/opentelemetry-javaagent.jar
+
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","app.jar"]
+
+# OpenTelemetry Agent 적용된 실행
+ENTRYPOINT ["java",
+            "-javaagent:/otel/opentelemetry-javaagent.jar",
+            "-Dotel.service.name=sixpack",
+            "-Dotel.exporter.otlp.endpoint=http://signoz-otel-collector:4317",
+            "-Dotel.metrics.exporter=otlp",
+            "-Dotel.traces.exporter=otlp",
+            "-Dotel.logs.exporter=otlp",
+            "-jar","app.jar"]
