@@ -16,4 +16,4 @@ ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/release
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-javaagent:/otel/opentelemetry-javaagent.jar","-Dotel.service.name=sixpack","-Dotel.exporter.otlp.endpoint=http://signoz-otel-collector:4317","-Dotel.metrics.exporter=otlp","-Dotel.traces.exporter=otlp","-Dotel.logs.exporter=otlp","-jar","/app/app.jar"]
+ENTRYPOINT ["java","-javaagent:/otel/opentelemetry-javaagent.jar","-Dotel.service.name=sixpack","-Dotel.exporter.otlp.endpoint=http://signoz-otel-collector:4317", "-Dotel.exporter.otlp.protocol=grpc", "-Dotel.metrics.exporter=otlp","-Dotel.traces.exporter=otlp","-Dotel.logs.exporter=otlp","-jar","/app/app.jar"]
