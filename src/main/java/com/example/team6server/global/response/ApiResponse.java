@@ -1,14 +1,12 @@
 package com.example.team6server.global.response;
 
-import java.time.LocalDateTime;
-
-import org.springframework.http.HttpStatus;
-
 import com.example.team6server.global.exception.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
+
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -34,6 +32,13 @@ public class ApiResponse<T> {
 	private ApiResponse(ErrorCode errorCode) {
 		this.status = errorCode.getStatus();
 		this.message = errorCode.getMessage();
+		this.timestamp = LocalDateTime.now();
+		this.data = null;
+	}
+
+	private ApiResponse(ErrorCode errorCode, String formattedMessage) {
+		this.status = errorCode.getStatus();
+		this.message = formattedMessage;
 		this.timestamp = LocalDateTime.now();
 		this.data = null;
 	}
@@ -66,5 +71,9 @@ public class ApiResponse<T> {
 	// ===== 에러 응답 생성 메서드 =====
 	public static <T> ApiResponse<T> error(ErrorCode errorCode) {
 		return new ApiResponse<>(errorCode);
+	}
+
+	public static <T> ApiResponse<T> error(ErrorCode errorCode, String formattedMessage) {
+		return new ApiResponse<>(errorCode, formattedMessage);
 	}
 }
