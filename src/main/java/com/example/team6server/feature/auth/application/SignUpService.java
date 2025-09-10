@@ -5,6 +5,7 @@ import com.example.team6server.feature.auth.dto.response.SignUpResponse;
 import com.example.team6server.feature.user.dao.UserRepository;
 import com.example.team6server.feature.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,8 @@ public class SignUpService {
 
 	private final ValidateSignUpPolicyService validateSignUpPolicyService;
 	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
+
 
 	@Transactional
 	public SignUpResponse signUp(SignUpRequest request) {
@@ -22,7 +25,7 @@ public class SignUpService {
 		User user = User.builder()
 				.name(request.name())
 				.email(request.email())
-				.password(request.password()) // TODO: 암호화 추가
+				.password(passwordEncoder.encode(request.password()))
 				.build();
 
 		User savedUser = userRepository.save(user);
