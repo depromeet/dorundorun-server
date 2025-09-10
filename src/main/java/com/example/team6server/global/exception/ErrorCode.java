@@ -2,16 +2,19 @@ package com.example.team6server.global.exception;
 
 import org.springframework.http.HttpStatus;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+public interface ErrorCode {
 
-@Getter
-@AllArgsConstructor
-public enum ErrorCode {
+	HttpStatus getStatus();
 
-	INVALID_INPUT(HttpStatus.BAD_REQUEST, "잘못된 입력 값입니다"),
-	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다");
+	String getMessage();
 
-	private final HttpStatus status;
-	private final String message;
+	default String formatted(Object... args) {
+		return (args == null || args.length == 0)
+				? getMessage()
+				: String.format(getMessage(), args);
+	}
+
+	default CustomException format(Object... args) {
+		return new CustomException(this, formatted(args));
+	}
 }
