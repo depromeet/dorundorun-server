@@ -1,6 +1,5 @@
 package com.example.team6server.global.redis;
 
-import com.example.team6server.infra.redis.stream.event.RedisStreamEventType;
 import com.example.team6server.infra.redis.stream.handler.AbstractRedisStreamEventHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,7 +19,7 @@ class TestRedisStreamEventHandler extends AbstractRedisStreamEventHandler<TestRe
 
 	@Override
 	public String getEventType() {
-		return RedisStreamEventType.USER_REGISTERED;
+		return "TEST_TYPE";
 	}
 
 	@Override

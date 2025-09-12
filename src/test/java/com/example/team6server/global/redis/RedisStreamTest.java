@@ -166,8 +166,8 @@ public class RedisStreamTest extends ServiceTest {
 		TestRedisStreamEventHandler handler = new TestRedisStreamEventHandler(objectMapper, latch, processedEvent);
 
 		// when // then
-		assertTrue(handlerRegistry.hasHandler(RedisStreamEventType.USER_REGISTERED) ||
-				handlerRegistry.getHandler(RedisStreamEventType.USER_REGISTERED) == null);
+		boolean exists = handlerRegistry.hasHandler(RedisStreamEventType.USER_REGISTERED);
+		assertEquals(exists, handlerRegistry.getHandler(RedisStreamEventType.USER_REGISTERED) != null);
 	}
 
 	@Test
