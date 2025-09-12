@@ -93,6 +93,7 @@ application.yml
 application-*.yml
 application.properties
 application-*.properties
+!application-test.yml
 
 # VS Code
 .vscode/
