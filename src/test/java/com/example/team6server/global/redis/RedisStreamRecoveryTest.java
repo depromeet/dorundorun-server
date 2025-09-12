@@ -14,8 +14,10 @@ import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.time.Duration;
 import java.util.List;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class RedisStreamRecoveryTest extends ServiceTest {
@@ -77,7 +79,10 @@ public class RedisStreamRecoveryTest extends ServiceTest {
 		recovery.reprocessPending(1000, 10);
 
 		// then - Recovery 후 상태 확인
-		Thread.sleep(500);
+		await().atMost(Duration.ofSeconds(3)).until(() -> {
+			PendingMessagesSummary s = redisTemplate.opsForStream().pending(properties.key(), properties.group());
+			return s.getTotalPendingMessages() == 0;
+		});
 		PendingMessages pendingAfter = redisTemplate.opsForStream().pending(
 				properties.key(),
 				Consumer.from(properties.group(), properties.consumerName()),
