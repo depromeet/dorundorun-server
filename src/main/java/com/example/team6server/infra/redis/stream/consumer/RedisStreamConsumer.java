@@ -71,6 +71,7 @@ public class RedisStreamConsumer implements StreamListener<String, ObjectRecord<
 			RedisStreamMessage parsed = mapper.mapToMessage(message.getValue());
 			if (parsed == null) {
 				log.warn("Skip empty message: id={}", recordId);
+				redisTemplate.opsForStream().acknowledge(properties.key(), properties.group(), recordId);
 				return;
 			}
 			processor.process(recordId, parsed);
