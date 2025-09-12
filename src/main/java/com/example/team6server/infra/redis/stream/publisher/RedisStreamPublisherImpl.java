@@ -62,7 +62,6 @@ public class RedisStreamPublisherImpl implements RedisStreamPublisher {
 			@Override
 			public void afterCommit() {
 				try {
-					log.info("[AFTER_COMMIT] Publishing event: type={}, timestamp={}", message.getType(), System.currentTimeMillis());
 					publish(message);
 					log.debug("Message published after transaction commit: type={}", message.getType());
 				} catch (Exception e) {
