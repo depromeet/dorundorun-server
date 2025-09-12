@@ -5,7 +5,6 @@ import com.example.team6server.infra.redis.stream.handler.AbstractRedisStreamEve
 import com.example.team6server.infra.slack.SlackNotifier;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @RedisStreamEventListener
@@ -38,7 +37,6 @@ public class UserRegisteredEventListener extends AbstractRedisStreamEventHandler
 	}
 
 	@Override
-	@Transactional
 	protected void onMessage(UserRegisteredEvent event) {
 		log.info("Processing user registration: userId={}, email={}", event.userId(), event.email());
 
