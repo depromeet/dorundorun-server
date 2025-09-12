@@ -4,6 +4,9 @@ import com.example.team6server.feature.auth.dto.request.SignUpRequest;
 import com.example.team6server.feature.auth.dto.response.SignUpResponse;
 import com.example.team6server.feature.user.dao.UserRepository;
 import com.example.team6server.feature.user.domain.User;
+import com.example.team6server.feature.user.event.UserRegisteredEvent;
+import com.example.team6server.infra.redis.stream.dto.RedisStreamMessage;
+import com.example.team6server.infra.redis.stream.publisher.RedisStreamPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,7 @@ public class SignUpService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 
+	private final RedisStreamPublisher eventPublisher;
 
 	@Transactional
 	public SignUpResponse signUp(SignUpRequest request) {
@@ -30,6 +34,17 @@ public class SignUpService {
 
 		User savedUser = userRepository.save(user);
 
+		publishUserRegisteredEvent(savedUser);
 		return SignUpResponse.of(savedUser.getId(), savedUser.getName(), savedUser.getEmail());
+	}
+
+	private void publishUserRegisteredEvent(User user) {
+		UserRegisteredEvent event = UserRegisteredEvent.builder()
+				.userId(user.getId())
+				.email(user.getEmail())
+				.name(user.getName())
+				.build();
+
+		eventPublisher.publish(RedisStreamMessage.of(event));
 	}
 }
