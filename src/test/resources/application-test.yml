@@ -39,3 +39,15 @@ logging:
             redis: DEBUG
           global:
             redis: DEBUG
+
+redis:
+  stream:
+    key: test.stream
+    group: test.group
+    consumer-name: test-consumer
+    isCreateGroupIfMissing: true
+    isAutoStart: false
+    batchSize: 10
+    pollTimeoutMs: 100
+    recovery:
+      enabled: false
