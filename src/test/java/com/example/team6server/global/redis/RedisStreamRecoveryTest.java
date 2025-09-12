@@ -4,7 +4,7 @@ import com.example.team6server.global.config.redis.stream.RedisStreamProperties;
 import com.example.team6server.global.service.ServiceTest;
 import com.example.team6server.infra.redis.stream.consumer.RedisStreamGroupManager;
 import com.example.team6server.infra.redis.stream.dto.RedisStreamMessage;
-import com.example.team6server.infra.redis.stream.publisher.RedisStreamPublisher;
+import com.example.team6server.infra.redis.stream.publisher.RedisStreamPublisherImpl;
 import com.example.team6server.infra.redis.stream.recovery.RedisStreamRecovery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +23,7 @@ public class RedisStreamRecoveryTest extends ServiceTest {
 	@Autowired
 	private RedisStreamRecovery recovery;
 	@Autowired
-	private RedisStreamPublisher publisher;
+	private RedisStreamPublisherImpl publisher;
 	@Autowired
 	private RedisStreamGroupManager groupManager;
 	@Autowired
