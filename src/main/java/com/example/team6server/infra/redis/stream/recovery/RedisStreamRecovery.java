@@ -1,8 +1,9 @@
 package com.example.team6server.infra.redis.stream.recovery;
 
 import com.example.team6server.global.config.redis.stream.RedisStreamProperties;
+import com.example.team6server.infra.redis.stream.consumer.RedisStreamMessageProcessor;
 import com.example.team6server.infra.redis.stream.dto.RedisStreamMessage;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.team6server.infra.redis.stream.util.RedisStreamMessageMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Range;
@@ -21,9 +22,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RedisStreamRecovery {
 
-	private final RedisTemplate<String, String> redisTemplate;
+	private final RedisTemplate<String, Object> redisTemplate;
 	private final RedisStreamProperties properties;
-	private final ObjectMapper objectMapper;
+	private final RedisStreamMessageProcessor processor;
+	private final RedisStreamMessageMapper mapper;
 
 	public void reprocessPending(long minIdleMs, long count) {
 		PendingMessagesSummary summary = redisTemplate.opsForStream()
@@ -60,12 +62,7 @@ public class RedisStreamRecovery {
 
 			for (MapRecord<String, Object, Object> record : claimed) {
 				try {
-					processRecord(record);
-					redisTemplate.opsForStream().acknowledge(
-							properties.key(),
-							properties.group(),
-							record.getId()
-					);
+					reprocessRecord(record);
 				} catch (Exception e) {
 					log.error("Reprocess failed for message: {}", record.getId(), e);
 				}
@@ -73,16 +70,33 @@ public class RedisStreamRecovery {
 		}
 	}
 
-	private void processRecord(MapRecord<String, Object, Object> record) throws Exception {
-		Object payload = record.getValue().get("payload");
-		if (payload == null) return;
-
-		String jsonString = payload.toString();
-		if (jsonString.startsWith("\"") && jsonString.endsWith("\"")) {
-			jsonString = jsonString.substring(1, jsonString.length() - 1).replace("\\\"", "\"");
+	private void reprocessRecord(MapRecord<String, Object, Object> record) throws Exception {
+		Object raw = record.getValue().get("value");
+		if (raw == null) {
+			raw = record.getValue().get("payload");
 		}
 
-		RedisStreamMessage message = objectMapper.readValue(jsonString, RedisStreamMessage.class);
-		log.info("Reprocessing message: Type={}, RecordId={}", message.getType(), record.getId());
+		if (raw == null) {
+			log.warn("Skip malformed pending message (no value/payload): id={}", record.getId());
+			redisTemplate.opsForStream().acknowledge(properties.key(), properties.group(), record.getId());
+			return;
+		}
+
+		try {
+			String json = String.valueOf(raw);
+			RedisStreamMessage parsed = mapper.mapToMessage(json);
+
+			if (parsed == null) {
+				log.warn("Skip unparsable pending message: id={}", record.getId());
+				redisTemplate.opsForStream().acknowledge(properties.key(), properties.group(), record.getId());
+				return;
+			}
+
+			processor.process(record.getId().getValue(), parsed);
+
+		} catch (Exception e) {
+			log.error("Failed to reprocess record: id={}", record.getId(), e);
+			throw e;
+		}
 	}
 }
