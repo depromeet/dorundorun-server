@@ -22,9 +22,11 @@ public class RedisStreamEventHandlerRegistry {
 						RedisStreamEventHandler::getEventType,
 						Function.identity(),
 						(existing, replacement) -> {
-							log.warn("Duplicate handler found for event type: {}. Using: {}",
-									existing.getEventType(), replacement.getClass().getSimpleName());
-							return replacement;
+							throw new IllegalStateException(String.format(
+									"Duplicate handler for event type '%s': %s vs %s",
+									existing.getEventType(),
+									existing.getClass().getName(),
+									replacement.getClass().getName()));
 						}
 				));
 	}
