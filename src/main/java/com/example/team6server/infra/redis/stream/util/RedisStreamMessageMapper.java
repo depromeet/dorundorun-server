@@ -12,10 +12,11 @@ public class RedisStreamMessageMapper {
 	private final ObjectMapper objectMapper;
 
 	public RedisStreamMessage mapToMessage(String raw) throws Exception {
-		if (raw == null || raw.isEmpty()) return null;
+		if (raw == null || raw.isBlank()) return null;
+		String payload = raw;
 		if (raw.startsWith("\"") && raw.endsWith("\"")) {
-			raw = raw.substring(1, raw.length() - 1).replace("\\\"", "\"");
+			payload = objectMapper.readValue(raw, String.class);
 		}
-		return objectMapper.readValue(raw, RedisStreamMessage.class);
+		return objectMapper.readValue(payload, RedisStreamMessage.class);
 	}
 }
