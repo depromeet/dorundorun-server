@@ -1,6 +1,6 @@
 package com.sixpack.dorundorun.feature.goal.dto.response;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -10,30 +10,30 @@ public record GoalPlanResponse(
 	Long id,
 
 	@Schema(description = "생성 일시", example = "2024-01-01T09:00:00Z")
-	Instant createdAt,
+	LocalDateTime createdAt,
 
 	@Schema(description = "수정 일시", example = "2024-01-01T09:00:00Z")
-	Instant updatedAt,
+	LocalDateTime updatedAt,
 
 	@Schema(description = "달성 일시", example = "2024-01-01T09:00:00Z")
-	Instant clearedAt,
+	LocalDateTime clearedAt,
 
 	@Schema(description = "최종 목표 ID", example = "1")
 	Long goalId,
 
 	@Schema(description = "페이스 (초/km)", example = "360")
-	Integer pace,
+	Long pace,
 
 	@Schema(description = "거리 (m)", example = "21097")
-	Integer distance,
+	Long distance,
 
 	@Schema(description = "시간 (초)", example = "7200")
-	Integer duration,
+	Long duration,
 
 	@Schema(description = "회차 번호", example = "7")
-	Integer roundCount,
+	Long roundCount,
 
 	@Schema(description = "전체 회차 수", example = "12")
-	Integer totalRoundCount
+	Long totalRoundCount
 ) {
 }
