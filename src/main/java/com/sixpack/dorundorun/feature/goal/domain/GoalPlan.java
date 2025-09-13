@@ -1,0 +1,49 @@
+package com.sixpack.dorundorun.feature.goal.domain;
+
+import com.sixpack.dorundorun.feature.common.model.BaseTimeEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "goal_plan")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+public class GoalPlan extends BaseTimeEntity {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "goal_id", nullable = false)
+	private Goal goal;
+
+	@Column(name = "cleared_at")
+	private LocalDateTime clearedAt;
+
+	@Column(name = "distance", nullable = false)
+	private Long distance;
+
+	@Column(name = "pace", nullable = false)
+	private Long pace;
+
+	@Column(name = "duration", nullable = false)
+	private Long duration;
+
+	@Column(name = "round_count", nullable = false)
+	private Integer roundCount;
+
+	@Builder
+	public GoalPlan(Goal goal, Long distance, Long pace, Long duration, Integer roundCount) {
+		this.goal = goal;
+		this.distance = distance;
+		this.pace = pace;
+		this.duration = duration;
+		this.roundCount = roundCount;
+	}
+}
