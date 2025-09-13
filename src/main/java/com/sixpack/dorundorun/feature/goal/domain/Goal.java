@@ -25,7 +25,7 @@ public class Goal extends BaseTimeEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	@Column(name = "title")
+	@Column(name = "title", nullable = false)
 	private String title;
 
 	@Column(name = "started_at", nullable = false)
@@ -46,10 +46,10 @@ public class Goal extends BaseTimeEntity {
 	@Column(name = "duration")
 	private Long duration;
 
-	@Column(name = "repeat_type")
+	@Column(name = "repeat_type", nullable = false)
 	private String repeatType;
 
-	@Column(name = "repeat_frequency")
+	@Column(name = "repeat_frequency", nullable = false)
 	private Integer repeatFrequency;
 
 	@Builder

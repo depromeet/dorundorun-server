@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "run_session")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -26,6 +28,9 @@ public class RunSession extends BaseTimeEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
+
+	@Column(name = "cleared_at")
+	private LocalDateTime clearedAt;
 
 	@Column(name = "total_distance")
 	private Long totalDistance;
