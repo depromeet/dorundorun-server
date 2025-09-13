@@ -1,15 +1,27 @@
 package com.sixpack.dorundorun.feature.goal.domain;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import com.sixpack.dorundorun.feature.common.model.BaseTimeEntity;
+import com.sixpack.dorundorun.feature.run.GoalRepeatType;
 import com.sixpack.dorundorun.feature.user.domain.User;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "goal")
@@ -47,14 +59,15 @@ public class Goal extends BaseTimeEntity {
 	private Long duration;
 
 	@Column(name = "repeat_type", nullable = false)
-	private String repeatType;
+	@Enumerated(EnumType.STRING)
+	private GoalRepeatType repeatType;
 
 	@Column(name = "repeat_frequency", nullable = false)
 	private Integer repeatFrequency;
 
 	@Builder
 	public Goal(User user, String title, LocalDate startedAt, LocalDate endedAt,
-				Long pace, Long distance, Long duration, String repeatType, Integer repeatFrequency) {
+		Long pace, Long distance, Long duration, GoalRepeatType repeatType, Integer repeatFrequency) {
 		this.user = user;
 		this.title = title;
 		this.startedAt = startedAt;
