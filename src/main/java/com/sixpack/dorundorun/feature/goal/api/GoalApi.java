@@ -4,6 +4,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 
+import com.sixpack.dorundorun.feature.goal.dto.response.LatestGoalResponse;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,7 +21,7 @@ public interface GoalApi {
 		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
 		@ApiResponse(responseCode = "404", description = "목표를 찾을 수 없음")
 	})
-	ResponseEntity<Void> getLatestGoal(
+	ResponseEntity<LatestGoalResponse> getLatestGoal(
 		@Parameter(description = "유저 ID", required = true)
 		@RequestHeader("X-User-Id") String userId
 	);
