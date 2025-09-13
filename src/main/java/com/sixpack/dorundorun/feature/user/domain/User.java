@@ -28,13 +28,30 @@ public class User extends BaseTimeEntity {
 	@Column(name = "password", nullable = false)
 	private String password;
 
+	@Column(name = "nickname", nullable = false)
+	private String nickname;
+
+	@Column(name = "running_level", nullable = false)
+	private String runningLevel;
+
+	@Column(name = "marketing_consent_at")
+	private LocalDateTime marketingConsentAt;
+
+	@Column(name = "location_consent_at")
+	private LocalDateTime locationConsentAt;
+
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 
 	@Builder
-	public User(String name, String email, String password) {
+	public User(String name, String email, String password, String nickname, String runningLevel, 
+				LocalDateTime marketingConsentAt, LocalDateTime locationConsentAt) {
 		this.name = name;
 		this.email = email;
 		this.password = password;
+		this.nickname = nickname;
+		this.runningLevel = runningLevel;
+		this.marketingConsentAt = marketingConsentAt;
+		this.locationConsentAt = locationConsentAt;
 	}
 }

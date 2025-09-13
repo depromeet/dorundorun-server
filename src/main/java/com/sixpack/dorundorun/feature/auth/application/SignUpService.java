@@ -2,7 +2,7 @@ package com.sixpack.dorundorun.feature.auth.application;
 
 import com.sixpack.dorundorun.feature.auth.dto.request.SignUpRequest;
 import com.sixpack.dorundorun.feature.auth.dto.response.SignUpResponse;
-import com.sixpack.dorundorun.feature.user.dao.UserRepository;
+import com.sixpack.dorundorun.feature.user.dao.UserJpaRepository;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.feature.user.event.UserRegisteredEvent;
 import com.sixpack.dorundorun.infra.redis.stream.publisher.RedisStreamPublisher;
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SignUpService {
 
 	private final ValidateSignUpPolicyService validateSignUpPolicyService;
-	private final UserRepository userRepository;
+	private final UserJpaRepository userJpaRepository;
 	private final PasswordEncoder passwordEncoder;
 
 	private final RedisStreamPublisher eventPublisher;
@@ -31,7 +31,7 @@ public class SignUpService {
 				.password(passwordEncoder.encode(request.password()))
 				.build();
 
-		User savedUser = userRepository.save(user);
+		User savedUser = userJpaRepository.save(user);
 
 		publishUserRegisteredEvent(savedUser);
 

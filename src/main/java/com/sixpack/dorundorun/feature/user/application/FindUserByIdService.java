@@ -1,6 +1,6 @@
 package com.sixpack.dorundorun.feature.user.application;
 
-import com.sixpack.dorundorun.feature.user.dao.UserRepository;
+import com.sixpack.dorundorun.feature.user.dao.UserJpaRepository;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.feature.user.exception.UserErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -12,11 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class FindUserByIdService {
 
-	private final UserRepository userRepository;
+	private final UserJpaRepository userJpaRepository;
 
 	@Transactional(readOnly = true)
 	public User find(Long id) {
-		return userRepository.findById(id)
+		return userJpaRepository.findById(id)
 				.orElseThrow(() -> UserErrorCode.NOT_FOUND_USER_BY_ID.format(id));
 	}
 }
