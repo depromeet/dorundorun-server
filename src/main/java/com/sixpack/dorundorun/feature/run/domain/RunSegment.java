@@ -1,15 +1,23 @@
 package com.sixpack.dorundorun.feature.run.domain;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.sixpack.dorundorun.feature.common.model.BaseTimeEntity;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
-import java.util.List;
 
 @Entity
 @Table(name = "run_segment")
@@ -27,10 +35,10 @@ public class RunSegment extends BaseTimeEntity {
 
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(name = "data", nullable = false, columnDefinition = "json")
-	private List<RunSegmentData> data;
+	private RunSegmentInfo data;
 
 	@Builder
-	public RunSegment(RunSession runSession, List<RunSegmentData> data) {
+	public RunSegment(RunSession runSession, RunSegmentInfo data) {
 		this.runSession = runSession;
 		this.data = data;
 	}

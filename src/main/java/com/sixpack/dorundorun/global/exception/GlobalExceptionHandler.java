@@ -1,6 +1,6 @@
 package com.sixpack.dorundorun.global.exception;
 
-import com.sixpack.dorundorun.global.response.ApiResponse;
+import com.sixpack.dorundorun.global.response.DorunResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,24 +16,24 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
 	@ExceptionHandler(CustomException.class)
-	public ResponseEntity<ApiResponse<Void>> handleCustomException(CustomException e, HttpServletRequest req) {
+	public ResponseEntity<DorunResponse<Void>> handleCustomException(CustomException e, HttpServletRequest req) {
 		log.warn("{} {} - {}", req.getMethod(), req.getRequestURI(), e.getMessage());
 		return ResponseEntity
 				.status(e.getErrorCode().getStatus())
-				.body(ApiResponse.error(e.getErrorCode(), e.getMessage()));
+				.body(DorunResponse.error(e.getErrorCode(), e.getMessage()));
 	}
 
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<ApiResponse<Void>> handleAllUnhandledException(Exception e, HttpServletRequest req) {
+	public ResponseEntity<DorunResponse<Void>> handleAllUnhandledException(Exception e, HttpServletRequest req) {
 		log.error("Unhandled exception on {} {} ", req.getMethod(), req.getRequestURI(), e);
 		return ResponseEntity
 				.status(GlobalErrorCode.INTERNAL_SERVER_ERROR.getStatus())
-				.body(ApiResponse.error(GlobalErrorCode.INTERNAL_SERVER_ERROR));
+				.body(DorunResponse.error(GlobalErrorCode.INTERNAL_SERVER_ERROR));
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<ApiResponse<Void>> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
-																		  HttpServletRequest req) {
+	public ResponseEntity<DorunResponse<Void>> handleMethodArgumentNotValid(MethodArgumentNotValidException e,
+																			HttpServletRequest req) {
 		String message = e.getBindingResult().getFieldErrors().stream()
 				.map(err -> err.getField() + ": " + err.getDefaultMessage())
 				.collect(Collectors.joining(", "));
@@ -41,6 +41,6 @@ public class GlobalExceptionHandler {
 
 		return ResponseEntity
 				.status(HttpStatus.BAD_REQUEST)
-				.body(ApiResponse.error(GlobalErrorCode.INVALID_INPUT, message));
+				.body(DorunResponse.error(GlobalErrorCode.INVALID_INPUT, message));
 	}
 }
