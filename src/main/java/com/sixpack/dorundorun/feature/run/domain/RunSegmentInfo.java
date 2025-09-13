@@ -5,6 +5,6 @@ import java.util.List;
 public record RunSegmentInfo(
 	List<RunSegmentData> segments,
 	boolean isStopped,
-	boolean isFinished
+	boolean isEnded
 ) {
 }

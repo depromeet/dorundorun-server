@@ -3,7 +3,7 @@ package com.sixpack.dorundorun.feature.run.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "러닝 종료 요청 DTO")
-public record RunCompleteRequest(
+public record CompleteRunRequest(
 	@Schema(description = "총 거리 (m)", example = "5000")
 	Long totalDistance,
 

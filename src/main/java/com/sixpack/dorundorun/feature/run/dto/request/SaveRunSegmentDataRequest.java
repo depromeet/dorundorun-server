@@ -1,11 +1,11 @@
 package com.sixpack.dorundorun.feature.run.dto.request;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "러닝 세그먼트 단건 요청 DTO")
-public record RunSegmentRequest(
+public record SaveRunSegmentDataRequest(
 	@Schema(description = "위도", example = "37.5293")
 	Double latitude,
 
@@ -19,15 +19,15 @@ public record RunSegmentRequest(
 	Double speed,
 
 	@Schema(description = "페이스 (초/km)", example = "360")
-	Integer pace,
+	Long pace,
 
 	@Schema(description = "케이던스 (걸음/분)", example = "170")
 	Integer cadence,
 
 	@Schema(description = "누적 거리 (m)", example = "1000")
-	Integer distance,
+	Long distance,
 
 	@Schema(description = "측정 시각 (ISO 8601)", example = "2024-01-15T09:00:00Z")
-	Instant time
+	LocalDateTime time
 ) {
 }
