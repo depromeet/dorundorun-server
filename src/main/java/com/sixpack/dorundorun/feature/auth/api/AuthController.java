@@ -1,15 +1,16 @@
 package com.sixpack.dorundorun.feature.auth.api;
 
-import com.sixpack.dorundorun.feature.auth.application.SignUpService;
-import com.sixpack.dorundorun.feature.auth.dto.request.SignUpRequest;
-import com.sixpack.dorundorun.feature.auth.dto.response.SignUpResponse;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.sixpack.dorundorun.feature.auth.application.SignUpService;
+import com.sixpack.dorundorun.feature.auth.dto.request.SignUpRequest;
+import com.sixpack.dorundorun.feature.auth.dto.response.SignUpResponse;
+import com.sixpack.dorundorun.global.response.DorunResponse;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,8 +19,8 @@ public class AuthController implements AuthApi {
 	private final SignUpService signUpService;
 
 	@PostMapping("/api/auth/signup")
-	public ResponseEntity<SignUpResponse> signUp(@Valid @RequestBody SignUpRequest request) {
+	public DorunResponse<SignUpResponse> signUp(@Valid @RequestBody SignUpRequest request) {
 		SignUpResponse response = signUpService.signUp(request);
-		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+		return DorunResponse.success(response);
 	}
 }
