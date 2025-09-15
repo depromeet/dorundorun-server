@@ -1,6 +1,5 @@
 package com.sixpack.dorundorun.feature.run.api;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -11,6 +10,7 @@ import com.sixpack.dorundorun.feature.run.dto.request.SaveRunSessionRequest;
 import com.sixpack.dorundorun.feature.run.dto.response.RunSessionResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.SaveRunSegmentResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.SaveRunSessionResponse;
+import com.sixpack.dorundorun.global.response.DorunResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,7 +27,7 @@ public interface RunApi {
 		@ApiResponse(responseCode = "200", description = "러닝 시작 성공"),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청")
 	})
-	ResponseEntity<SaveRunSessionResponse> startRunSession(
+	DorunResponse<SaveRunSessionResponse> startRunSession(
 		@Parameter(description = "유저 ID", required = true)
 		@RequestHeader("X-User-Id") String userId,
 		@RequestBody SaveRunSessionRequest segmentData
@@ -39,7 +39,7 @@ public interface RunApi {
 		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
 		@ApiResponse(responseCode = "404", description = "세션을 찾을 수 없음")
 	})
-	ResponseEntity<SaveRunSegmentResponse> saveRunSegments(
+	DorunResponse<SaveRunSegmentResponse> saveRunSegments(
 		@Parameter(description = "세션 ID", required = true)
 		@PathVariable Long sessionId,
 		@Parameter(description = "유저 ID", required = true)
@@ -53,7 +53,7 @@ public interface RunApi {
 		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
 		@ApiResponse(responseCode = "404", description = "세션을 찾을 수 없음")
 	})
-	ResponseEntity<RunSessionResponse> completeRunSession(
+	DorunResponse<RunSessionResponse> completeRunSession(
 		@Parameter(description = "세션 ID", required = true)
 		@PathVariable Long sessionId,
 		@Parameter(description = "유저 ID", required = true)
