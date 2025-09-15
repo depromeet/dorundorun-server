@@ -1,16 +1,15 @@
 package com.sixpack.dorundorun.feature.user.api;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.feature.user.dto.response.UserResponse;
 import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
+import com.sixpack.dorundorun.global.response.DorunResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,21 +17,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "[2. 사용자 관련]")
 public interface UserApi {
 
-	@Operation(
-		summary = "내 정보 조회",
-		description = "현재 로그인한 사용자의 정보를 조회합니다.",
-		parameters = {
-			@Parameter(
-				name = "X-User-Id",
-				description = "사용자 ID",
-				required = true,
-				in = ParameterIn.HEADER,
-				example = "1"
-			)
-		}
-	)
+	@Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 정보를 조회합니다.")
 	@ApiResponse(responseCode = "200", description = "조회 성공")
-	ResponseEntity<UserResponse> getMyInfo(
+	DorunResponse<UserResponse> getMyInfo(
 		@Parameter(hidden = true) @CurrentUser User currentUser
 	);
 
@@ -43,7 +30,7 @@ public interface UserApi {
 		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
 		@ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
 	})
-	ResponseEntity<Void> saveOnboardingInfo(
+	DorunResponse<Void> saveOnboardingInfo(
 		@Parameter(description = "사용자 ID", required = true)
 		@PathVariable Long userId,
 		@Parameter(description = "유저 ID", required = true)
@@ -59,7 +46,7 @@ public interface UserApi {
 		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
 		@ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
 	})
-	ResponseEntity<Void> createUserGoal(
+	DorunResponse<Void> createUserGoal(
 		@Parameter(description = "사용자 ID", required = true)
 		@PathVariable Long userId,
 		@Parameter(description = "유저 ID", required = true)
