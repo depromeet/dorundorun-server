@@ -1,9 +1,11 @@
 package com.sixpack.dorundorun.feature.auth.exception;
 
+import org.springframework.http.HttpStatus;
+
 import com.sixpack.dorundorun.global.exception.ErrorCode;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor

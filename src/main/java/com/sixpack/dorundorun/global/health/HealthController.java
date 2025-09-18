@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class HealthController implements HealthApi {
 
-    @GetMapping("/health")
-    public String healthCheck() {
-        return "ok";
-    }
+	@GetMapping("/health")
+	public String healthCheck() {
+		return "ok";
+	}
 }

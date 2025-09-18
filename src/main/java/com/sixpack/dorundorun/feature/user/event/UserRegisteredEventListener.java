@@ -1,9 +1,10 @@
 package com.sixpack.dorundorun.feature.user.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixpack.dorundorun.infra.redis.stream.annotation.RedisStreamEventListener;
 import com.sixpack.dorundorun.infra.redis.stream.handler.AbstractRedisStreamEventHandler;
 import com.sixpack.dorundorun.infra.slack.SlackNotifier;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -11,14 +12,14 @@ import lombok.extern.slf4j.Slf4j;
 public class UserRegisteredEventListener extends AbstractRedisStreamEventHandler<UserRegisteredEvent> {
 
 	public static final String NEW_USER_WELCOME_MESSAGE = """
-			:star2: *새로운 회원 가입 소식!* :star2:
-			
-			- 이름: %s
-			- 이메일: `%s`
-			- 사용자 ID: `%d`
-			
-			:wave: 환영합니다!
-			""";
+		:star2: *새로운 회원 가입 소식!* :star2:
+		
+		- 이름: %s
+		- 이메일: `%s`
+		- 사용자 ID: `%d`
+		
+		:wave: 환영합니다!
+		""";
 	private final SlackNotifier slackNotifier;
 
 	public UserRegisteredEventListener(ObjectMapper objectMapper, SlackNotifier slackNotifier) {

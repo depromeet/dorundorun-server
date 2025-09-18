@@ -11,9 +11,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @SecurityRequirements
 public interface HealthApi {
 
-    @Operation(summary = "헬스 체크 API 입니다.")
-    @ApiResponse(responseCode = "200", description = "서버가 정상적으로 동작할 시 ok를 응답합니다.",
-            content = @Content(mediaType = "text/html;charset=UTF-8",
-                    schema = @Schema(type = "string", example = "ok")))
-    String healthCheck();
+	@Operation(summary = "헬스 체크 API 입니다.")
+	@ApiResponse(responseCode = "200", description = "서버가 정상적으로 동작할 시 ok를 응답합니다.",
+		content = @Content(mediaType = "text/html;charset=UTF-8",
+			schema = @Schema(type = "string", example = "ok")))
+	String healthCheck();
 }

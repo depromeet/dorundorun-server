@@ -2,6 +2,7 @@ package com.sixpack.dorundorun.infra.redis.stream.publisher;
 
 import com.sixpack.dorundorun.infra.redis.stream.dto.RedisStreamMessage;
 import com.sixpack.dorundorun.infra.redis.stream.event.RedisStreamEvent;
+
 import org.springframework.data.redis.connection.stream.RecordId;
 
 public interface RedisStreamPublisher {

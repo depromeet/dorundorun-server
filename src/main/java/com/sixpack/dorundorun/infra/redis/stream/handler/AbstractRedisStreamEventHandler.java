@@ -3,6 +3,7 @@ package com.sixpack.dorundorun.infra.redis.stream.handler;
 import com.sixpack.dorundorun.infra.redis.stream.dto.RedisStreamMessage;
 import com.sixpack.dorundorun.infra.redis.stream.event.RedisStreamEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractRedisStreamEventHandler<T extends RedisStreamEvent>
-		implements RedisStreamEventHandler {
+	implements RedisStreamEventHandler {
 
 	private final ObjectMapper objectMapper;
 

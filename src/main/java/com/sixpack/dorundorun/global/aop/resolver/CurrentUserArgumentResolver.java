@@ -1,10 +1,5 @@
 package com.sixpack.dorundorun.global.aop.resolver;
 
-import com.sixpack.dorundorun.feature.user.application.FindUserByIdService;
-import com.sixpack.dorundorun.feature.user.domain.User;
-import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -12,6 +7,13 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import com.sixpack.dorundorun.feature.user.application.FindUserByIdService;
+import com.sixpack.dorundorun.feature.user.domain.User;
+import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
+
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -24,14 +26,16 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		return parameter.hasParameterAnnotation(CurrentUser.class)
-				&& parameter.getParameterType().equals(User.class);
+			&& parameter.getParameterType().equals(User.class);
 	}
 
 	@Override
-	public Object resolveArgument(MethodParameter parameter,
-								  ModelAndViewContainer mavContainer,
-								  NativeWebRequest webRequest,
-								  WebDataBinderFactory binderFactory) throws Exception {
+	public Object resolveArgument(
+		MethodParameter parameter,
+		ModelAndViewContainer mavContainer,
+		NativeWebRequest webRequest,
+		WebDataBinderFactory binderFactory
+	) throws Exception {
 
 		HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
 

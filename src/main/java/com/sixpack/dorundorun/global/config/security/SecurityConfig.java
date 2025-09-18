@@ -1,6 +1,7 @@
 package com.sixpack.dorundorun.global.config.security;
 
-import jakarta.servlet.http.HttpServletResponse;
+import static org.springframework.security.config.Customizer.*;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -15,7 +16,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -37,22 +38,33 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		defaultFilterChain(http);
 
-		http.exceptionHandling(exception -> exception
-						.authenticationEntryPoint((request, response, authException) -> {
+		http
+			.exceptionHandling(exception ->
+				exception
+					.authenticationEntryPoint(
+						(request, response, authException) -> {
 							response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
 						})
-				) // TODO 예외 응답 형식 통일
-				.authorizeHttpRequests(authorize -> authorize
-						.requestMatchers("/public/**").permitAll()
-						.requestMatchers("/api/health").permitAll()
-						.requestMatchers("/api/**").permitAll()
-						.anyRequest().authenticated());
+			) // TODO 예외 응답 형식 통일
+			.authorizeHttpRequests(authorize ->
+				authorize
+					.requestMatchers("/public/**").permitAll()
+					.requestMatchers("/api/health").permitAll()
+					.requestMatchers("/api/**").permitAll()
+					.anyRequest().authenticated());
 
 		return http.build();
 	}
 
 	private void defaultFilterChain(HttpSecurity http) throws Exception {
-		http.httpBasic(AbstractHttpConfigurer::disable).formLogin(AbstractHttpConfigurer::disable).cors(withDefaults()).csrf(AbstractHttpConfigurer::disable).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+		http
+			.httpBasic(AbstractHttpConfigurer::disable)
+			.formLogin(AbstractHttpConfigurer::disable)
+			.cors(withDefaults())
+			.csrf(AbstractHttpConfigurer::disable)
+			.sessionManagement(session ->
+				session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			);
 	}
 
 	// TODO: 임시 cors 설정

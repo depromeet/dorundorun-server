@@ -1,9 +1,11 @@
 package com.sixpack.dorundorun.feature.user.application;
 
-import com.sixpack.dorundorun.feature.user.dao.UserJpaRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.sixpack.dorundorun.feature.user.dao.UserJpaRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
