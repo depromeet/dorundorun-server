@@ -4,8 +4,10 @@ import com.sixpack.dorundorun.global.config.redis.stream.RedisStreamProperties;
 import com.sixpack.dorundorun.infra.redis.stream.dto.RedisStreamMessage;
 import com.sixpack.dorundorun.infra.redis.stream.handler.RedisStreamEventHandler;
 import com.sixpack.dorundorun.infra.redis.stream.handler.RedisStreamEventHandlerRegistry;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 

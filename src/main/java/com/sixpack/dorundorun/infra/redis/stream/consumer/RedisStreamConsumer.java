@@ -1,12 +1,8 @@
 package com.sixpack.dorundorun.infra.redis.stream.consumer;
 
-import com.sixpack.dorundorun.global.config.redis.stream.RedisStreamProperties;
-import com.sixpack.dorundorun.infra.redis.stream.dto.RedisStreamMessage;
-import com.sixpack.dorundorun.infra.redis.stream.util.RedisStreamMessageMapper;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.Duration;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.springframework.data.redis.connection.stream.Consumer;
 import org.springframework.data.redis.connection.stream.ObjectRecord;
 import org.springframework.data.redis.connection.stream.ReadOffset;
@@ -17,8 +13,14 @@ import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 import org.springframework.data.redis.stream.Subscription;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.sixpack.dorundorun.global.config.redis.stream.RedisStreamProperties;
+import com.sixpack.dorundorun.infra.redis.stream.dto.RedisStreamMessage;
+import com.sixpack.dorundorun.infra.redis.stream.util.RedisStreamMessageMapper;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -37,31 +39,33 @@ public class RedisStreamConsumer implements StreamListener<String, ObjectRecord<
 
 	@PostConstruct
 	public void autoStart() {
-		if (properties.isAutoStart()) initialize();
+		if (properties.isAutoStart())
+			initialize();
 	}
 
 	public void initialize() {
-		if (!initialized.compareAndSet(false, true)) return;
+		if (!initialized.compareAndSet(false, true))
+			return;
 
 		groupManager.ensureGroup();
 
 		container = StreamMessageListenerContainer.create(
-				redisTemplate.getConnectionFactory(),
-				StreamMessageListenerContainer.StreamMessageListenerContainerOptions.builder()
-						.pollTimeout(Duration.ofMillis(properties.pollTimeoutMs()))
-						.targetType(String.class)
-						.build()
+			redisTemplate.getConnectionFactory(),
+			StreamMessageListenerContainer.StreamMessageListenerContainerOptions.builder()
+				.pollTimeout(Duration.ofMillis(properties.pollTimeoutMs()))
+				.targetType(String.class)
+				.build()
 		);
 
 		subscription = container.receive(
-				Consumer.from(properties.group(), properties.consumerName()),
-				StreamOffset.create(properties.key(), ReadOffset.lastConsumed()),
-				this
+			Consumer.from(properties.group(), properties.consumerName()),
+			StreamOffset.create(properties.key(), ReadOffset.lastConsumed()),
+			this
 		);
 
 		container.start();
 		log.info("Redis Stream Consumer started: key={}, group={}, consumer={}",
-				properties.key(), properties.group(), properties.consumerName());
+			properties.key(), properties.group(), properties.consumerName());
 	}
 
 	@Override
@@ -83,10 +87,16 @@ public class RedisStreamConsumer implements StreamListener<String, ObjectRecord<
 
 	@PreDestroy
 	public void destroy() {
-		if (!initialized.compareAndSet(true, false)) return;
+		if (!initialized.compareAndSet(true, false)) {
+			return;
+		}
 		try {
-			if (subscription != null) subscription.cancel();
-			if (container != null && container.isRunning()) container.stop();
+			if (subscription != null) {
+				subscription.cancel();
+			}
+			if (container != null && container.isRunning()) {
+				container.stop();
+			}
 			log.info("Redis Stream Consumer stopped");
 		} catch (Exception e) {
 			log.error("Shutdown error", e);

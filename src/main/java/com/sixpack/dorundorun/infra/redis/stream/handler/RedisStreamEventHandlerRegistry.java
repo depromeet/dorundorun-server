@@ -1,6 +1,7 @@
 package com.sixpack.dorundorun.infra.redis.stream.handler;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,17 +19,17 @@ public class RedisStreamEventHandlerRegistry {
 	@Autowired
 	public RedisStreamEventHandlerRegistry(List<RedisStreamEventHandler> handlers) {
 		this.handlerMap = handlers.stream()
-				.collect(Collectors.toMap(
-						RedisStreamEventHandler::getEventType,
-						Function.identity(),
-						(existing, replacement) -> {
-							throw new IllegalStateException(String.format(
-									"Duplicate handler for event type '%s': %s vs %s",
-									existing.getEventType(),
-									existing.getClass().getName(),
-									replacement.getClass().getName()));
-						}
-				));
+			.collect(Collectors.toMap(
+				RedisStreamEventHandler::getEventType,
+				Function.identity(),
+				(existing, replacement) -> {
+					throw new IllegalStateException(String.format(
+						"Duplicate handler for event type '%s': %s vs %s",
+						existing.getEventType(),
+						existing.getClass().getName(),
+						replacement.getClass().getName()));
+				}
+			));
 	}
 
 	public RedisStreamEventHandler getHandler(String eventType) {

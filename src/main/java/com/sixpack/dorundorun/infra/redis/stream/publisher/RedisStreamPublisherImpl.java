@@ -4,8 +4,10 @@ import com.sixpack.dorundorun.global.config.redis.stream.RedisStreamProperties;
 import com.sixpack.dorundorun.infra.redis.stream.dto.RedisStreamMessage;
 import com.sixpack.dorundorun.infra.redis.stream.event.RedisStreamEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.redis.connection.stream.ObjectRecord;
 import org.springframework.data.redis.connection.stream.RecordId;
@@ -52,7 +54,7 @@ public class RedisStreamPublisherImpl implements RedisStreamPublisher {
 
 	private void registerTransactionSynchronization(RedisStreamMessage message) {
 		TransactionSynchronizationManager.registerSynchronization(
-				getTransactionSynchronization(message)
+			getTransactionSynchronization(message)
 		);
 	}
 
@@ -83,8 +85,8 @@ public class RedisStreamPublisherImpl implements RedisStreamPublisher {
 			String jsonMessage = objectMapper.writeValueAsString(message);
 
 			ObjectRecord<String, String> record = StreamRecords.newRecord()
-					.ofObject(jsonMessage)
-					.withStreamKey(streamKey);
+				.ofObject(jsonMessage)
+				.withStreamKey(streamKey);
 
 			RecordId recordId = redisTemplate.opsForStream().add(record);
 
@@ -93,7 +95,7 @@ public class RedisStreamPublisherImpl implements RedisStreamPublisher {
 			}
 
 			log.info("Published message: StreamKey={}, RecordId={}, Type={}",
-					streamKey, recordId.getValue(), message.getType());
+				streamKey, recordId.getValue(), message.getType());
 
 			return recordId;
 

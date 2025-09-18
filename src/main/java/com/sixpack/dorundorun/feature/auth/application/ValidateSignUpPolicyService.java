@@ -1,10 +1,12 @@
 package com.sixpack.dorundorun.feature.auth.application;
 
+import org.springframework.stereotype.Service;
+
 import com.sixpack.dorundorun.feature.auth.dto.request.SignUpRequest;
 import com.sixpack.dorundorun.feature.auth.exception.AuthErrorCode;
 import com.sixpack.dorundorun.feature.user.application.ExistsUsersByEmailService;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

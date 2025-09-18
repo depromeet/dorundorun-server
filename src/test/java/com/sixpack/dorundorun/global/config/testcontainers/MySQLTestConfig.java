@@ -13,10 +13,10 @@ public class MySQLTestConfig {
 	@ServiceConnection
 	MySQLContainer<?> mysqlContainer() {
 		return new MySQLContainer<>(
-				DockerImageName.parse("mysql/mysql-server:8.0.26")
-						.asCompatibleSubstituteFor("mysql"))
-				.withDatabaseName("testdb")
-				.withUsername("test")
-				.withPassword("test");
+			DockerImageName.parse("mysql/mysql-server:8.0.26")
+				.asCompatibleSubstituteFor("mysql"))
+			.withDatabaseName("testdb")
+			.withUsername("test")
+			.withPassword("test");
 	}
 }

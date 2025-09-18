@@ -2,8 +2,10 @@ package com.sixpack.dorundorun.global.response;
 
 import com.sixpack.dorundorun.global.exception.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
@@ -73,7 +75,8 @@ public class DorunResponse<T> {
 		return new DorunResponse<>(HttpStatus.OK, "페이지 조회가 성공적으로 처리되었습니다.", paginationResponse);
 	}
 
-	public static <T> DorunResponse<PaginationResponse<T>> page(String message, PaginationResponse<T> paginationResponse) {
+	public static <T> DorunResponse<PaginationResponse<T>> page(String message,
+		PaginationResponse<T> paginationResponse) {
 		return new DorunResponse<>(HttpStatus.OK, message, paginationResponse);
 	}
 

@@ -10,8 +10,8 @@ public interface ErrorCode {
 
 	default String formatted(Object... args) {
 		return (args == null || args.length == 0)
-				? getMessage()
-				: String.format(getMessage(), args);
+			? getMessage()
+			: String.format(getMessage(), args);
 	}
 
 	default CustomException format(Object... args) {

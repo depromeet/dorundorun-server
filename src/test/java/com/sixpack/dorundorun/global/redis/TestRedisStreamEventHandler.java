@@ -11,7 +11,8 @@ class TestRedisStreamEventHandler extends AbstractRedisStreamEventHandler<TestRe
 	private final CountDownLatch latch;
 	private final AtomicReference<TestRedisStreamEvent> processedEvent;
 
-	public TestRedisStreamEventHandler(ObjectMapper objectMapper, CountDownLatch latch, AtomicReference<TestRedisStreamEvent> processedEvent) {
+	public TestRedisStreamEventHandler(ObjectMapper objectMapper, CountDownLatch latch,
+		AtomicReference<TestRedisStreamEvent> processedEvent) {
 		super(objectMapper);
 		this.latch = latch;
 		this.processedEvent = processedEvent;

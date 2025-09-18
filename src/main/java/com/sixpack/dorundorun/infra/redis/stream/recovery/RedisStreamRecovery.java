@@ -4,8 +4,10 @@ import com.sixpack.dorundorun.global.config.redis.stream.RedisStreamProperties;
 import com.sixpack.dorundorun.infra.redis.stream.consumer.RedisStreamMessageProcessor;
 import com.sixpack.dorundorun.infra.redis.stream.dto.RedisStreamMessage;
 import com.sixpack.dorundorun.infra.redis.stream.util.RedisStreamMessageMapper;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.PendingMessage;
@@ -29,22 +31,22 @@ public class RedisStreamRecovery {
 
 	public void reprocessPending(long minIdleMs, long count) {
 		PendingMessagesSummary summary = redisTemplate.opsForStream()
-				.pending(properties.key(), properties.group());
+			.pending(properties.key(), properties.group());
 
 		if (summary == null || summary.getTotalPendingMessages() == 0) {
 			return;
 		}
 
 		log.info("Pending messages: total={}, minId={}, maxId={}",
-				summary.getTotalPendingMessages(),
-				summary.minMessageId(),
-				summary.maxMessageId());
+			summary.getTotalPendingMessages(),
+			summary.minMessageId(),
+			summary.maxMessageId());
 
 		PendingMessages pending = redisTemplate.opsForStream().pending(
-				properties.key(),
-				properties.group(),
-				Range.unbounded(),
-				count
+			properties.key(),
+			properties.group(),
+			Range.unbounded(),
+			count
 		);
 
 		for (PendingMessage pm : pending) {
@@ -53,11 +55,11 @@ public class RedisStreamRecovery {
 			}
 
 			List<MapRecord<String, Object, Object>> claimed = redisTemplate.opsForStream().claim(
-					properties.key(),
-					properties.group(),
-					properties.consumerName(),
-					Duration.ofMillis(minIdleMs),
-					pm.getId()
+				properties.key(),
+				properties.group(),
+				properties.consumerName(),
+				Duration.ofMillis(minIdleMs),
+				pm.getId()
 			);
 
 			for (MapRecord<String, Object, Object> record : claimed) {

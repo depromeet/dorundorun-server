@@ -9,6 +9,7 @@ import com.sixpack.dorundorun.infra.redis.stream.event.RedisStreamEventType;
 import com.sixpack.dorundorun.infra.redis.stream.handler.RedisStreamEventHandlerRegistry;
 import com.sixpack.dorundorun.infra.redis.stream.publisher.RedisStreamPublisher;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Range;
@@ -125,7 +126,7 @@ public class RedisStreamTest extends ServiceTest {
 		assertEquals(1L, streamLength);
 
 		List<MapRecord<String, Object, Object>> messages =
-				redisTemplate.opsForStream().range(properties.key(), Range.unbounded());
+			redisTemplate.opsForStream().range(properties.key(), Range.unbounded());
 		assertFalse(messages.isEmpty());
 		assertThat(messages.get(0).getValue()).containsKey("payload");
 	}
@@ -189,7 +190,7 @@ public class RedisStreamTest extends ServiceTest {
 		assertNotNull(recordId);
 		await().atMost(Duration.ofSeconds(3)).until(() -> {
 			PendingMessagesSummary summary = redisTemplate.opsForStream()
-					.pending(properties.key(), properties.group());
+				.pending(properties.key(), properties.group());
 			return summary.getTotalPendingMessages() == 0;
 		});
 	}
@@ -213,7 +214,7 @@ public class RedisStreamTest extends ServiceTest {
 		// then
 		await().atMost(Duration.ofSeconds(5)).until(() -> {
 			PendingMessagesSummary summary = redisTemplate.opsForStream()
-					.pending(properties.key(), properties.group());
+				.pending(properties.key(), properties.group());
 			return summary.getTotalPendingMessages() == 0;
 		});
 
@@ -229,12 +230,12 @@ public class RedisStreamTest extends ServiceTest {
 		LocalDateTime now = LocalDateTime.now();
 		TestRedisStreamEvent event = new TestRedisStreamEvent("serialTest");
 		RedisStreamMessage original = RedisStreamMessage.builder()
-				.id("test-id-123")
-				.type(event.type())
-				.payload(event)
-				.timestamp(now)
-				.source("test-source")
-				.build();
+			.id("test-id-123")
+			.type(event.type())
+			.payload(event)
+			.timestamp(now)
+			.source("test-source")
+			.build();
 
 		// when
 		String json = objectMapper.writeValueAsString(original);
@@ -260,9 +261,9 @@ public class RedisStreamTest extends ServiceTest {
 
 		// when
 		List<MapRecord<String, Object, Object>> records = redisTemplate.opsForStream().read(
-				Consumer.from(properties.group(), "temp-consumer"),
-				StreamReadOptions.empty().count(1),
-				StreamOffset.create(properties.key(), ReadOffset.lastConsumed())
+			Consumer.from(properties.group(), "temp-consumer"),
+			StreamReadOptions.empty().count(1),
+			StreamOffset.create(properties.key(), ReadOffset.lastConsumed())
 		);
 
 		// then
@@ -270,7 +271,7 @@ public class RedisStreamTest extends ServiceTest {
 		assertEquals(recordId.getValue(), records.get(0).getId().getValue());
 
 		PendingMessagesSummary summary = redisTemplate.opsForStream()
-				.pending(properties.key(), properties.group());
+			.pending(properties.key(), properties.group());
 		assertEquals(1L, summary.getTotalPendingMessages());
 	}
 
@@ -286,22 +287,22 @@ public class RedisStreamTest extends ServiceTest {
 		// when
 		await().atMost(Duration.ofSeconds(3)).until(() -> {
 			PendingMessagesSummary summary = redisTemplate.opsForStream()
-					.pending(properties.key(), properties.group());
+				.pending(properties.key(), properties.group());
 			return summary.getTotalPendingMessages() == 0;
 		});
 
 		// then
 		StreamInfo.XInfoGroups groups = redisTemplate.opsForStream().groups(properties.key());
 		StreamInfo.XInfoConsumers consumers = redisTemplate.opsForStream()
-				.consumers(properties.key(), properties.group());
+			.consumers(properties.key(), properties.group());
 
 		assertNotNull(groups);
 		assertFalse(groups.isEmpty());
 
 		StreamInfo.XInfoGroup groupInfo = groups.stream()
-				.filter(g -> g.groupName().equals(properties.group()))
-				.findFirst()
-				.orElseThrow();
+			.filter(g -> g.groupName().equals(properties.group()))
+			.findFirst()
+			.orElseThrow();
 
 		assertEquals(properties.group(), groupInfo.groupName());
 		assertNotNull(groupInfo.lastDeliveredId());
