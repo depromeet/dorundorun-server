@@ -45,3 +45,25 @@ jobs:
             echo "[5] 미사용 이미지 정리"
             sudo docker image prune -f
             echo "✅ 배포 완료"
+
+      - name: Notify Slack of CD Result
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          BRANCH="${{ github.ref_name }}"
+          AUTHOR="${{ github.actor }}"
+          COMMIT_SHA="${{ github.sha }}"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          if [ "${STATUS}" = "success" ]; then
+            ICON="✅"
+            MESSAGE="CD Pipeline 성공"
+          else
+            ICON="❌"
+            MESSAGE="CD Pipeline 실패"
+          fi
+
+          curl -X POST \
+               -H 'Content-Type: application/json' \
+               --data "{\"text\": \"${ICON} ${MESSAGE}\\n브랜치: ${BRANCH}\\n작성자: ${AUTHOR}\\n커밋: ${COMMIT_SHA}\\n로그: ${RUN_URL}\"}" \
+               ${{ secrets.SLACK_WEBHOOK_URL_FOR_CICD }}

@@ -51,3 +51,25 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/sixpack:latest
+
+      - name: Notify Slack of CI Result
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          BRANCH="${{ github.ref_name }}"
+          AUTHOR="${{ github.actor }}"
+          COMMIT_SHA="${{ github.sha }}"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          if [ "${STATUS}" = "success" ]; then
+            ICON="✅"
+            MESSAGE="CI Pipeline 성공"
+          else
+            ICON="❌"
+            MESSAGE="CI Pipeline 실패"
+          fi
+
+          curl -X POST \
+               -H 'Content-Type: application/json' \
+               --data "{\"text\": \"${ICON} ${MESSAGE}\\n브랜치: ${BRANCH}\\n작성자: ${AUTHOR}\\n커밋: ${COMMIT_SHA}\\n로그: ${RUN_URL}\"}" \
+               ${{ secrets.SLACK_WEBHOOK_URL_FOR_CICD }}
