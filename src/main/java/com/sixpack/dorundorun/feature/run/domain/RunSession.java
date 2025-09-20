@@ -41,57 +41,57 @@ public class RunSession extends BaseTimeEntity {
 	@Column(name = "finished_at")
 	private LocalDateTime finishedAt;
 
-	@Column(name = "total_distance")
-	private Long totalDistance;
+	@Column(name = "distance_total")
+	private Long distanceTotal;
 
-	@Column(name = "total_duration")
-	private Long totalDuration;
+	@Column(name = "duration_total")
+	private Long durationTotal;
 
-	@Column(name = "avg_pace")
-	private Double avgPace;
+	@Column(name = "pace_avg")
+	private Double paceAvg;
 
-	@Column(name = "max_pace")
-	private Long maxPace;
+	@Column(name = "pace_max")
+	private Long paceMax;
 
-	@Column(name = "max_pace_latitude")
-	private Double maxPaceLatitude;
+	@Column(name = "pace_max_latitude")
+	private Double paceMaxLatitude;
 
-	@Column(name = "max_pace_longitude")
-	private Double maxPaceLongitude;
+	@Column(name = "pace_max_longitude")
+	private Double paceMaxLongitude;
 
-	@Column(name = "avg_cadence")
-	private Integer avgCadence;
+	@Column(name = "cadence_avg")
+	private Integer cadenceAvg;
 
-	@Column(name = "max_cadence")
-	private Integer maxCadence;
+	@Column(name = "cadence_max")
+	private Integer cadenceMax;
 
 	@Column(name = "is_retry", nullable = false)
-	private boolean isRetry;
+	private boolean retry;
 
 	@Builder
 	public RunSession(GoalPlan goalPlan,
 		User user,
-		LocalDateTime clearedAt,
-		Long totalDistance,
-		Long totalDuration,
-		Double avgPace,
-		Long maxPace,
-		Double maxPaceLatitude,
-		Double maxPaceLongitude,
-		Integer avgCadence,
-		Integer maxCadence,
-		boolean isRetry) {
+		LocalDateTime finishedAt,
+		Long distanceTotal,
+		Long durationTotal,
+		Double paceAvg,
+		Long paceMax,
+		Double paceMaxLatitude,
+		Double paceMaxLongitude,
+		Integer cadenceAvg,
+		Integer cadenceMax,
+		boolean retry) {
 		this.goalPlan = goalPlan;
 		this.user = user;
-		this.finishedAt = clearedAt;
-		this.totalDistance = totalDistance;
-		this.totalDuration = totalDuration;
-		this.avgPace = avgPace;
-		this.maxPace = maxPace;
-		this.maxPaceLatitude = maxPaceLatitude;
-		this.maxPaceLongitude = maxPaceLongitude;
-		this.avgCadence = avgCadence;
-		this.maxCadence = maxCadence;
-		this.isRetry = isRetry;
+		this.finishedAt = finishedAt;
+		this.distanceTotal = distanceTotal;
+		this.durationTotal = durationTotal;
+		this.paceAvg = paceAvg;
+		this.paceMax = paceMax;
+		this.paceMaxLatitude = paceMaxLatitude;
+		this.paceMaxLongitude = paceMaxLongitude;
+		this.cadenceAvg = cadenceAvg;
+		this.cadenceMax = cadenceMax;
+		this.retry = retry;
 	}
 }
