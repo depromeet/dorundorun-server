@@ -38,8 +38,8 @@ public class RunSession extends BaseTimeEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	@Column(name = "cleared_at")
-	private LocalDateTime clearedAt;
+	@Column(name = "finished_at")
+	private LocalDateTime finishedAt;
 
 	@Column(name = "total_distance")
 	private Long totalDistance;
@@ -48,7 +48,16 @@ public class RunSession extends BaseTimeEntity {
 	private Long totalDuration;
 
 	@Column(name = "avg_pace")
-	private Long avgPace;
+	private Double avgPace;
+
+	@Column(name = "max_pace")
+	private Long maxPace;
+
+	@Column(name = "max_pace_latitude")
+	private Double maxPaceLatitude;
+
+	@Column(name = "max_pace_longitude")
+	private Double maxPaceLongitude;
 
 	@Column(name = "avg_cadence")
 	private Integer avgCadence;
@@ -56,15 +65,33 @@ public class RunSession extends BaseTimeEntity {
 	@Column(name = "max_cadence")
 	private Integer maxCadence;
 
+	@Column(name = "is_retry", nullable = false)
+	private boolean isRetry;
+
 	@Builder
-	public RunSession(GoalPlan goalPlan, User user, Long totalDistance, Long totalDuration,
-		Long avgPace, Integer avgCadence, Integer maxCadence) {
+	public RunSession(GoalPlan goalPlan,
+		User user,
+		LocalDateTime clearedAt,
+		Long totalDistance,
+		Long totalDuration,
+		Double avgPace,
+		Long maxPace,
+		Double maxPaceLatitude,
+		Double maxPaceLongitude,
+		Integer avgCadence,
+		Integer maxCadence,
+		boolean isRetry) {
 		this.goalPlan = goalPlan;
 		this.user = user;
+		this.finishedAt = clearedAt;
 		this.totalDistance = totalDistance;
 		this.totalDuration = totalDuration;
 		this.avgPace = avgPace;
+		this.maxPace = maxPace;
+		this.maxPaceLatitude = maxPaceLatitude;
+		this.maxPaceLongitude = maxPaceLongitude;
 		this.avgCadence = avgCadence;
 		this.maxCadence = maxCadence;
+		this.isRetry = isRetry;
 	}
 }

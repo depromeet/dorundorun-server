@@ -35,11 +35,11 @@ public class GoalPlan extends BaseTimeEntity {
 	@Column(name = "cleared_at")
 	private LocalDateTime clearedAt;
 
-	@Column(name = "distance", nullable = false)
-	private Long distance;
-
 	@Column(name = "pace", nullable = false)
 	private Long pace;
+
+	@Column(name = "distance", nullable = false)
+	private Long distance;
 
 	@Column(name = "duration", nullable = false)
 	private Long duration;
@@ -48,10 +48,16 @@ public class GoalPlan extends BaseTimeEntity {
 	private Integer roundCount;
 
 	@Builder
-	public GoalPlan(Goal goal, Long distance, Long pace, Long duration, Integer roundCount) {
+	public GoalPlan(Goal goal,
+		LocalDateTime clearedAt,
+		Long pace,
+		Long distance,
+		Long duration,
+		Integer roundCount) {
 		this.goal = goal;
-		this.distance = distance;
+		this.clearedAt = clearedAt;
 		this.pace = pace;
+		this.distance = distance;
 		this.duration = duration;
 		this.roundCount = roundCount;
 	}

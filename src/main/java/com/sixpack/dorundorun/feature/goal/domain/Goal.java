@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.sixpack.dorundorun.feature.common.model.BaseTimeEntity;
-import com.sixpack.dorundorun.feature.run.GoalRepeatType;
 import com.sixpack.dorundorun.feature.user.domain.User;
 
 import jakarta.persistence.Column;
@@ -40,11 +39,8 @@ public class Goal extends BaseTimeEntity {
 	@Column(name = "title", nullable = false)
 	private String title;
 
-	@Column(name = "started_at", nullable = false)
-	private LocalDate startedAt;
-
-	@Column(name = "ended_at", nullable = false)
-	private LocalDate endedAt;
+	@Column(name = "paused_at")
+	private LocalDateTime pausedAt;
 
 	@Column(name = "cleared_at")
 	private LocalDateTime clearedAt;
@@ -58,24 +54,32 @@ public class Goal extends BaseTimeEntity {
 	@Column(name = "duration")
 	private Long duration;
 
-	@Column(name = "repeat_type", nullable = false)
-	@Enumerated(EnumType.STRING)
-	private GoalRepeatType repeatType;
+	@Column(name = "total_round_count", nullable = false)
+	private Integer totalRoundCount;
 
-	@Column(name = "repeat_frequency", nullable = false)
-	private Integer repeatFrequency;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "type", nullable = false, length = 32)
+	private GoalType type;
 
 	@Builder
-	public Goal(User user, String title, LocalDate startedAt, LocalDate endedAt,
-		Long pace, Long distance, Long duration, GoalRepeatType repeatType, Integer repeatFrequency) {
+	public Goal(User user,
+		String title,
+		LocalDate endedAt,
+		LocalDateTime pausedAt,
+		LocalDateTime clearedAt,
+		Long pace,
+		Long distance,
+		Long duration,
+		Integer totalRoundCount,
+		GoalType type) {
 		this.user = user;
 		this.title = title;
-		this.startedAt = startedAt;
-		this.endedAt = endedAt;
+		this.pausedAt = pausedAt;
+		this.clearedAt = clearedAt;
 		this.pace = pace;
 		this.distance = distance;
 		this.duration = duration;
-		this.repeatType = repeatType;
-		this.repeatFrequency = repeatFrequency;
+		this.totalRoundCount = totalRoundCount;
+		this.type = type;
 	}
 }
