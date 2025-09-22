@@ -18,6 +18,7 @@ import com.sixpack.dorundorun.feature.run.domain.RunSegmentData;
 import com.sixpack.dorundorun.feature.run.domain.RunSegmentInfo;
 import com.sixpack.dorundorun.feature.run.domain.RunSession;
 import com.sixpack.dorundorun.feature.user.dao.UserJpaRepository;
+import com.sixpack.dorundorun.feature.user.domain.RunningLevel;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.repository.RepositoryTest;
 
@@ -43,17 +44,17 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 			.email("test@example.com")
 			.password("password123")
 			.nickname("테스터")
-			.runningLevel("BEGINNER")
+			.runningLevel(RunningLevel.BEGINNER)
 			.build();
 		testUser = userRepository.save(testUser);
 
 		testRunSession = RunSession.builder()
 			.user(testUser)
-			.totalDistance(5000L)
-			.totalDuration(1800L)
-			.avgPace(360L)
-			.avgCadence(180)
-			.maxCadence(200)
+			.distanceTotal(5000L)
+			.durationTotal(1800L)
+			.paceAvg(360.0)
+			.cadenceAvg(180)
+			.cadenceMax(200)
 			.build();
 		testRunSession = runSessionRepository.save(testRunSession);
 
@@ -221,7 +222,7 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 		assertThat(savedRunSegment.getRunSession()).isNotNull();
 		assertThat(savedRunSegment.getRunSession().getId()).isEqualTo(testRunSession.getId());
 		assertThat(savedRunSegment.getRunSession().getUser().getEmail()).isEqualTo("test@example.com");
-		assertThat(savedRunSegment.getRunSession().getTotalDistance()).isEqualTo(5000L);
+		assertThat(savedRunSegment.getRunSession().getDistanceTotal()).isEqualTo(5000L);
 	}
 
 	@Test
