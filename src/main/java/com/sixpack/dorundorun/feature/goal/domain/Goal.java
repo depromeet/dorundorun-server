@@ -1,6 +1,5 @@
 package com.sixpack.dorundorun.feature.goal.domain;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.sixpack.dorundorun.feature.common.model.BaseTimeEntity;
@@ -39,6 +38,9 @@ public class Goal extends BaseTimeEntity {
 	@Column(name = "title", nullable = false)
 	private String title;
 
+	@Column(name = "sub_title", nullable = false)
+	private String subTitle;
+
 	@Column(name = "paused_at")
 	private LocalDateTime pausedAt;
 
@@ -64,7 +66,7 @@ public class Goal extends BaseTimeEntity {
 	@Builder
 	public Goal(User user,
 		String title,
-		LocalDate endedAt,
+		String subTitle,
 		LocalDateTime pausedAt,
 		LocalDateTime clearedAt,
 		Long pace,
@@ -74,6 +76,7 @@ public class Goal extends BaseTimeEntity {
 		GoalType type) {
 		this.user = user;
 		this.title = title;
+		this.subTitle = subTitle;
 		this.pausedAt = pausedAt;
 		this.clearedAt = clearedAt;
 		this.pace = pace;
