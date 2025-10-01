@@ -40,7 +40,7 @@ public class User extends BaseTimeEntity {
 	private String nickname;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "running_level", nullable = false)
+	@Column(name = "running_level")
 	private RunningLevel runningLevel;
 
 	@Column(name = "marketing_consent_at")
