@@ -51,3 +51,12 @@ redis:
     pollTimeoutMs: 100
     recovery:
       enabled: false
+
+aws:
+  s3:
+    access-key: test
+    secret-key: test
+    region: ap-northeast-2
+    bucket-name: sixpack-test-s3
+    signature-duration-day: 2
+    max-file-size-mb: 10

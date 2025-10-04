@@ -40,6 +40,10 @@ dependencies {
     // Slack
     implementation 'com.slack.api:slack-api-client:1.43.0'
 
+    // AWS SDK v2
+    implementation platform('software.amazon.awssdk:bom:2.21.29')
+    implementation 'software.amazon.awssdk:s3'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
