@@ -36,9 +36,39 @@ jobs:
       - name: Grant execute permission for Gradle Wrapper
         run: chmod +x ./gradlew
 
-      - name: Build the Project
-        run: ./gradlew clean build test
+      - name: Build and Test
+        run: ./gradlew clean build test --no-daemon
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image (without push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sixpack:pr-${{ github.event.pull_request.number }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/sixpack:buildcache
+          load: true
+
+      - name: Test Docker image
+        run: |
+          docker run --rm -d --name test-container \
+            -e SPRING_PROFILES_ACTIVE=prod \
+            ${{ secrets.DOCKERHUB_USERNAME }}/sixpack:pr-${{ github.event.pull_request.number }}
+          
+          echo "컨테이너 시작 대기 중..."
+          sleep 30
+          
+          if docker ps | grep test-container; then
+            echo "✅ Docker 컨테이너 정상 실행"
+            docker logs test-container --tail 50
+            docker stop test-container
+          else
+            echo "❌ Docker 컨테이너 실행 실패"
+            docker logs test-container
+            exit 1
+          fi
 
       - name: Notify Slack of CI Result
         if: always()
@@ -48,13 +78,14 @@ jobs:
           AUTHOR="${{ github.actor }}"
           COMMIT_SHA="${{ github.sha }}"
           RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
 
           if [ "${STATUS}" = "success" ]; then
             ICON="✅"
-            MESSAGE="CI Pipeline 성공"
+            MESSAGE="CI Pipeline 성공 (PR #${PR_NUMBER})"
           else
             ICON="❌"
-            MESSAGE="CI Pipeline 실패"
+            MESSAGE="CI Pipeline 실패 (PR #${PR_NUMBER})"
           fi
 
           curl -X POST \
