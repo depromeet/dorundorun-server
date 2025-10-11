@@ -56,6 +56,7 @@ jobs:
               --name "${APP}" \
               --restart unless-stopped \
               --network=signoz-net \
+              -e SPRING_PROFILES_ACTIVE=prod \
               "${IMAGE}"
 
             echo "[5] 미사용 이미지 정리"
