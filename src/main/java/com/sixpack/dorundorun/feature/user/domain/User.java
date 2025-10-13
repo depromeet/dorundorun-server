@@ -6,8 +6,6 @@ import com.sixpack.dorundorun.feature.common.model.BaseTimeEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,21 +25,8 @@ public class User extends BaseTimeEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "name", nullable = false)
-	private String name;
-
-	@Column(name = "email", nullable = false, unique = true)
-	private String email;
-
-	@Column(name = "password", nullable = false)
-	private String password;
-
 	@Column(name = "nickname", nullable = false)
 	private String nickname;
-
-	@Enumerated(EnumType.STRING)
-	@Column(name = "running_level")
-	private RunningLevel runningLevel;
 
 	@Column(name = "marketing_consent_at")
 	private LocalDateTime marketingConsentAt;
@@ -52,37 +37,29 @@ public class User extends BaseTimeEntity {
 	@Column(name = "personal_consent_at")
 	private LocalDateTime personalConsentAt;
 
-	@Column(name = "height")
-	private Integer height;
+	@Column(name = "device_token", nullable = false)
+	private String deviceToken;
 
-	@Column(name = "weight")
-	private Integer weight;
+	@Column(name = "alarm_consent_at")
+	private LocalDateTime alarmConsentAt;
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 
 	@Builder
-	public User(String name,
-		String email,
-		String password,
-		String nickname,
-		RunningLevel runningLevel,
+	public User(String nickname,
 		LocalDateTime marketingConsentAt,
 		LocalDateTime locationConsentAt,
 		LocalDateTime personalConsentAt,
-		Integer height,
-		Integer weight,
+		String deviceToken,
+		LocalDateTime alarmConsentAt,
 		LocalDateTime deletedAt) {
-		this.name = name;
-		this.email = email;
-		this.password = password;
 		this.nickname = nickname;
-		this.runningLevel = runningLevel;
 		this.marketingConsentAt = marketingConsentAt;
 		this.locationConsentAt = locationConsentAt;
 		this.personalConsentAt = personalConsentAt;
-		this.height = height;
-		this.weight = weight;
+		this.deviceToken = deviceToken;
+		this.alarmConsentAt = alarmConsentAt;
 		this.deletedAt = deletedAt;
 	}
 }
