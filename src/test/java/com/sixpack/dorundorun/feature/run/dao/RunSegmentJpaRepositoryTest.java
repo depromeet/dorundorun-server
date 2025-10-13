@@ -18,7 +18,6 @@ import com.sixpack.dorundorun.feature.run.domain.RunSegmentData;
 import com.sixpack.dorundorun.feature.run.domain.RunSegmentInfo;
 import com.sixpack.dorundorun.feature.run.domain.RunSession;
 import com.sixpack.dorundorun.feature.user.dao.UserJpaRepository;
-import com.sixpack.dorundorun.feature.user.domain.RunningLevel;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.repository.RepositoryTest;
 
@@ -40,11 +39,9 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 	@BeforeEach
 	void setUp() {
 		testUser = User.builder()
-			.name("테스트사용자")
-			.email("test@example.com")
-			.password("password123")
 			.nickname("테스터")
-			.runningLevel(RunningLevel.BEGINNER)
+			.deviceToken("test-device-token-123")
+			.personalConsentAt(LocalDateTime.now())
 			.build();
 		testUser = userRepository.save(testUser);
 
@@ -55,6 +52,7 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 			.paceAvg(360.0)
 			.cadenceAvg(180)
 			.cadenceMax(200)
+			.retry(false)
 			.build();
 		testRunSession = runSessionRepository.save(testRunSession);
 
@@ -105,7 +103,8 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 		assertThat(foundRunSegment).isPresent();
 		assertThat(foundRunSegment.get().getData().segments()).hasSize(3);
 		assertThat(foundRunSegment.get().getData().segments().get(1).longitude()).isEqualTo(127.123457);
-		assertThat(foundRunSegment.get().getRunSession().getUser().getEmail()).isEqualTo("test@example.com");
+		assertThat(foundRunSegment.get().getRunSession().getUser().getNickname()).isEqualTo("테스터");
+		assertThat(foundRunSegment.get().getRunSession().getUser().getDeviceToken()).isEqualTo("test-device-token-123");
 	}
 
 	@Test
@@ -221,7 +220,8 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 		// then
 		assertThat(savedRunSegment.getRunSession()).isNotNull();
 		assertThat(savedRunSegment.getRunSession().getId()).isEqualTo(testRunSession.getId());
-		assertThat(savedRunSegment.getRunSession().getUser().getEmail()).isEqualTo("test@example.com");
+		assertThat(savedRunSegment.getRunSession().getUser().getNickname()).isEqualTo("테스터");
+		assertThat(savedRunSegment.getRunSession().getUser().getDeviceToken()).isEqualTo("test-device-token-123");
 		assertThat(savedRunSegment.getRunSession().getDistanceTotal()).isEqualTo(5000L);
 	}
 
