@@ -3,7 +3,6 @@ package com.sixpack.dorundorun.feature.run.domain;
 import java.time.LocalDateTime;
 
 import com.sixpack.dorundorun.feature.common.model.BaseTimeEntity;
-import com.sixpack.dorundorun.feature.goal.domain.GoalPlan;
 import com.sixpack.dorundorun.feature.user.domain.User;
 
 import jakarta.persistence.Column;
@@ -29,10 +28,6 @@ public class RunSession extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "goal_plan_id")
-	private GoalPlan goalPlan;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
@@ -69,8 +64,7 @@ public class RunSession extends BaseTimeEntity {
 	private boolean retry;
 
 	@Builder
-	public RunSession(GoalPlan goalPlan,
-		User user,
+	public RunSession(User user,
 		LocalDateTime finishedAt,
 		Long distanceTotal,
 		Long durationTotal,
@@ -81,7 +75,6 @@ public class RunSession extends BaseTimeEntity {
 		Integer cadenceAvg,
 		Integer cadenceMax,
 		boolean retry) {
-		this.goalPlan = goalPlan;
 		this.user = user;
 		this.finishedAt = finishedAt;
 		this.distanceTotal = distanceTotal;
