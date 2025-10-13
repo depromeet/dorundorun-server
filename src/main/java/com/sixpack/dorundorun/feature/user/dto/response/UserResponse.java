@@ -9,13 +9,17 @@ public record UserResponse(
 	@Schema(description = "사용자 ID", example = "1")
 	Long id,
 
-	@Schema(description = "사용자 이름", example = "홍길동")
-	String name,
+	@Schema(description = "사용자 닉네임", example = "러너123")
+	String nickname,
 
-	@Schema(description = "사용자 이메일", example = "user@example.com")
-	String email
+	@Schema(description = "디바이스 토큰", example = "device-token-xyz")
+	String deviceToken
 ) {
 	public static UserResponse of(User user) {
-		return new UserResponse(user.getId(), user.getName(), user.getEmail());
+		return new UserResponse(
+			user.getId(),
+			user.getNickname(),
+			user.getDeviceToken()
+		);
 	}
 }
