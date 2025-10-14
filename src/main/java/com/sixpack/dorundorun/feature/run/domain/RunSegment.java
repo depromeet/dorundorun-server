@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "run_segment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Getter
 public class RunSegment extends BaseTimeEntity {
 
@@ -36,10 +39,4 @@ public class RunSegment extends BaseTimeEntity {
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(name = "data", nullable = false, columnDefinition = "json")
 	private RunSegmentInfo data;
-
-	@Builder
-	public RunSegment(RunSession runSession, RunSegmentInfo data) {
-		this.runSession = runSession;
-		this.data = data;
-	}
 }

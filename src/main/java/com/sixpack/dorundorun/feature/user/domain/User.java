@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Getter
 public class User extends BaseTimeEntity {
 
@@ -45,21 +48,4 @@ public class User extends BaseTimeEntity {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
-
-	@Builder
-	public User(String nickname,
-		LocalDateTime marketingConsentAt,
-		LocalDateTime locationConsentAt,
-		LocalDateTime personalConsentAt,
-		String deviceToken,
-		LocalDateTime alarmConsentAt,
-		LocalDateTime deletedAt) {
-		this.nickname = nickname;
-		this.marketingConsentAt = marketingConsentAt;
-		this.locationConsentAt = locationConsentAt;
-		this.personalConsentAt = personalConsentAt;
-		this.deviceToken = deviceToken;
-		this.alarmConsentAt = alarmConsentAt;
-		this.deletedAt = deletedAt;
-	}
 }

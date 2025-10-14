@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "run_session")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Getter
 public class RunSession extends BaseTimeEntity {
 
@@ -62,29 +65,4 @@ public class RunSession extends BaseTimeEntity {
 
 	@Column(name = "is_retry", nullable = false)
 	private boolean retry;
-
-	@Builder
-	public RunSession(User user,
-		LocalDateTime finishedAt,
-		Long distanceTotal,
-		Long durationTotal,
-		Double paceAvg,
-		Long paceMax,
-		Double paceMaxLatitude,
-		Double paceMaxLongitude,
-		Integer cadenceAvg,
-		Integer cadenceMax,
-		boolean retry) {
-		this.user = user;
-		this.finishedAt = finishedAt;
-		this.distanceTotal = distanceTotal;
-		this.durationTotal = durationTotal;
-		this.paceAvg = paceAvg;
-		this.paceMax = paceMax;
-		this.paceMaxLatitude = paceMaxLatitude;
-		this.paceMaxLongitude = paceMaxLongitude;
-		this.cadenceAvg = cadenceAvg;
-		this.cadenceMax = cadenceMax;
-		this.retry = retry;
-	}
 }

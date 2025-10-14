@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "friend")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Getter
 public class Friend extends BaseTimeEntity {
 
@@ -39,11 +42,4 @@ public class Friend extends BaseTimeEntity {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
-
-	@Builder
-	public Friend(User user, User friend, LocalDateTime deletedAt) {
-		this.user = user;
-		this.friend = friend;
-		this.deletedAt = deletedAt;
-	}
 }
