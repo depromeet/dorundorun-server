@@ -16,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "notification")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Getter
 public class Notification extends BaseTimeEntity {
 
@@ -47,17 +50,4 @@ public class Notification extends BaseTimeEntity {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
-
-	@Builder
-	public Notification(String userDeviceToken,
-		NotificationType type,
-		NotificationTrigger trigger,
-		NotificationData data,
-		LocalDateTime deletedAt) {
-		this.userDeviceToken = userDeviceToken;
-		this.type = type;
-		this.trigger = trigger;
-		this.data = data;
-		this.deletedAt = deletedAt;
-	}
 }

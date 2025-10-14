@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "reaction")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Getter
 public class Reaction extends BaseTimeEntity {
 
@@ -45,12 +48,4 @@ public class Reaction extends BaseTimeEntity {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
-
-	@Builder
-	public Reaction(User user, Feed feed, EmojiType emojiType, LocalDateTime deletedAt) {
-		this.user = user;
-		this.feed = feed;
-		this.emojiType = emojiType;
-		this.deletedAt = deletedAt;
-	}
 }

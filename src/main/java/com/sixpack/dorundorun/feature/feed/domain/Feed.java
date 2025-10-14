@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "feed")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Getter
 public class Feed extends BaseTimeEntity {
 
@@ -49,19 +52,4 @@ public class Feed extends BaseTimeEntity {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
-
-	@Builder
-	public Feed(User user,
-		RunSession runSession,
-		String mapImage,
-		String selfieImage,
-		String content,
-		LocalDateTime deletedAt) {
-		this.user = user;
-		this.runSession = runSession;
-		this.mapImage = mapImage;
-		this.selfieImage = selfieImage;
-		this.content = content;
-		this.deletedAt = deletedAt;
-	}
 }
