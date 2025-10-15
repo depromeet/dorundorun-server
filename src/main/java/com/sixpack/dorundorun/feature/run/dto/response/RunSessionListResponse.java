@@ -1,0 +1,36 @@
+package com.sixpack.dorundorun.feature.run.dto.response;
+
+import java.time.LocalDateTime;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "러닝 세션 목록 조회 응답 DTO")
+public record RunSessionListResponse(
+	@Schema(description = "세션 ID", example = "1")
+	Long runSessionId,
+
+	@Schema(description = "생성 일시", example = "2024-01-15T09:00:00Z")
+	LocalDateTime createdAt,
+
+	@Schema(description = "수정 일시", example = "2024-01-15T10:30:00Z")
+	LocalDateTime updatedAt,
+
+	@Schema(description = "완료 일시", example = "2024-01-15T10:30:00Z")
+	LocalDateTime finishedAt,
+
+	@Schema(description = "총 거리 (m)", example = "5000")
+	Long distanceTotal,
+
+	@Schema(description = "총 시간 (초)", example = "1800")
+	Long durationTotal,
+
+	@Schema(description = "평균 페이스 (초/km)", example = "360")
+	Long paceAvg,
+
+	@Schema(description = "평균 케이던스 (걸음/분)", example = "170")
+	Integer cadenceAvg,
+
+	@Schema(description = "피드 인증 여부", example = "false")
+	Boolean isSefied
+) {
+}
