@@ -13,11 +13,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CompleteRunSessionService {
 
-	private final FindRunSessionByIdService findRunSessionByIdService;
+	private final FindRunSessionByIdAndUserIdService findRunSessionByIdAndUserIdService;
 
 	@Transactional
-	public RunSession complete(Long sessionId, CompleteRunRequest request) {
-		RunSession runSession = findRunSessionByIdService.find(sessionId);
+	public RunSession complete(Long sessionId, Long userId, CompleteRunRequest request) {
+		RunSession runSession = findRunSessionByIdAndUserIdService.find(sessionId, userId);
 
 		runSession.complete(
 			request.distance().total(),

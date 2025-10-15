@@ -10,9 +10,6 @@ public record SaveRunSegmentRequest(
 	List<SaveRunSegmentDataRequest> segments,
 
 	@Schema(description = "러닝 중지 여부", example = "false")
-	Boolean isStopped,
-
-	@Schema(description = "러닝 종료 여부", example = "false")
-	Boolean isEnded
+	Boolean isStopped
 ) {
 }
