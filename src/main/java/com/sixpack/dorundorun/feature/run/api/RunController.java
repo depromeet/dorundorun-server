@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sixpack.dorundorun.feature.run.application.CreateRunSessionService;
+import com.sixpack.dorundorun.feature.run.application.SaveRunSegmentService;
+import com.sixpack.dorundorun.feature.run.domain.RunSegment;
 import com.sixpack.dorundorun.feature.run.domain.RunSession;
 import com.sixpack.dorundorun.feature.run.dto.request.CompleteRunRequest;
 import com.sixpack.dorundorun.feature.run.dto.request.SaveRunSegmentRequest;
@@ -25,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class RunController implements RunApi {
 
 	private final CreateRunSessionService createRunSessionService;
+	private final SaveRunSegmentService saveRunSegmentService;
 
 	@PostMapping("/api/runs/sessions/start")
 	public DorunResponse<SaveRunSessionResponse> start(@CurrentUser User user) {
@@ -36,14 +39,13 @@ public class RunController implements RunApi {
 	@PostMapping("/api/runs/sessions/{sessionId}/segments")
 	public DorunResponse<SaveRunSegmentResponse> saveRunSegments(
 		@PathVariable Long sessionId,
-		@RequestHeader("X-User-Id") String userId,
+		@CurrentUser User user,
 		@Valid @RequestBody SaveRunSegmentRequest segmentData
 	) {
-		// TODO: 러닝 데이터 저장 로직 구현
-		// 임시 더미 데이터
+		RunSegment runSegment = saveRunSegmentService.save(sessionId, segmentData);
 		SaveRunSegmentResponse response = new SaveRunSegmentResponse(
-			456L,
-			5
+			runSegment.getId(),
+			runSegment.getData().segments().size()
 		);
 
 		return DorunResponse.created("러닝 데이터가 성공적으로 저장되었습니다.", response);
