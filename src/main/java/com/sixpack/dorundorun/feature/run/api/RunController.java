@@ -12,12 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sixpack.dorundorun.feature.run.application.CompleteRunSessionService;
 import com.sixpack.dorundorun.feature.run.application.CreateRunSessionService;
 import com.sixpack.dorundorun.feature.run.application.FindAllRunSessionsService;
+import com.sixpack.dorundorun.feature.run.application.FindRunSessionDetailService;
 import com.sixpack.dorundorun.feature.run.application.SaveRunSegmentService;
 import com.sixpack.dorundorun.feature.run.domain.RunSegment;
 import com.sixpack.dorundorun.feature.run.domain.RunSession;
 import com.sixpack.dorundorun.feature.run.dto.request.CompleteRunRequest;
 import com.sixpack.dorundorun.feature.run.dto.request.RunSessionListRequest;
 import com.sixpack.dorundorun.feature.run.dto.request.SaveRunSegmentRequest;
+import com.sixpack.dorundorun.feature.run.dto.response.RunSessionDetailResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.RunSessionListResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.RunSessionResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.SaveRunSegmentResponse;
@@ -37,6 +39,7 @@ public class RunController implements RunApi {
 	private final SaveRunSegmentService saveRunSegmentService;
 	private final CompleteRunSessionService completeRunSessionService;
 	private final FindAllRunSessionsService findRunSessionListService;
+	private final FindRunSessionDetailService findRunSessionDetailService;
 
 	@PostMapping("/api/runs/sessions/start")
 	public DorunResponse<SaveRunSessionResponse> start(@CurrentUser User user) {
@@ -51,7 +54,7 @@ public class RunController implements RunApi {
 		@CurrentUser User user,
 		@Valid @RequestBody SaveRunSegmentRequest segmentData
 	) {
-		RunSegment runSegment = saveRunSegmentService.save(sessionId, segmentData);
+		RunSegment runSegment = saveRunSegmentService.save(sessionId, user.getId(), segmentData);
 		SaveRunSegmentResponse response = new SaveRunSegmentResponse(
 			runSegment.getId(),
 			runSegment.getData().segments().size()
@@ -66,7 +69,7 @@ public class RunController implements RunApi {
 		@CurrentUser User user,
 		@Valid @RequestBody CompleteRunRequest request
 	) {
-		RunSession completedSession = completeRunSessionService.complete(sessionId, request);
+		RunSession completedSession = completeRunSessionService.complete(sessionId, user.getId(), request);
 		RunSessionResponse response = completeRunSessionService.toResponse(completedSession);
 
 		return DorunResponse.success("러닝 세션이 성공적으로 완료되었습니다.", response);
@@ -79,5 +82,14 @@ public class RunController implements RunApi {
 	) {
 		List<RunSessionListResponse> runSessions = findRunSessionListService.find(user.getId(), request);
 		return DorunResponse.success("러닝 기록 조회가 성공적으로 완료되었습니다.", runSessions);
+	}
+
+	@GetMapping("/api/runs/sessions/{sessionId}")
+	public DorunResponse<RunSessionDetailResponse> getRunSessionDetail(
+		@PathVariable Long sessionId,
+		@CurrentUser User user
+	) {
+		RunSessionDetailResponse runSessionDetail = findRunSessionDetailService.find(sessionId, user.getId());
+		return DorunResponse.success("러닝 상세 기록 조회가 성공적으로 완료되었습니다.", runSessionDetail);
 	}
 }

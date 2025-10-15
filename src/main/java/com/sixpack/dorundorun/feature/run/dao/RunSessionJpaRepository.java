@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.sixpack.dorundorun.feature.run.dao.projection.RunSessionDetailProjection;
 import com.sixpack.dorundorun.feature.run.dao.projection.RunSessionWithFeedProjection;
 import com.sixpack.dorundorun.feature.run.domain.RunSession;
 
@@ -44,5 +45,34 @@ public interface RunSessionJpaRepository extends JpaRepository<RunSession, Long>
 		@Param("userId") Long userId,
 		@Param("isSefied") Boolean isSefied,
 		@Param("startDateTime") LocalDateTime startDateTime
+	);
+
+	Optional<RunSession> findByIdAndUserId(Long id, Long userId);
+
+	@Query("""
+		SELECT rs.id as id,
+		       rs.createdAt as createdAt,
+		       rs.updatedAt as updatedAt,
+		       rs.finishedAt as finishedAt,
+		       rs.distanceTotal as distanceTotal,
+		       rs.durationTotal as durationTotal,
+		       rs.paceAvg as paceAvg,
+		       rs.paceMax as paceMax,
+		       rs.paceMaxLatitude as paceMaxLatitude,
+		       rs.paceMaxLongitude as paceMaxLongitude,
+		       rs.cadenceAvg as cadenceAvg,
+		       rs.cadenceMax as cadenceMax,
+		       f.id as feedId,
+		       f.mapImage as feedMapImage,
+		       f.selfieImage as feedSelfieImage,
+		       f.content as feedContent,
+		       f.createdAt as feedCreatedAt
+		FROM RunSession rs
+		LEFT JOIN Feed f ON rs.id = f.runSession.id AND f.deletedAt IS NULL
+		WHERE rs.id = :sessionId AND rs.user.id = :userId
+		""")
+	Optional<RunSessionDetailProjection> findDetailByIdAndUserId(
+		@Param("sessionId") Long sessionId, 
+		@Param("userId") Long userId
 	);
 }
