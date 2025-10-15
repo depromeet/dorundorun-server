@@ -41,7 +41,7 @@ public class Notification extends BaseTimeEntity {
 	private NotificationType type;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "trigger", nullable = false)
+	@Column(name = "setting", nullable = false)
 	private NotificationTrigger trigger;
 
 	@JdbcTypeCode(SqlTypes.JSON)
