@@ -62,7 +62,4 @@ public class RunSession extends BaseTimeEntity {
 
 	@Column(name = "cadence_max")
 	private Integer cadenceMax;
-
-	@Column(name = "is_retry", nullable = false)
-	private boolean retry;
 }

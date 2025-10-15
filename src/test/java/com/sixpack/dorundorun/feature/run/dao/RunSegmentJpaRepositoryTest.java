@@ -52,7 +52,6 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 			.paceAvg(360.0)
 			.cadenceAvg(180)
 			.cadenceMax(200)
-			.retry(false)
 			.build();
 		testRunSession = runSessionRepository.save(testRunSession);
 
