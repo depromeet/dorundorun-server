@@ -31,6 +31,9 @@ public class User extends BaseTimeEntity {
 	@Column(name = "nickname", nullable = false)
 	private String nickname;
 
+	@Column(name = "code", nullable = false)
+	private String code;
+
 	@Column(name = "marketing_consent_at")
 	private LocalDateTime marketingConsentAt;
 
