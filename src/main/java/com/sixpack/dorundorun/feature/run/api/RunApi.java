@@ -52,8 +52,7 @@ public interface RunApi {
 	DorunResponse<RunSessionResponse> completeRunSession(
 		@Parameter(description = "세션 ID", required = true)
 		@PathVariable Long sessionId,
-		@Parameter(description = "유저 ID", required = true)
-		@RequestHeader("X-User-Id") String userId,
-		@RequestBody CompleteRunRequest request
+		@Parameter(hidden = true) @CurrentUser User user,
+		@Valid @RequestBody CompleteRunRequest request
 	);
 }
