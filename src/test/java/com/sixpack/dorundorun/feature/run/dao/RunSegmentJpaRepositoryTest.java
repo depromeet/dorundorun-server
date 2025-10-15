@@ -49,7 +49,7 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 			.user(testUser)
 			.distanceTotal(5000L)
 			.durationTotal(1800L)
-			.paceAvg(360.0)
+			.paceAvg(360L)
 			.cadenceAvg(180)
 			.cadenceMax(200)
 			.build();
@@ -57,11 +57,11 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 
 		testSegmentData = Arrays.asList(
 			new RunSegmentData(LocalDateTime.of(2025, 9, 13, 10, 0, 0),
-				37.123456, 127.123456, 50.0, 100L, 350L, 15L, 175),
+				37.123456, 127.123456, 50.0, 100L, 350L, 15.0, 175),
 			new RunSegmentData(LocalDateTime.of(2025, 9, 13, 10, 0, 1),
-				37.123457, 127.123457, 51.0, 200L, 360L, 16L, 180),
+				37.123457, 127.123457, 51.0, 200L, 360L, 16.0, 180),
 			new RunSegmentData(LocalDateTime.of(2025, 9, 13, 10, 0, 2),
-				37.123458, 127.123458, 52.0, 300L, 370L, 17L, 185)
+				37.123458, 127.123458, 52.0, 300L, 370L, 17.0, 185)
 		);
 	}
 
@@ -112,9 +112,9 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 		// given
 		List<RunSegmentData> complexData = Arrays.asList(
 			new RunSegmentData(LocalDateTime.of(2025, 9, 13, 10, 0, 0),
-				null, 127.123456, null, 100L, 350L, 15L, null),
+				null, 127.123456, null, 100L, 350L, 15.0, null),
 			new RunSegmentData(LocalDateTime.of(2025, 9, 13, 10, 0, 1),
-				37.123457, 127.123457, 51.0, 200L, 360L, 16L, 180)
+				37.123457, 127.123457, 51.0, 200L, 360L, 16.0, 180)
 		);
 		RunSegmentInfo info = new RunSegmentInfo(complexData, false, false);
 
@@ -238,7 +238,7 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 				50.0 + i,
 				(long)(100 + i * 10),
 				(long)(350 + i),
-				(long)(15 + i),
+				(double)(15 + i),
 				175 + i
 			));
 		}
