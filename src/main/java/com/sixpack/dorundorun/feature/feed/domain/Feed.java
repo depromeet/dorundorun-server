@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import com.sixpack.dorundorun.feature.common.model.BaseTimeEntity;
 import com.sixpack.dorundorun.feature.run.domain.RunSession;
 import com.sixpack.dorundorun.feature.user.domain.User;
+import com.sixpack.dorundorun.global.utils.S3ImageUrlUtil;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -52,4 +53,12 @@ public class Feed extends BaseTimeEntity {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
+
+	public String getMapImageUrl() {
+		return S3ImageUrlUtil.getPresignedImageUrl(this.mapImage);
+	}
+
+	public String getSelfieImageUrl() {
+		return S3ImageUrlUtil.getPresignedImageUrl(this.selfieImage);
+	}
 }
