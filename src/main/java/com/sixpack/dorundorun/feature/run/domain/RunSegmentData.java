@@ -12,7 +12,7 @@ public record RunSegmentData(
 	Double altitude,
 	Long distance,
 	Long pace,
-	Long speed,
+	Double speed,
 	Integer cadence
 ) {
 }

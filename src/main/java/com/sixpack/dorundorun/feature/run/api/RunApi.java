@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @Tag(name = "[4. 달리기 관련]")
 
@@ -37,11 +38,9 @@ public interface RunApi {
 		@ApiResponse(responseCode = "404", description = "세션을 찾을 수 없음")
 	})
 	DorunResponse<SaveRunSegmentResponse> saveRunSegments(
-		@Parameter(description = "세션 ID", required = true)
 		@PathVariable Long sessionId,
-		@Parameter(description = "유저 ID", required = true)
-		@RequestHeader("X-User-Id") String userId,
-		@RequestBody SaveRunSegmentRequest segmentData
+		@Parameter(hidden = true) @CurrentUser User user,
+		@Valid @RequestBody SaveRunSegmentRequest segmentData
 	);
 
 	@Operation(summary = "러닝 종료", description = "러닝 세션을 완료하고 최종 데이터를 저장합니다.")

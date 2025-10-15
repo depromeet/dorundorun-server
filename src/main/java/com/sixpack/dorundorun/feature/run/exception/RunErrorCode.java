@@ -11,7 +11,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum RunErrorCode implements ErrorCode {
 
-	ALREADY_EXISTS_ACTIVE_RUN_SESSION(HttpStatus.BAD_REQUEST, "이미 진행중인 러닝이 존재합니다. [runSessionId: %s]");
+	ALREADY_EXISTS_ACTIVE_RUN_SESSION(HttpStatus.BAD_REQUEST, "이미 진행중인 러닝이 존재합니다. [runSessionId: %s]"),
+
+	NOT_FOUND_RUN_SESSION(HttpStatus.NOT_FOUND, "해당 러닝 세션을 찾을 수 없습니다. [runSessionId: %s]");
 
 	private final HttpStatus status;
 	private final String message;
