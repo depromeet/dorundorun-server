@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.sixpack.dorundorun.feature.run.dto.request.CompleteRunRequest;
 import com.sixpack.dorundorun.feature.run.dto.request.RunSessionListRequest;
 import com.sixpack.dorundorun.feature.run.dto.request.SaveRunSegmentRequest;
+import com.sixpack.dorundorun.feature.run.dto.response.RunSessionDetailResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.RunSessionListResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.RunSessionResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.SaveRunSegmentResponse;
@@ -69,5 +70,15 @@ public interface RunApi {
 	DorunResponse<List<RunSessionListResponse>> getRunSessions(
 		@Parameter(hidden = true) @CurrentUser User user,
 		@ParameterObject @ModelAttribute RunSessionListRequest request
+	);
+
+	@Operation(summary = "러닝 상세 기록 조회", description = "특정 러닝 세션의 상세 정보를 조회합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "러닝 상세 기록 조회 성공"),
+		@ApiResponse(responseCode = "404", description = "해당 러닝 세션을 찾을 수 없습니다.")
+	})
+	DorunResponse<RunSessionDetailResponse> getRunSessionDetail(
+		@Parameter(description = "세션 ID", required = true) @PathVariable Long sessionId,
+		@Parameter(hidden = true) @CurrentUser User user
 	);
 }

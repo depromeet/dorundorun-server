@@ -69,7 +69,7 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 	@DisplayName("RunSegment 저장 테스트")
 	void saveRunSegment() {
 		// given
-		RunSegmentInfo info = new RunSegmentInfo(testSegmentData, false, false);
+		RunSegmentInfo info = new RunSegmentInfo(testSegmentData, false);
 		RunSegment runSegment = RunSegment.builder()
 			.runSession(testRunSession)
 			.data(info)
@@ -90,7 +90,7 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 	@DisplayName("RunSegment ID로 조회 테스트")
 	void findRunSegmentById() {
 		// given
-		RunSegmentInfo info = new RunSegmentInfo(testSegmentData, false, false);
+		RunSegmentInfo info = new RunSegmentInfo(testSegmentData, false);
 		RunSegment savedRunSegment = runSegmentRepository.save(
 			RunSegment.builder().runSession(testRunSession).data(info).build()
 		);
@@ -116,7 +116,7 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 			new RunSegmentData(LocalDateTime.of(2025, 9, 13, 10, 0, 1),
 				37.123457, 127.123457, 51.0, 200L, 360L, 16.0, 180)
 		);
-		RunSegmentInfo info = new RunSegmentInfo(complexData, false, false);
+		RunSegmentInfo info = new RunSegmentInfo(complexData, false);
 
 		RunSegment runSegment = RunSegment.builder()
 			.runSession(testRunSession)
@@ -149,7 +149,7 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 	@DisplayName("빈 RunSegmentData 리스트 저장/조회 테스트")
 	void saveAndRetrieveEmptyDataList() {
 		// given
-		RunSegmentInfo info = new RunSegmentInfo(List.of(), false, false);
+		RunSegmentInfo info = new RunSegmentInfo(List.of(), false);
 		RunSegment runSegment = RunSegment.builder()
 			.runSession(testRunSession)
 			.data(info)
@@ -168,13 +168,13 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 	@DisplayName("RunSegment 업데이트 테스트")
 	void updateRunSegmentData() {
 		// given - 처음엔 1개만 저장
-		RunSegmentInfo initialInfo = new RunSegmentInfo(testSegmentData.subList(0, 1), false, false);
+		RunSegmentInfo initialInfo = new RunSegmentInfo(testSegmentData.subList(0, 1), false);
 		RunSegment savedRunSegment = runSegmentRepository.save(
 			RunSegment.builder().runSession(testRunSession).data(initialInfo).build()
 		);
 
 		// when - 3개로 업데이트
-		RunSegmentInfo updatedInfo = new RunSegmentInfo(testSegmentData, false, false);
+		RunSegmentInfo updatedInfo = new RunSegmentInfo(testSegmentData, false);
 		runSegmentRepository.deleteById(savedRunSegment.getId());
 		RunSegment newSavedRunSegment = runSegmentRepository.save(
 			RunSegment.builder().runSession(testRunSession).data(updatedInfo).build()
@@ -190,7 +190,7 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 	@DisplayName("RunSegment 삭제 테스트")
 	void deleteRunSegment() {
 		// given
-		RunSegmentInfo info = new RunSegmentInfo(testSegmentData, false, false);
+		RunSegmentInfo info = new RunSegmentInfo(testSegmentData, false);
 		RunSegment savedRunSegment = runSegmentRepository.save(
 			RunSegment.builder().runSession(testRunSession).data(info).build()
 		);
@@ -207,7 +207,7 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 	@DisplayName("RunSession과의 연관관계 테스트")
 	void testRunSessionRelationship() {
 		// given
-		RunSegmentInfo info = new RunSegmentInfo(testSegmentData, false, false);
+		RunSegmentInfo info = new RunSegmentInfo(testSegmentData, false);
 		RunSegment runSegment = RunSegment.builder()
 			.runSession(testRunSession)
 			.data(info)
@@ -242,7 +242,7 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 				175 + i
 			));
 		}
-		RunSegmentInfo info = new RunSegmentInfo(largeDataSet, false, false);
+		RunSegmentInfo info = new RunSegmentInfo(largeDataSet, false);
 
 		RunSegment runSegment = RunSegment.builder()
 			.runSession(testRunSession)
