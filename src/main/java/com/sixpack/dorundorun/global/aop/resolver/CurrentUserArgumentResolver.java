@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolver {
 
-	public static final String USER_ID_HEADER = "X-User-Id";
+	public static final String AUTHORIZATION_HEADER = "Authorization";
 
 	private final FindUserByIdService findUserByIdService;
 
@@ -39,19 +39,18 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
 
 		HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
 
-		// 헤더에서 userId 가져오기
-		// TODO: JWT 토큰에서 파싱하거나 세션에서 가져올 수 있음
-		String userIdHeader = request != null ? request.getHeader(USER_ID_HEADER) : null;
+		String authHeader = request != null ? request.getHeader(AUTHORIZATION_HEADER) : null;
 
-		if (!StringUtils.hasText(userIdHeader)) {
-			throw new IllegalArgumentException("User ID header is required");
+		if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer ")) {
+			throw new IllegalArgumentException("Authorization header with Bearer token is required");
 		}
 
 		try {
-			Long userId = Long.parseLong(userIdHeader);
+			String userIdToken = authHeader.substring(7);
+			Long userId = Long.parseLong(userIdToken);
 			return findUserByIdService.find(userId);
 		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Invalid User ID format", e);
+			throw new IllegalArgumentException("Invalid User ID format in Bearer token", e);
 		}
 	}
 }
