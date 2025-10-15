@@ -19,12 +19,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SaveRunSegmentService {
 
-	private final FindRunSessionByIdService findRunSessionByIdService;
+	private final FindRunSessionByIdAndUserIdService findRunSessionByIdAndUserIdService;
 	private final RunSegmentJpaRepository runSegmentJpaRepository;
 
 	@Transactional
-	public RunSegment save(Long sessionId, SaveRunSegmentRequest request) {
-		RunSession runSession = findRunSessionByIdService.find(sessionId);
+	public RunSegment save(Long sessionId, Long userId, SaveRunSegmentRequest request) {
+		RunSession runSession = findRunSessionByIdAndUserIdService.find(sessionId, userId);
 
 		RunSegmentInfo segmentInfo = convertToSegmentInfo(request);
 
@@ -43,8 +43,7 @@ public class SaveRunSegmentService {
 
 		return new RunSegmentInfo(
 			segments,
-			request.isStopped(),
-			request.isEnded()
+			request.isStopped()
 		);
 	}
 

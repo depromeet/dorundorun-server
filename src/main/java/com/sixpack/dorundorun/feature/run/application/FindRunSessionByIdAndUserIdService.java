@@ -11,13 +11,13 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class FindRunSessionByIdService {
+public class FindRunSessionByIdAndUserIdService {
 
 	private final RunSessionJpaRepository runSessionJpaRepository;
 
 	@Transactional(readOnly = true)
-	public RunSession find(Long sessionId) {
-		return runSessionJpaRepository.findById(sessionId)
+	public RunSession find(Long sessionId, Long userId) {
+		return runSessionJpaRepository.findByIdAndUserId(sessionId, userId)
 			.orElseThrow(() -> RunErrorCode.NOT_FOUND_RUN_SESSION.format(sessionId));
 	}
 }
