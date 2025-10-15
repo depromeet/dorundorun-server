@@ -20,5 +20,5 @@ public interface RunSessionWithFeedProjection {
 
 	Integer getCadenceAvg();
 
-	Boolean getIsSefied();
+	Boolean getIsSelfied();
 }

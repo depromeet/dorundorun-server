@@ -41,7 +41,7 @@ public class FindAllRunSessionsService {
 			projection.getDurationTotal(),
 			projection.getPaceAvg(),
 			projection.getCadenceAvg(),
-			projection.getIsSefied()
+			projection.getIsSelfied()
 		);
 	}
 }
