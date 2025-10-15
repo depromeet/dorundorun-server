@@ -20,9 +20,9 @@ public class FindAllRunSessionsService {
 
 	@Transactional(readOnly = true)
 	public List<RunSessionListResponse> find(Long userId, RunSessionListRequest request) {
-		List<RunSessionWithFeedProjection> results = runSessionJpaRepository.findAllBySefiedStatusAndStartDateTime(
+		List<RunSessionWithFeedProjection> results = runSessionJpaRepository.findAllBySelfiedStatusAndStartDateTime(
 			userId,
-			request.isSefied(),
+			request.isSelfied(),
 			request.startDateTime()
 		);
 

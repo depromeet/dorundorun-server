@@ -31,6 +31,6 @@ public record RunSessionListResponse(
 	Integer cadenceAvg,
 
 	@Schema(description = "피드 인증 여부", example = "false")
-	Boolean isSefied
+	Boolean isSelfied
 ) {
 }
