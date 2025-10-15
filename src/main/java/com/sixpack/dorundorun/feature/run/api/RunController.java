@@ -6,12 +6,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sixpack.dorundorun.feature.run.application.CreateRunSessionService;
+import com.sixpack.dorundorun.feature.run.domain.RunSession;
 import com.sixpack.dorundorun.feature.run.dto.request.CompleteRunRequest;
 import com.sixpack.dorundorun.feature.run.dto.request.SaveRunSegmentRequest;
-import com.sixpack.dorundorun.feature.run.dto.request.SaveRunSessionRequest;
 import com.sixpack.dorundorun.feature.run.dto.response.RunSessionResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.SaveRunSegmentResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.SaveRunSessionResponse;
+import com.sixpack.dorundorun.feature.user.domain.User;
+import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
 import com.sixpack.dorundorun.global.response.DorunResponse;
 
 import jakarta.validation.Valid;
@@ -21,14 +24,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RunController implements RunApi {
 
+	private final CreateRunSessionService createRunSessionService;
+
 	@PostMapping("/api/runs/sessions/start")
-	public DorunResponse<SaveRunSessionResponse> startRunSession(
-		@RequestHeader("X-User-Id") String userId,
-		@Valid @RequestBody SaveRunSessionRequest request
-	) {
-		// TODO: 러닝 세션 시작 로직 구현
-		// 임시 더미 데이터
-		SaveRunSessionResponse response = new SaveRunSessionResponse(123L);
+	public DorunResponse<SaveRunSessionResponse> start(@CurrentUser User user) {
+		RunSession runSession = createRunSessionService.create(user.getId());
+		SaveRunSessionResponse response = new SaveRunSessionResponse(runSession.getId());
 		return DorunResponse.success("러닝 세션이 성공적으로 시작되었습니다.", response);
 	}
 
