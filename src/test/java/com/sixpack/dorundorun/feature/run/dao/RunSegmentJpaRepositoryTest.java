@@ -40,6 +40,7 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 	void setUp() {
 		testUser = User.builder()
 			.nickname("테스터")
+			.code("testcode123")
 			.deviceToken("test-device-token-123")
 			.personalConsentAt(LocalDateTime.now())
 			.build();
