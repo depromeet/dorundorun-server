@@ -46,7 +46,7 @@ public class RunSession extends BaseTimeEntity {
 	private Long durationTotal;
 
 	@Column(name = "pace_avg")
-	private Double paceAvg;
+	private Long paceAvg;
 
 	@Column(name = "pace_max")
 	private Long paceMax;
@@ -62,4 +62,17 @@ public class RunSession extends BaseTimeEntity {
 
 	@Column(name = "cadence_max")
 	private Integer cadenceMax;
+
+	public void complete(Long distanceTotal, Long durationTotal, Long paceAvg, Long paceMax,
+		Double paceMaxLatitude, Double paceMaxLongitude, Integer cadenceAvg, Integer cadenceMax) {
+		this.finishedAt = LocalDateTime.now();
+		this.distanceTotal = distanceTotal;
+		this.durationTotal = durationTotal;
+		this.paceAvg = paceAvg;
+		this.paceMax = paceMax;
+		this.paceMaxLatitude = paceMaxLatitude;
+		this.paceMaxLongitude = paceMaxLongitude;
+		this.cadenceAvg = cadenceAvg;
+		this.cadenceMax = cadenceMax;
+	}
 }

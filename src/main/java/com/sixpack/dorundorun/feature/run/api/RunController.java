@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sixpack.dorundorun.feature.run.application.CompleteRunSessionService;
 import com.sixpack.dorundorun.feature.run.application.CreateRunSessionService;
 import com.sixpack.dorundorun.feature.run.application.SaveRunSegmentService;
 import com.sixpack.dorundorun.feature.run.domain.RunSegment;
@@ -28,6 +29,7 @@ public class RunController implements RunApi {
 
 	private final CreateRunSessionService createRunSessionService;
 	private final SaveRunSegmentService saveRunSegmentService;
+	private final CompleteRunSessionService completeRunSessionService;
 
 	@PostMapping("/api/runs/sessions/start")
 	public DorunResponse<SaveRunSessionResponse> start(@CurrentUser User user) {
@@ -54,23 +56,11 @@ public class RunController implements RunApi {
 	@PostMapping("/api/runs/sessions/{sessionId}/complete")
 	public DorunResponse<RunSessionResponse> completeRunSession(
 		@PathVariable Long sessionId,
-		@RequestHeader("X-User-Id") String userId,
+		@CurrentUser User user,
 		@Valid @RequestBody CompleteRunRequest request
 	) {
-		// TODO: 러닝 세션 완료 로직 구현
-		// 임시 더미 데이터
-		RunSessionResponse response = new RunSessionResponse(
-			sessionId,                                    // id
-			java.time.LocalDateTime.now().minusHours(1),  // createdAt
-			java.time.LocalDateTime.now(),                // updatedAt
-			1L,                                           // goalPlanId
-			java.time.LocalDateTime.now(),                // clearedAt (현재 완료)
-			5000L,                                        // totalDistance (5km)
-			1800L,                                        // totalDuration (30분)
-			360L,                                         // avgPace (6분/km)
-			170,                                          // avgCadence
-			185                                           // maxCadence
-		);
+		RunSession completedSession = completeRunSessionService.complete(sessionId, request);
+		RunSessionResponse response = completeRunSessionService.toResponse(completedSession);
 
 		return DorunResponse.success("러닝 세션이 성공적으로 완료되었습니다.", response);
 	}
