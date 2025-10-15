@@ -27,7 +27,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @Tag(name = "[4. 달리기 관련]")
-
 public interface RunApi {
 
 	@Operation(summary = "러닝 시작", description = "러닝 세션을 시작하고 세션아이디를 발급합니다.")

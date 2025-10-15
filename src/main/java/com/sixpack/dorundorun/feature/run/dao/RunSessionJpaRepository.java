@@ -25,7 +25,7 @@ public interface RunSessionJpaRepository extends JpaRepository<RunSession, Long>
 		       rs.durationTotal as durationTotal,
 		       rs.paceAvg as paceAvg,
 		       rs.cadenceAvg as cadenceAvg,
-		       CASE WHEN f.id IS NOT NULL THEN true ELSE false END as isSefied
+		       CASE WHEN f.id IS NOT NULL THEN true ELSE false END as isSelfied
 		FROM RunSession rs
 		LEFT JOIN Feed f ON rs.id = f.runSession.id AND f.deletedAt IS NULL
 		WHERE rs.user.id = :userId
@@ -35,15 +35,15 @@ public interface RunSessionJpaRepository extends JpaRepository<RunSession, Long>
 			 OR rs.createdAt >= :startDateTime
 		 )
 		 AND (
-			 :isSefied IS NULL
-			 OR(:isSefied = true AND f.id IS NOT NULL)
-		     OR (:isSefied = false AND f.id IS NULL)
+			 :isSelfied IS NULL
+			 OR(:isSelfied = true AND f.id IS NOT NULL)
+		     OR (:isSelfied = false AND f.id IS NULL)
 		 )
 		ORDER BY rs.createdAt DESC
 		""")
-	List<RunSessionWithFeedProjection> findAllBySefiedStatusAndStartDateTime(
+	List<RunSessionWithFeedProjection> findAllBySelfiedStatusAndStartDateTime(
 		@Param("userId") Long userId,
-		@Param("isSefied") Boolean isSefied,
+		@Param("isSelfied") Boolean isSelfied,
 		@Param("startDateTime") LocalDateTime startDateTime
 	);
 
@@ -72,7 +72,7 @@ public interface RunSessionJpaRepository extends JpaRepository<RunSession, Long>
 		WHERE rs.id = :sessionId AND rs.user.id = :userId
 		""")
 	Optional<RunSessionDetailProjection> findDetailByIdAndUserId(
-		@Param("sessionId") Long sessionId, 
+		@Param("sessionId") Long sessionId,
 		@Param("userId") Long userId
 	);
 }
