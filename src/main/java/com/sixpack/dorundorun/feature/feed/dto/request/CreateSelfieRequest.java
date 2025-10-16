@@ -2,17 +2,26 @@ package com.sixpack.dorundorun.feature.feed.dto.request;
 
 import java.time.LocalDateTime;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
-@Schema(description = "셀피 등록 요청")
+@Schema(description = "인증피드 등록 요청")
 public class CreateSelfieRequest {
+
+	@Schema(description = "인증 이미지 파일")
+	@NotNull(message = "이미지 파일은 필수입니다.")
+	private MultipartFile image;
 
 	@Schema(description = "인증 날짜", example = "2025-09-20")
 	@NotBlank(message = "인증 날짜는 필수입니다.")
@@ -20,6 +29,7 @@ public class CreateSelfieRequest {
 
 	@Schema(description = "인증 시간", example = "2025-09-20T23:58:00")
 	@NotNull(message = "인증 시간은 필수입니다.")
+	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
 	private LocalDateTime selfieTime;
 
 	@Schema(description = "총 달린 거리 (km)", example = "5.10")
@@ -41,18 +51,14 @@ public class CreateSelfieRequest {
 	@Positive(message = "케이던스는 양수여야 합니다.")
 	private Integer cadence;
 
-	@Schema(description = "셀피 이미지 URL", example = "https://example.com/images/selfie123.jpg")
-	@NotBlank(message = "이미지 URL은 필수입니다.")
-	private String imageUrl;
-
-	public CreateSelfieRequest(String date, LocalDateTime selfieTime, Double totalDistance, 
-							Integer totalTime, String averagePace, Integer cadence, String imageUrl) {
+	public CreateSelfieRequest(MultipartFile image, String date, LocalDateTime selfieTime,
+		Double totalDistance, Integer totalTime, String averagePace, Integer cadence) {
+		this.image = image;
 		this.date = date;
 		this.selfieTime = selfieTime;
 		this.totalDistance = totalDistance;
 		this.totalTime = totalTime;
 		this.averagePace = averagePace;
 		this.cadence = cadence;
-		this.imageUrl = imageUrl;
 	}
 }

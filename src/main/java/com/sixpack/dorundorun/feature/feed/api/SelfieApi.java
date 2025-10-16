@@ -50,7 +50,7 @@ public interface SelfieApi {
 	})
 	DorunResponse<Void> createFeed(
 		@Parameter(hidden = true) @CurrentUser User user,
-		@Valid @RequestBody CreateSelfieRequest request
+		@Valid @ModelAttribute CreateSelfieRequest request
 	);
 
 	@Operation(summary = "주차별 친구들의 인증수 조회",
