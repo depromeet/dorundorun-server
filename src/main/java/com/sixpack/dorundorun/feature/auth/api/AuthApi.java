@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "[1. 인증 관련]")
+@Tag(name = "[인증 관련]")
 public interface AuthApi {
 
 	@Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다.")

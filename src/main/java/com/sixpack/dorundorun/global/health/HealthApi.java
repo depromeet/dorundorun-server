@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name = "[0. 헬스체크]")
+@Tag(name = "[헬스체크]")
 @SecurityRequirements
 public interface HealthApi {
 
