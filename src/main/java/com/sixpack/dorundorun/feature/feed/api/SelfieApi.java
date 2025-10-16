@@ -25,34 +25,35 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "[셀피 관련]")
+@Tag(name = "[인증피드 관련]")
 public interface SelfieApi {
 
-	@Operation(summary = "[인증] 유저의 인증 목록 조회",
-		description = "특정 날짜(currentDate)를 기준으로 유저의 셀피(인증) 목록을 조회합니다. userId가 있으면 해당 유저의 페이지(내 페이지 또는 친구 페이지) 데이터 반환, 없으면 해당 날짜의 친구들 인증 피드 반환")
+	// TODO: 인증 반응 Flow 픽스 후 추가 작업
+	@Operation(summary = "(미완-반응(reactions) 파트 응답값 논의중) 유저의 인증피드 목록 조회",
+		description = "currentDate를 기준으로 유저의 인증피드(selfie feed) 목록을 조회합니다. userId가 있으면 해당 유저의 페이지(내 페이지 또는 친구 페이지) 데이터 반환, 없으면 해당 날짜의 친구들 인증 피드 반환")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "인증목록 조회에 성공하였습니다"),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
 		@ApiResponse(responseCode = "404", description = "유저를 찾을 수 없음")
 	})
-	DorunResponse<SelfieFeedResponse> getSelfiesByDate(
+	DorunResponse<SelfieFeedResponse> getFeedsByDate(
 		@Parameter(description = "조회 기준 날짜 (YYYY-MM-DD)") @RequestParam(required = false) LocalDate currentDate,
 		@Parameter(description = "조회할 유저 ID") @RequestParam(required = false) Long userId,
 		@Parameter(hidden = true) @CurrentUser User user
 	);
 
-	@Operation(summary = "[인증] 인증 업로드",
-		description = "셀피 인증을 업로드합니다.")
+	@Operation(summary = "인증피드 업로드",
+		description = "셀피 인증피드를 업로드합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "인증 업로드에 성공하였습니다"),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청")
 	})
-	DorunResponse<Void> createSelfie(
+	DorunResponse<Void> createFeed(
 		@Parameter(hidden = true) @CurrentUser User user,
 		@Valid @RequestBody CreateSelfieRequest request
 	);
 
-	@Operation(summary = "[인증] 주차별 친구들의 인증수 조회",
+	@Operation(summary = "주차별 친구들의 인증수 조회",
 		description = "기간(startDate ~ endDate) 동안 날짜별 친구들의 인증 수를 조회합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "주차별 친구들 인증수 조회에 성공하였습니다"),
@@ -63,12 +64,11 @@ public interface SelfieApi {
 		@ParameterObject @ModelAttribute SelfieWeekListRequest request
 	);
 
-	@Operation(summary = "[인증] 친구 인증 반응 남기기",
-		description = "특정 셀피에 이모지 반응을 추가하거나 취소합니다. 이미 동일한 이모지 반응이 있으면 취소(REMOVED), 없으면 새로 추가(ADDED)")
+	@Operation(summary = "친구 인증 반응 남기기",
+		description = "특정 인증에 이모지 반응을 추가하거나 취소합니다. 사용자가 누른 반응에 대해 이미 동일한 이모지 이력이 있으면 취소(-1), 없으면 새로 추가(+1) 됩니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "인증 반응 남기기에 성공하였습니다 / 인증 반응 취소에 성공하였습니다"),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
-		@ApiResponse(responseCode = "403", description = "자신의 게시물에는 반응할 수 없습니다"),
 		@ApiResponse(responseCode = "404", description = "셀피를 찾을 수 없습니다")
 	})
 	DorunResponse<SelfieReactionResponse> reactToSelfie(

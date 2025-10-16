@@ -14,11 +14,11 @@ public class SelfieFeedResponse {
 	private final UserSummary userSummary;
 
 	@Schema(description = "인증 피드 목록")
-	private final List<SelfieItem> selfies;
+	private final List<FeedItem> feeds;
 
-	public SelfieFeedResponse(UserSummary userSummary, List<SelfieItem> selfies) {
+	public SelfieFeedResponse(UserSummary userSummary, List<FeedItem> feeds) {
 		this.userSummary = userSummary;
-		this.selfies = selfies;
+		this.feeds = feeds;
 	}
 
 	@Getter
@@ -45,10 +45,10 @@ public class SelfieFeedResponse {
 	}
 
 	@Getter
-	@Schema(description = "셀피 아이템")
-	public static class SelfieItem {
-		@Schema(description = "셀피 ID", example = "1")
-		private final Long selfieId;
+	@Schema(description = "인증피드 아이템")
+	public static class FeedItem {
+		@Schema(description = "피드 ID", example = "1")
+		private final Long feedId;
 
 		@Schema(description = "날짜", example = "2025-09-20")
 		private final String date;
@@ -63,7 +63,7 @@ public class SelfieFeedResponse {
 		private final Double totalDistance;
 
 		@Schema(description = "총 달린 시간 (초)", example = "2647")
-		private final Integer totalTime;
+		private final Integer totalRunTime;
 
 		@Schema(description = "평균 페이스", example = "7'30\"")
 		private final String averagePace;
@@ -77,15 +77,15 @@ public class SelfieFeedResponse {
 		@Schema(description = "반응 목록")
 		private final List<ReactionSummary> reactions;
 
-		public SelfieItem(Long selfieId, String date, String userName, LocalDateTime selfieTime,
-						Double totalDistance, Integer totalTime, String averagePace, Integer cadence,
-						String imageUrl, List<ReactionSummary> reactions) {
-			this.selfieId = selfieId;
+		public FeedItem(Long feedId, String date, String userName, LocalDateTime selfieTime,
+			Double totalDistance, Integer totalRunTime, String averagePace, Integer cadence,
+			String imageUrl, List<ReactionSummary> reactions) {
+			this.feedId = feedId;
 			this.date = date;
 			this.userName = userName;
 			this.selfieTime = selfieTime;
 			this.totalDistance = totalDistance;
-			this.totalTime = totalTime;
+			this.totalRunTime = totalRunTime;
 			this.averagePace = averagePace;
 			this.cadence = cadence;
 			this.imageUrl = imageUrl;
