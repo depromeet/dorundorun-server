@@ -26,6 +26,7 @@ public record RunSessionDetail(
 			runSession.getPaceMaxLongitude(),
 			runSession.getCadenceAvg(),
 			runSession.getCadenceMax(),
+			runSession.getMapImageUrl(),
 			mapFeedToResponse(),
 			runSegments.toSegmentDataList()
 		);

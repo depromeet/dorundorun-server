@@ -28,10 +28,16 @@ public class S3ServiceImpl implements S3Service {
 
 	private static final String IMAGE_CONTENT_TYPE_PREFIX = "image/";
 	private static final String FOLDER_SEPARATOR = "/";
+	public static final String DORUNDORUN_FOLDER = "dorundorun";
 
 	private final S3Client s3Client;
 	private final S3Presigner s3Presigner;
 	private final S3Properties s3Properties;
+
+	@Override
+	public String uploadImage(MultipartFile file) {
+		return this.uploadImage(file, DORUNDORUN_FOLDER);
+	}
 
 	@Override
 	public String uploadImage(MultipartFile file, String folder) {
@@ -109,7 +115,7 @@ public class S3ServiceImpl implements S3Service {
 	private void validateFileSize(long fileSize) {
 		long maxFileSizeBytes = s3Properties.maxFileSizeMb() * 1024 * 1024;
 		if (fileSize > maxFileSizeBytes) {
-			throw new S3OperationException(S3ErrorCode.FILE_SIZE_EXCEEDED, 
+			throw new S3OperationException(S3ErrorCode.FILE_SIZE_EXCEEDED,
 				"파일 크기가 최대 제한 " + s3Properties.maxFileSizeMb() + "MB를 초과했습니다.");
 		}
 	}

@@ -46,6 +46,9 @@ public record RunSessionDetailResponse(
 	@Schema(description = "최대 케이던스 (걸음/분)", example = "185")
 	Integer cadenceMax,
 
+	@Schema(description = "맵 이미지 URL", example = "https://example.com/map.jpg")
+	String mapImage,
+
 	@Schema(description = "인증한 피드 정보 (없으면 null)")
 	FeedResponse feed,
 

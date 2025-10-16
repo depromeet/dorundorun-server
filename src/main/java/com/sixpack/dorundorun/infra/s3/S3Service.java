@@ -6,6 +6,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface S3Service {
 
+	String uploadImage(MultipartFile file);
+
 	String uploadImage(MultipartFile file, String folder);
 
 	String getImageUrl(String key);

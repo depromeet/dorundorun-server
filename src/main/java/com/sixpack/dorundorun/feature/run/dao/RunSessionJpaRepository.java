@@ -25,6 +25,7 @@ public interface RunSessionJpaRepository extends JpaRepository<RunSession, Long>
 		       rs.durationTotal as durationTotal,
 		       rs.paceAvg as paceAvg,
 		       rs.cadenceAvg as cadenceAvg,
+		       rs.mapImage as mapImage,
 		       CASE WHEN f.id IS NOT NULL THEN true ELSE false END as isSelfied
 		FROM RunSession rs
 		LEFT JOIN Feed f ON rs.id = f.runSession.id AND f.deletedAt IS NULL

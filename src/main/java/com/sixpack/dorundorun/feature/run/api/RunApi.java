@@ -6,6 +6,8 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.sixpack.dorundorun.feature.run.dto.request.CompleteRunRequest;
 import com.sixpack.dorundorun.feature.run.dto.request.RunSessionListRequest;
@@ -21,6 +23,7 @@ import com.sixpack.dorundorun.global.response.DorunResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -57,8 +60,23 @@ public interface RunApi {
 	DorunResponse<RunSessionResponse> completeRunSession(
 		@Parameter(description = "세션 ID", required = true)
 		@PathVariable Long sessionId,
-		@Parameter(hidden = true) @CurrentUser User user,
-		@Valid @RequestBody CompleteRunRequest request
+
+		@Parameter(hidden = true)
+		@CurrentUser User user,
+
+		@Parameter(
+			description = "러닝 데이터",
+			required = true,
+			schema = @Schema(
+				implementation = CompleteRunRequest.class,
+				type = "string",
+				format = "json"
+			)
+		)
+		@RequestPart(value = "data") String dataJson,
+
+		@Parameter(description = "지도 이미지", required = true)
+		@RequestPart(value = "mapImage") MultipartFile mapImage
 	);
 
 	@Operation(summary = "러닝 기록 조회", description = "완료된 러닝 세션 목록을 조회합니다.")
