@@ -23,10 +23,6 @@ public class CreateSelfieRequest {
 	@NotNull(message = "이미지 파일은 필수입니다.")
 	private MultipartFile image;
 
-	@Schema(description = "인증 날짜", example = "2025-09-20")
-	@NotBlank(message = "인증 날짜는 필수입니다.")
-	private String date;
-
 	@Schema(description = "인증 시간", example = "2025-09-20T23:58:00")
 	@NotNull(message = "인증 시간은 필수입니다.")
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -51,10 +47,9 @@ public class CreateSelfieRequest {
 	@Positive(message = "케이던스는 양수여야 합니다.")
 	private Integer cadence;
 
-	public CreateSelfieRequest(MultipartFile image, String date, LocalDateTime selfieTime,
+	public CreateSelfieRequest(MultipartFile image, LocalDateTime selfieTime,
 		Double totalDistance, Integer totalTime, String averagePace, Integer cadence) {
 		this.image = image;
-		this.date = date;
 		this.selfieTime = selfieTime;
 		this.totalDistance = totalDistance;
 		this.totalTime = totalTime;
