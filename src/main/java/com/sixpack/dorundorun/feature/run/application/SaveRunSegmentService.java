@@ -12,6 +12,7 @@ import com.sixpack.dorundorun.feature.run.domain.RunSegmentInfo;
 import com.sixpack.dorundorun.feature.run.domain.RunSession;
 import com.sixpack.dorundorun.feature.run.dto.request.SaveRunSegmentDataRequest;
 import com.sixpack.dorundorun.feature.run.dto.request.SaveRunSegmentRequest;
+import com.sixpack.dorundorun.feature.run.exception.RunErrorCode;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +27,8 @@ public class SaveRunSegmentService {
 	public RunSegment save(Long sessionId, Long userId, SaveRunSegmentRequest request) {
 		RunSession runSession = findRunSessionByIdAndUserIdService.find(sessionId, userId);
 
+		validateFinishedRunSession(sessionId, runSession);
+
 		RunSegmentInfo segmentInfo = convertToSegmentInfo(request);
 
 		RunSegment runSegment = RunSegment.builder()
@@ -34,6 +37,12 @@ public class SaveRunSegmentService {
 			.build();
 
 		return runSegmentJpaRepository.save(runSegment);
+	}
+
+	private void validateFinishedRunSession(Long sessionId, RunSession runSession) {
+		if (runSession.isFinished()) {
+			throw RunErrorCode.ALREADY_FINISHED_RUN_SESSION.format(sessionId);
+		}
 	}
 
 	private RunSegmentInfo convertToSegmentInfo(SaveRunSegmentRequest request) {

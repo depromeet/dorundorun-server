@@ -71,6 +71,10 @@ public class RunSession extends BaseTimeEntity {
 		return S3ImageUrlUtil.getPresignedImageUrl(this.mapImage);
 	}
 
+	public boolean isFinished() {
+		return finishedAt != null;
+	}
+
 	public void complete(Long distanceTotal, Long durationTotal, Long paceAvg, Long paceMax,
 		Double paceMaxLatitude, Double paceMaxLongitude, Integer cadenceAvg, Integer cadenceMax, String mapImage) {
 		this.finishedAt = LocalDateTime.now();
