@@ -40,6 +40,9 @@ public record RunSessionResponse(
 	Integer cadenceAvg,
 
 	@Schema(description = "최대 케이던스 (걸음/분)", example = "185")
-	Integer cadenceMax
+	Integer cadenceMax,
+
+	@Schema(description = "맵 이미지 URL", example = "https://example.com/map.jpg")
+	String mapImage
 ) {
 }

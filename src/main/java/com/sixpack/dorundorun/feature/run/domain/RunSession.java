@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.sixpack.dorundorun.feature.common.model.BaseTimeEntity;
 import com.sixpack.dorundorun.feature.user.domain.User;
+import com.sixpack.dorundorun.global.utils.S3ImageUrlUtil;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -63,8 +64,15 @@ public class RunSession extends BaseTimeEntity {
 	@Column(name = "cadence_max")
 	private Integer cadenceMax;
 
+	@Column(name = "map_image")
+	private String mapImage;
+
+	public String getMapImageUrl() {
+		return S3ImageUrlUtil.getPresignedImageUrl(this.mapImage);
+	}
+
 	public void complete(Long distanceTotal, Long durationTotal, Long paceAvg, Long paceMax,
-		Double paceMaxLatitude, Double paceMaxLongitude, Integer cadenceAvg, Integer cadenceMax) {
+		Double paceMaxLatitude, Double paceMaxLongitude, Integer cadenceAvg, Integer cadenceMax, String mapImage) {
 		this.finishedAt = LocalDateTime.now();
 		this.distanceTotal = distanceTotal;
 		this.durationTotal = durationTotal;
@@ -74,5 +82,6 @@ public class RunSession extends BaseTimeEntity {
 		this.paceMaxLongitude = paceMaxLongitude;
 		this.cadenceAvg = cadenceAvg;
 		this.cadenceMax = cadenceMax;
+		this.mapImage = mapImage;
 	}
 }

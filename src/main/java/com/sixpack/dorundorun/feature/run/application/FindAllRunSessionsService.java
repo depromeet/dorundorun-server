@@ -9,6 +9,7 @@ import com.sixpack.dorundorun.feature.run.dao.RunSessionJpaRepository;
 import com.sixpack.dorundorun.feature.run.dao.projection.RunSessionWithFeedProjection;
 import com.sixpack.dorundorun.feature.run.dto.request.RunSessionListRequest;
 import com.sixpack.dorundorun.feature.run.dto.response.RunSessionListResponse;
+import com.sixpack.dorundorun.infra.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class FindAllRunSessionsService {
 
 	private final RunSessionJpaRepository runSessionJpaRepository;
+	private final S3Service s3Service;
 
 	@Transactional(readOnly = true)
 	public List<RunSessionListResponse> find(Long userId, RunSessionListRequest request) {
@@ -41,7 +43,8 @@ public class FindAllRunSessionsService {
 			projection.getDurationTotal(),
 			projection.getPaceAvg(),
 			projection.getCadenceAvg(),
-			projection.getIsSelfied()
+			projection.getIsSelfied(),
+			s3Service.getImageUrl(projection.getMapImage())
 		);
 	}
 }

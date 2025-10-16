@@ -31,6 +31,9 @@ public record RunSessionListResponse(
 	Integer cadenceAvg,
 
 	@Schema(description = "피드 인증 여부", example = "false")
-	Boolean isSelfied
+	Boolean isSelfied,
+
+	@Schema(description = "맵 이미지 URL", example = "https://example.com/map.jpg")
+	String mapImage
 ) {
 }

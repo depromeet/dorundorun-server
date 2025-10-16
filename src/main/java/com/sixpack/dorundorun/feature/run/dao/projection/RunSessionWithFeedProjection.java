@@ -20,5 +20,7 @@ public interface RunSessionWithFeedProjection {
 
 	Integer getCadenceAvg();
 
+	String getMapImage();
+
 	Boolean getIsSelfied();
 }

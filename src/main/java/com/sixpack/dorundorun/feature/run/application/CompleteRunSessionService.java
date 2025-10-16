@@ -2,10 +2,12 @@ package com.sixpack.dorundorun.feature.run.application;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.sixpack.dorundorun.feature.run.domain.RunSession;
 import com.sixpack.dorundorun.feature.run.dto.request.CompleteRunRequest;
 import com.sixpack.dorundorun.feature.run.dto.response.RunSessionResponse;
+import com.sixpack.dorundorun.infra.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,11 +16,13 @@ import lombok.RequiredArgsConstructor;
 public class CompleteRunSessionService {
 
 	private final FindRunSessionByIdAndUserIdService findRunSessionByIdAndUserIdService;
+	private final S3Service s3Service;
 
 	@Transactional
-	public RunSession complete(Long sessionId, Long userId, CompleteRunRequest request) {
+	public RunSession complete(Long sessionId, Long userId, CompleteRunRequest request, MultipartFile mapImage) {
 		RunSession runSession = findRunSessionByIdAndUserIdService.find(sessionId, userId);
 
+		String uploadedMapImage = s3Service.uploadImage(mapImage);
 		runSession.complete(
 			request.distance().total(),
 			request.duration().total(),
@@ -27,7 +31,8 @@ public class CompleteRunSessionService {
 			request.pace().max().latitude(),
 			request.pace().max().longitude(),
 			request.cadence().avg(),
-			request.cadence().max().value()
+			request.cadence().max().value(),
+			uploadedMapImage
 		);
 
 		return runSession;
@@ -46,7 +51,8 @@ public class CompleteRunSessionService {
 			runSession.getPaceMaxLatitude(),
 			runSession.getPaceMaxLongitude(),
 			runSession.getCadenceAvg(),
-			runSession.getCadenceMax()
+			runSession.getCadenceMax(),
+			runSession.getMapImageUrl()
 		);
 	}
 }
