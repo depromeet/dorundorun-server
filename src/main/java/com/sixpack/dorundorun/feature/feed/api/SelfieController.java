@@ -37,7 +37,7 @@ public class SelfieController implements SelfieApi {
 
 	@Override
 	@GetMapping("/feeds")
-	public DorunResponse<SelfieFeedResponse> getSelfiesByDate(
+	public DorunResponse<SelfieFeedResponse> getFeedsByDate(
 		@RequestParam(required = false) LocalDate currentDate,
 		@RequestParam(required = false) Long userId,
 		@CurrentUser User user
@@ -50,7 +50,7 @@ public class SelfieController implements SelfieApi {
 
 	@Override
 	@PostMapping("/feeds")
-	public DorunResponse<Void> createSelfie(
+	public DorunResponse<Void> createFeed(
 		@CurrentUser User user,
 		@Valid @RequestBody CreateSelfieRequest request
 	) {
