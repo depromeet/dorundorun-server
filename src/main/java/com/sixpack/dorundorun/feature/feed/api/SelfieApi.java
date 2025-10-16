@@ -25,10 +25,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "[5. 셀피 관련]")
+@Tag(name = "[셀피 관련]")
 public interface SelfieApi {
 
-	@Operation(summary = "[인증] 유저의 인증 목록 조회", 
+	@Operation(summary = "[인증] 유저의 인증 목록 조회",
 		description = "특정 날짜(currentDate)를 기준으로 유저의 셀피(인증) 목록을 조회합니다. userId가 있으면 해당 유저의 페이지(내 페이지 또는 친구 페이지) 데이터 반환, 없으면 해당 날짜의 친구들 인증 피드 반환")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "인증목록 조회에 성공하였습니다"),
@@ -41,7 +41,7 @@ public interface SelfieApi {
 		@Parameter(hidden = true) @CurrentUser User user
 	);
 
-	@Operation(summary = "[인증] 인증 업로드", 
+	@Operation(summary = "[인증] 인증 업로드",
 		description = "셀피 인증을 업로드합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "인증 업로드에 성공하였습니다"),
@@ -52,7 +52,7 @@ public interface SelfieApi {
 		@Valid @RequestBody CreateSelfieRequest request
 	);
 
-	@Operation(summary = "[인증] 주차별 친구들의 인증수 조회", 
+	@Operation(summary = "[인증] 주차별 친구들의 인증수 조회",
 		description = "기간(startDate ~ endDate) 동안 날짜별 친구들의 인증 수를 조회합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "주차별 친구들 인증수 조회에 성공하였습니다"),
@@ -63,7 +63,7 @@ public interface SelfieApi {
 		@ParameterObject @ModelAttribute SelfieWeekListRequest request
 	);
 
-	@Operation(summary = "[인증] 친구 인증 반응 남기기", 
+	@Operation(summary = "[인증] 친구 인증 반응 남기기",
 		description = "특정 셀피에 이모지 반응을 추가하거나 취소합니다. 이미 동일한 이모지 반응이 있으면 취소(REMOVED), 없으면 새로 추가(ADDED)")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "인증 반응 남기기에 성공하였습니다 / 인증 반응 취소에 성공하였습니다"),
