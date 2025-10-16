@@ -49,12 +49,14 @@ public class SelfieController implements SelfieApi {
 	}
 
 	@Override
-	@PostMapping("/feeds")
+	@PostMapping(value = "/feeds", consumes = "multipart/form-data")
 	public DorunResponse<Void> createFeed(
 		@CurrentUser User user,
-		@Valid @RequestBody CreateSelfieRequest request
+		@Valid @ModelAttribute CreateSelfieRequest request
 	) {
 		// TODO: 서비스 로직 구현 예정
+		// 1. MultipartFile을 S3 등에 업로드
+		// 2. 업로드된 이미지 URL과 함께 Feed 엔티티 저장
 		// createSelfieService.execute(user, request);
 		// return DorunResponse.success("인증 업로드에 성공하였습니다");
 		return DorunResponse.success("인증 업로드에 성공하였습니다");
