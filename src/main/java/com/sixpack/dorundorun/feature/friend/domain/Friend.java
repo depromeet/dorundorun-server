@@ -42,4 +42,8 @@ public class Friend extends BaseTimeEntity {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
+
+	public void delete(LocalDateTime deletedAt) {
+		this.deletedAt = deletedAt;
+	}
 }
