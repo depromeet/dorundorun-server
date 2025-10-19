@@ -39,6 +39,7 @@ class RunSegmentJpaRepositoryTest extends RepositoryTest {
 	@BeforeEach
 	void setUp() {
 		testUser = User.builder()
+			.phoneNumber("010-1234-5678")
 			.nickname("테스터")
 			.code("testcode123")
 			.deviceToken("test-device-token-123")
