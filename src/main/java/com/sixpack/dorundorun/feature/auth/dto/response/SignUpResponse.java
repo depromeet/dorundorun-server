@@ -4,19 +4,43 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "회원가입 응답")
 public record SignUpResponse(
-	@Schema(description = "생성된 사용자 ID", example = "1")
-	Long userId,
+	@Schema(description = "사용자 정보")
+	UserInfo user,
 
-	@Schema(description = "사용자 이름", example = "홍길동")
-	String name,
-
-	@Schema(description = "사용자 이메일", example = "user@example.com")
-	String email,
-
-	@Schema(description = "응답 메시지", example = "회원가입이 성공적으로 완료되었습니다.")
-	String message
+	@Schema(description = "토큰 정보")
+	TokenInfo token
 ) {
-	public static SignUpResponse of(Long userId, String name, String email) {
-		return new SignUpResponse(userId, name, email, "회원가입이 성공적으로 완료되었습니다.");
+	@Schema(description = "사용자 정보")
+	public record UserInfo(
+		@Schema(description = "사용자 ID", example = "1")
+		Long id,
+
+		@Schema(description = "닉네임", example = "러너123")
+		String nickname,
+
+		@Schema(description = "전화번호", example = "010-1234-5678")
+		String phoneNumber
+	) {}
+
+	@Schema(description = "토큰 정보")
+	public record TokenInfo(
+		@Schema(description = "Access Token")
+		String accessToken,
+
+		@Schema(description = "Refresh Token")
+		String refreshToken
+	) {}
+
+	public static SignUpResponse of(
+		Long userId,
+		String nickname,
+		String phoneNumber,
+		String accessToken,
+		String refreshToken
+	) {
+		return new SignUpResponse(
+			new UserInfo(userId, nickname, phoneNumber),
+			new TokenInfo(accessToken, refreshToken)
+		);
 	}
 }
