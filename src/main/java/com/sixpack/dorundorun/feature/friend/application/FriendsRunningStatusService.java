@@ -1,6 +1,6 @@
 package com.sixpack.dorundorun.feature.friend.application;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -11,118 +11,63 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sixpack.dorundorun.feature.friend.dao.projection.FriendRunningStatusProjection;
 import com.sixpack.dorundorun.feature.friend.dto.response.FriendRunningStatusResponse;
-import com.sixpack.dorundorun.feature.run.application.FindLatestRunSegmentByUserIdService;
-import com.sixpack.dorundorun.feature.run.domain.RunSegment;
 import com.sixpack.dorundorun.feature.run.domain.RunSegmentData;
 import com.sixpack.dorundorun.feature.run.domain.RunSegmentInfo;
-import com.sixpack.dorundorun.feature.user.application.FindUserByIdService;
 import com.sixpack.dorundorun.feature.user.application.GetDefaultProfileImageUrlService;
-import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.response.PaginationResponse;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class GetFriendsRunningStatusService {
+public class FriendsRunningStatusService {
 
-	private final FindUserByIdService findUserByIdService;
 	private final FindFriendsRunningStatusService findFriendsRunningStatusService;
-	private final FindLatestRunSegmentByUserIdService findLatestRunSegmentByUserIdService;
 	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
 
 	@Transactional(readOnly = true)
 	public PaginationResponse<FriendRunningStatusResponse> find(Long userId, Integer page, Integer size) {
-		List<FriendRunningStatusResponse> responses = new ArrayList<>();
-
-		// page=0일 때만 본인 정보 먼저 추가
-		if (page == 0) {
-			User user = findUserByIdService.find(userId);
-			FriendRunningStatusResponse myStatus = getMyRunningStatus(user);
-			responses.add(myStatus);
-		}
-
-		// 친구 데이터 조회
 		Pageable pageable = PageRequest.of(page, size);
-		Page<FriendRunningStatusProjection> friendsPage = findFriendsRunningStatusService.find(userId, pageable);
-
-		// Projection → Response DTO 변환 및 추가
-		friendsPage.getContent()
+		Page<FriendRunningStatusProjection> resultsPage = findFriendsRunningStatusService.find(userId, pageable);
+		List<FriendRunningStatusResponse> responses = resultsPage.getContent()
 			.stream()
 			.map(this::mapToResponse)
-			.forEach(responses::add);
-
-		// 전체 개수 = 친구 총원 + 본인 1명
-		long totalElements = friendsPage.getTotalElements() + 1;
-
-		return PaginationResponse.of(responses, page, size, totalElements);
+			.toList();
+		return PaginationResponse.of(responses, page, size, resultsPage.getTotalElements());
 	}
 
-	private FriendRunningStatusResponse getMyRunningStatus(User user) {
-		String defaultProfileImageUrl = getDefaultProfileImageUrlService.get();
-
-		// 가장 최신 RunSegment 조회
-		RunSegment latestSegment = findLatestRunSegmentByUserIdService.find(user.getId())
-			.orElse(null);
-
-		// RunSegment가 없는 경우
-		if (latestSegment == null) {
-			return new FriendRunningStatusResponse(
-				user.getId(),
-				true,
-				user.getNickname(),
-				defaultProfileImageUrl,
-				null, null, null, null
-			);
-		}
-
-		// RunSegmentInfo 추출 및 null 체크
-		RunSegmentInfo data = latestSegment.getData();
-		if (data == null || data.segments() == null || data.segments().isEmpty()) {
-			return new FriendRunningStatusResponse(
-				user.getId(),
-				true,
-				user.getNickname(),
-				defaultProfileImageUrl,
-				null, null, null, null
-			);
-		}
-
-		// 마지막 세그먼트 데이터 추출
-		List<RunSegmentData> segmentDataList = data.segments();
-		RunSegmentData lastData = segmentDataList.get(segmentDataList.size() - 1);
-
-		return new FriendRunningStatusResponse(
-			user.getId(),
-			true,
-			user.getNickname(),
-			defaultProfileImageUrl,
-			latestSegment.getCreatedAt(),
-			lastData.distance(),
-			lastData.latitude(),
-			lastData.longitude()
-		);
-	}
-
-	// Projection을 Response DTO로 변환
 	private FriendRunningStatusResponse mapToResponse(FriendRunningStatusProjection projection) {
-
 		String profileImageUrl = projection.getProfileImage() != null
 			? projection.getProfileImage()
 			: getDefaultProfileImageUrlService.get();
-
-		// isMe 플래그 변환 (Integer → Boolean)
 		boolean isMe = projection.getIsMe() != null && projection.getIsMe() != 0;
-
+		Long distance = null;
+		Double latitude = null;
+		Double longitude = null;
+		if (projection.getRunSegmentData() != null) {
+			RunSegmentInfo segmentInfo = projection.getRunSegmentData();
+			if (segmentInfo.segments() != null && !segmentInfo.segments().isEmpty()) {
+				List<RunSegmentData> segments = segmentInfo.segments();
+				RunSegmentData latestSegment = segments.stream()
+					.filter(segment -> segment.time() != null) // time이 null이 아닌 것
+					.max(Comparator.comparing(RunSegmentData::time)) // time이 가장 큰 것
+					.orElse(segments.get(segments.size() - 1)); // 없으면 마지막 세그먼트
+				// 선택한 세그먼트에서 distance, latitude, longitude 추출
+				distance = latestSegment.distance();
+				latitude = latestSegment.latitude();
+				longitude = latestSegment.longitude();
+			}
+		}
 		return new FriendRunningStatusResponse(
 			projection.getUserId(),
 			isMe,
 			projection.getNickname(),
 			profileImageUrl,
 			projection.getLatestRanAt(),
-			projection.getDistance(),
-			projection.getLatitude(),
-			projection.getLongitude()
+			distance,
+			latitude,
+			longitude
 		);
 	}
+
 }
