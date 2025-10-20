@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sixpack.dorundorun.feature.friend.application.AddFriendService;
 import com.sixpack.dorundorun.feature.friend.application.CheerFriendService;
 import com.sixpack.dorundorun.feature.friend.application.DeleteFriendsService;
-import com.sixpack.dorundorun.feature.friend.application.GetFriendsRunningStatusService;
+import com.sixpack.dorundorun.feature.friend.application.FriendsRunningStatusService;
 import com.sixpack.dorundorun.feature.friend.application.GetMyCodeService;
 import com.sixpack.dorundorun.feature.friend.domain.Friend;
 import com.sixpack.dorundorun.feature.friend.dto.request.AddFriendRequest;
@@ -33,7 +33,7 @@ public class FriendController implements FriendApi {
 
 	private final AddFriendService addFriendService;
 	private final GetMyCodeService getMyCodeService;
-	private final GetFriendsRunningStatusService getFriendsRunningStatusService;
+	private final FriendsRunningStatusService getFriendsRunningStatusService;
 	private final DeleteFriendsService deleteFriendsService;
 	private final CheerFriendService cheerFriendService;
 

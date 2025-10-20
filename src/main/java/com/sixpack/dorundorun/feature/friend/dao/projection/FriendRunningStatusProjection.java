@@ -2,6 +2,8 @@ package com.sixpack.dorundorun.feature.friend.dao.projection;
 
 import java.time.LocalDateTime;
 
+import com.sixpack.dorundorun.feature.run.domain.RunSegmentInfo;
+
 public interface FriendRunningStatusProjection {
 
 	Long getUserId();
@@ -14,9 +16,6 @@ public interface FriendRunningStatusProjection {
 
 	LocalDateTime getLatestRanAt();
 
-	Long getDistance();
-
-	Double getLatitude();
-
-	Double getLongitude();
+	// JSON 전체를 가져오기
+	RunSegmentInfo getRunSegmentData();
 }
