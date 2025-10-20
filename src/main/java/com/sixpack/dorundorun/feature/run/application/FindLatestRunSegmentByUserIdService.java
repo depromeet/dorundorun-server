@@ -19,6 +19,6 @@ public class FindLatestRunSegmentByUserIdService {
 	// 특정 유저의 가장 최신 RunSegment 조회
 	@Transactional(readOnly = true)
 	public Optional<RunSegment> find(Long userId) {
-		return runSegmentJpaRepository.findTopByRunSessionUserIdOrderByCreatedAtDesc(userId);
+		return runSegmentJpaRepository.findTopByUserIdOrderByCreatedAtDesc(userId);
 	}
 }
