@@ -37,7 +37,7 @@ public class User extends BaseTimeEntity {
 	@Column(name = "profile_image_url")
 	private String profileImageUrl;
 
-	@Column(name = "code", nullable = false)
+	@Column(name = "code", nullable = false, unique = true)
 	private String code;
 
 	@Column(name = "marketing_consent_at")
