@@ -99,12 +99,39 @@ public class SelfieFeedResponse {
 		@Schema(description = "이모지 타입", example = "FIRE")
 		private final String emojiType;
 
-		@Schema(description = "반응 수", example = "3")
-		private final Integer count;
+		@Schema(description = "전체 반응 수", example = "5")
+		private final Integer totalCount;
 
-		public ReactionSummary(String emojiType, Integer count) {
+		@Schema(description = "반응한 유저 목록 (전체 포함, 상세 화면에서 사용)")
+		private final List<ReactionUser> users;
+
+		public ReactionSummary(String emojiType, Integer totalCount, List<ReactionUser> users) {
 			this.emojiType = emojiType;
-			this.count = count;
+			this.totalCount = totalCount;
+			this.users = users;
+		}
+	}
+
+	@Getter
+	@Schema(description = "반응한 유저 정보")
+	public static class ReactionUser {
+		@Schema(description = "유저 ID", example = "1")
+		private final Long userId;
+
+		@Schema(description = "유저 닉네임", example = "러너123")
+		private final String nickname;
+
+		@Schema(description = "프로필 이미지 URL", example = "https://cdn.example.com/profiles/user123.jpg")
+		private final String profileImageUrl;
+
+		@Schema(description = "반응 시간", example = "2025-10-16T14:30:00")
+		private final LocalDateTime reactedAt;
+
+		public ReactionUser(Long userId, String nickname, String profileImageUrl, LocalDateTime reactedAt) {
+			this.userId = userId;
+			this.nickname = nickname;
+			this.profileImageUrl = profileImageUrl;
+			this.reactedAt = reactedAt;
 		}
 	}
 }
