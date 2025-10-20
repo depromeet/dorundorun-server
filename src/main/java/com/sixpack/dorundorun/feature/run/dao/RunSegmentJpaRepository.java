@@ -18,5 +18,5 @@ public interface RunSegmentJpaRepository extends JpaRepository<RunSegment, Long>
 		"WHERE sess.user.id = :userId " +
 		"ORDER BY rs.createdAt DESC " +
 		"LIMIT 1")
-	Optional<RunSegment> findTopByRunSessionUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
+	Optional<RunSegment> findTopByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
 }
