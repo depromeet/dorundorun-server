@@ -28,8 +28,7 @@ import jakarta.validation.Valid;
 @Tag(name = "[인증피드 관련]")
 public interface SelfieApi {
 
-	// TODO: 인증 반응 Flow 픽스 후 추가 작업
-	@Operation(summary = "(미완-반응(reactions) 파트 응답값 논의중) 유저의 인증피드 목록 조회",
+	@Operation(summary = "유저의 인증피드 목록 조회",
 		description = "currentDate를 기준으로 유저의 인증피드(selfie feed) 목록을 조회합니다. userId가 있으면 해당 유저의 페이지(내 페이지 또는 친구 페이지) 데이터 반환, 없으면 해당 날짜의 친구들 인증 피드 반환")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "인증목록 조회에 성공하였습니다"),
