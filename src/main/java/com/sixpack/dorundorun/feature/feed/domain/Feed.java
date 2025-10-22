@@ -42,9 +42,6 @@ public class Feed extends BaseTimeEntity {
 	@JoinColumn(name = "run_session_id", nullable = false)
 	private RunSession runSession;
 
-	@Column(name = "map_image", nullable = false)
-	private String mapImage;
-
 	@Column(name = "selfie_image")
 	private String selfieImage;
 
@@ -53,10 +50,6 @@ public class Feed extends BaseTimeEntity {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
-
-	public String getMapImageUrl() {
-		return S3ImageUrlUtil.getPresignedImageUrl(this.mapImage);
-	}
 
 	public String getSelfieImageUrl() {
 		return S3ImageUrlUtil.getPresignedImageUrl(this.selfieImage);
