@@ -76,4 +76,12 @@ public interface RunSessionJpaRepository extends JpaRepository<RunSession, Long>
 		@Param("sessionId") Long sessionId,
 		@Param("userId") Long userId
 	);
+
+	@Query("""
+		SELECT COALESCE(SUM(rs.distanceTotal), 0)
+		FROM RunSession rs
+		WHERE rs.user.id = :userId
+		AND rs.finishedAt IS NOT NULL
+		""")
+	Long sumDistanceByUserId(@Param("userId") Long userId);
 }
