@@ -1,6 +1,8 @@
 package com.sixpack.dorundorun.feature.auth.api;
 
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.sixpack.dorundorun.feature.auth.dto.request.RefreshTokenRequest;
 import com.sixpack.dorundorun.feature.auth.dto.request.SignUpRequest;
@@ -15,6 +17,7 @@ import com.sixpack.dorundorun.global.response.DorunResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,7 +52,21 @@ public interface AuthApi {
 		@ApiResponse(responseCode = "400", description = "잘못된 요청 (전화번호 인증 미완료, 닉네임 중복 등)"),
 		@ApiResponse(responseCode = "409", description = "이미 가입된 전화번호")
 	})
-	DorunResponse<SignUpResponse> signUp(@Valid @RequestBody SignUpRequest request);
+	DorunResponse<SignUpResponse> signUp(
+		@Parameter(
+			description = "회원가입 데이터",
+			required = true,
+			schema = @Schema(
+				implementation = SignUpRequest.class,
+				type = "string",
+				format = "json"
+			)
+		)
+		@RequestPart(value = "data") String dataJson,
+
+		@Parameter(description = "프로필 이미지", required = false)
+		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+	);
 
 	@Operation(summary = "로그아웃",
 		description = "현재 로그인된 사용자를 로그아웃합니다. Refresh Token을 무효화합니다.")

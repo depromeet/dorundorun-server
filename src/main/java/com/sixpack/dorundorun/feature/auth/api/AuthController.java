@@ -1,13 +1,15 @@
 package com.sixpack.dorundorun.feature.auth.api;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.sixpack.dorundorun.feature.auth.dto.request.RefreshTokenRequest;
-import com.sixpack.dorundorun.feature.auth.dto.request.SignUpRequest;
 import com.sixpack.dorundorun.feature.auth.dto.request.SmsSendRequest;
 import com.sixpack.dorundorun.feature.auth.dto.request.SmsVerificationRequest;
 import com.sixpack.dorundorun.feature.auth.dto.response.SignUpResponse;
@@ -26,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController implements AuthApi {
 
 	// private final SignUpService signUpService;
+	// private final ObjectMapper objectMapper;
 	// TODO: 서비스 의존성 주입 예정
 	// private final SmsSendService smsSendService;
 	// private final SmsVerificationService smsVerificationService;
@@ -56,10 +59,11 @@ public class AuthController implements AuthApi {
 	}
 
 	@Override
-	@PostMapping("/signup")
-	public DorunResponse<SignUpResponse> signUp(@Valid @RequestBody SignUpRequest request) {
-		// SignUpResponse response = signUpService.signUp(request);
-		// return DorunResponse.created(response);
+	@PostMapping(value = "/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public DorunResponse<SignUpResponse> signUp(
+		@RequestPart(value = "data") String dataJson,
+		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+	) {
 		return DorunResponse.created(null);
 	}
 
