@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sixpack.dorundorun.feature.feed.application.FindSelfiesByDateService;
 import com.sixpack.dorundorun.feature.feed.dto.request.CreateSelfieRequest;
 import com.sixpack.dorundorun.feature.feed.dto.request.SelfieReactionRequest;
 import com.sixpack.dorundorun.feature.feed.dto.request.SelfieWeekListRequest;
@@ -29,23 +30,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SelfieController implements SelfieApi {
 
-	// TODO: 서비스 의존성 주입 예정
-	// private final GetSelfiesByDateService getSelfiesByDateService;
-	// private final CreateSelfieService createSelfieService;
-	// private final GetWeeklySelfiesService getWeeklySelfiesService;
-	// private final ReactToSelfieService reactToSelfieService;
+	private final FindSelfiesByDateService findSelfiesByDateService;
 
 	@Override
 	@GetMapping("/feeds")
 	public DorunResponse<SelfieFeedResponse> getFeedsByDate(
-		@RequestParam(required = false) LocalDate currentDate,
+		@RequestParam LocalDate currentDate,
 		@RequestParam(required = false) Long userId,
 		@CurrentUser User user
 	) {
-		// TODO: 서비스 로직 구현 예정
-		// SelfieFeedResponse response = getSelfiesByDateService.execute(currentDate, userId, user);
-		// return DorunResponse.success("인증목록 조회에 성공하였습니다", response);
-		return DorunResponse.success("인증목록 조회에 성공하였습니다", null);
+		SelfieFeedResponse response = findSelfiesByDateService.find(currentDate, userId, user);
+		return DorunResponse.success("인증목록 조회에 성공하였습니다", response);
 	}
 
 	@Override

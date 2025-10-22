@@ -36,7 +36,7 @@ public interface SelfieApi {
 		@ApiResponse(responseCode = "404", description = "유저를 찾을 수 없음")
 	})
 	DorunResponse<SelfieFeedResponse> getFeedsByDate(
-		@Parameter(description = "조회 기준 날짜 (YYYY-MM-DD)") @RequestParam(required = false) LocalDate currentDate,
+		@Parameter(description = "조회 기준 날짜 (YYYY-MM-DD)", required = true) @RequestParam LocalDate currentDate,
 		@Parameter(description = "조회할 유저 ID") @RequestParam(required = false) Long userId,
 		@Parameter(hidden = true) @CurrentUser User user
 	);
