@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class GetMyCodeService {
+public class FindMyCodeService {
 
 	private final FindUserByIdService findUserByIdService;
 

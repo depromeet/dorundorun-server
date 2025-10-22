@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sixpack.dorundorun.feature.friend.application.AddFriendService;
 import com.sixpack.dorundorun.feature.friend.application.CheerFriendService;
 import com.sixpack.dorundorun.feature.friend.application.DeleteFriendsService;
+import com.sixpack.dorundorun.feature.friend.application.FindMyCodeService;
 import com.sixpack.dorundorun.feature.friend.application.FriendsRunningStatusService;
-import com.sixpack.dorundorun.feature.friend.application.GetMyCodeService;
 import com.sixpack.dorundorun.feature.friend.domain.Friend;
 import com.sixpack.dorundorun.feature.friend.dto.request.AddFriendRequest;
 import com.sixpack.dorundorun.feature.friend.dto.request.CheerFriendRequest;
@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 public class FriendController implements FriendApi {
 
 	private final AddFriendService addFriendService;
-	private final GetMyCodeService getMyCodeService;
+	private final FindMyCodeService getMyCodeService;
 	private final FriendsRunningStatusService getFriendsRunningStatusService;
 	private final DeleteFriendsService deleteFriendsService;
 	private final CheerFriendService cheerFriendService;
