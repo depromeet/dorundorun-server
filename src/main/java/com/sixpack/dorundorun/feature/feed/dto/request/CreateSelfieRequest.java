@@ -28,7 +28,7 @@ public class CreateSelfieRequest {
 	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
 	private LocalDateTime selfieTime;
 
-	@Schema(description = "총 달린 거리 (km)", example = "5.10")
+	@Schema(description = "총 달린 거리 (m)", example = "5.10")
 	@NotNull(message = "총 달린 거리는 필수입니다.")
 	@Positive(message = "총 달린 거리는 양수여야 합니다.")
 	private Double totalDistance;
@@ -38,7 +38,7 @@ public class CreateSelfieRequest {
 	@Positive(message = "총 달린 시간은 양수여야 합니다.")
 	private Integer totalTime;
 
-	@Schema(description = "평균 페이스", example = "7'30\"")
+	@Schema(description = "평균 페이스 (초/km)", example = "360")
 	@NotBlank(message = "평균 페이스는 필수입니다.")
 	private String averagePace;
 
