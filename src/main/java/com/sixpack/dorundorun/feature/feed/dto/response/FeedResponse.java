@@ -11,9 +11,6 @@ public record FeedResponse(
 	@Schema(description = "피드 ID", example = "1")
 	Long id,
 
-	@Schema(description = "맵 이미지 URL", example = "https://example.com/map.jpg")
-	String mapImage,
-
 	@Schema(description = "셀피 이미지 URL", example = "https://example.com/selfie.jpg")
 	String selfieImage,
 
@@ -26,7 +23,6 @@ public record FeedResponse(
 	public static FeedResponse from(Feed feed) {
 		return new FeedResponse(
 			feed.getId(),
-			feed.getMapImageUrl(),
 			feed.getSelfieImageUrl(),
 			feed.getContent(),
 			feed.getCreatedAt()
