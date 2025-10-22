@@ -15,6 +15,8 @@ import com.sixpack.dorundorun.feature.user.domain.User;
 
 public interface FriendJpaRepository extends JpaRepository<Friend, Long> {
 
+	long countByUserIdAndDeletedAtIsNull(Long userId);
+
 	Optional<Friend> findByUserAndFriendAndDeletedAtIsNull(User user, User friend);
 
 	List<Friend> findByUserIdAndFriendIdInAndDeletedAtIsNull(Long userId, List<Long> friendIds);
