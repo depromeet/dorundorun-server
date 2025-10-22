@@ -30,7 +30,7 @@ public class SelfieFeedResponse {
 		@Schema(description = "친구 수", example = "7")
 		private final Integer friendCount;
 
-		@Schema(description = "누적 거리 (km)", example = "400.0")
+		@Schema(description = "누적 거리 (m)", example = "40000")
 		private final Double totalDistance;
 
 		@Schema(description = "인증 횟수", example = "120")
@@ -59,13 +59,13 @@ public class SelfieFeedResponse {
 		@Schema(description = "인증 시간", example = "2025-09-20T23:58:00")
 		private final LocalDateTime selfieTime;
 
-		@Schema(description = "총 달린 거리 (km)", example = "5.10")
+		@Schema(description = "총 달린 거리 (m)", example = "5.10")
 		private final Double totalDistance;
 
 		@Schema(description = "총 달린 시간 (초)", example = "2647")
 		private final Integer totalRunTime;
 
-		@Schema(description = "평균 페이스", example = "7'30\"")
+		@Schema(description = "평균 페이스 (초/km)", example = "360")
 		private final String averagePace;
 
 		@Schema(description = "케이던스 (spm)", example = "144")
