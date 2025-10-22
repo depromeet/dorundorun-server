@@ -12,9 +12,6 @@ public record SignUpRequest(
 	@Schema(description = "닉네임", example = "러너123")
 	String nickname,
 
-	@Schema(description = "프로필 이미지 URL", example = "https://cdn.example.com/profiles/user123.jpg")
-	String profileImageUrl,
-
 	@Schema(description = "약관 동의 정보")
 	ConsentInfo consent,
 
@@ -31,5 +28,6 @@ public record SignUpRequest(
 
 		@Schema(description = "개인정보 수집 동의 시각 (필수)", example = "2025-10-16T14:30:00")
 		LocalDateTime personalConsentAt
-	) {}
+	) {
+	}
 }
