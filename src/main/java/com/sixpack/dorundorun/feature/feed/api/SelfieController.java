@@ -2,6 +2,7 @@ package com.sixpack.dorundorun.feature.feed.api;
 
 import java.time.LocalDate;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,8 +10,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixpack.dorundorun.feature.feed.application.FindSelfiesByDateService;
 import com.sixpack.dorundorun.feature.feed.dto.request.CreateSelfieRequest;
 import com.sixpack.dorundorun.feature.feed.dto.request.SelfieReactionRequest;
@@ -31,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 public class SelfieController implements SelfieApi {
 
 	private final FindSelfiesByDateService findSelfiesByDateService;
+	private final ObjectMapper objectMapper;
 
 	@Override
 	@GetMapping("/feeds")
@@ -44,17 +50,23 @@ public class SelfieController implements SelfieApi {
 	}
 
 	@Override
-	@PostMapping(value = "/feeds", consumes = "multipart/form-data")
+	@PostMapping(value = "/feeds", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public DorunResponse<Void> createFeed(
 		@CurrentUser User user,
-		@Valid @ModelAttribute CreateSelfieRequest request
+		@RequestPart("data") String dataJson,
+		@RequestPart("selfieImage") MultipartFile selfieImage
 	) {
-		// TODO: 서비스 로직 구현 예정
-		// 1. MultipartFile을 S3 등에 업로드
-		// 2. 업로드된 이미지 URL과 함께 Feed 엔티티 저장
-		// createSelfieService.execute(user, request);
-		// return DorunResponse.success("인증 업로드에 성공하였습니다");
-		return DorunResponse.success("인증 업로드에 성공하였습니다");
+		try {
+			// JSON 문자열을 객체로 변환
+			CreateSelfieRequest data = objectMapper.readValue(dataJson, CreateSelfieRequest.class);
+			
+			// TODO: 서비스 로직 구현 예정
+			// createSelfieService.create(user, data, selfieImage);
+			
+			return DorunResponse.success("인증 업로드에 성공하였습니다");
+		} catch (JsonProcessingException e) {
+			throw new IllegalArgumentException("잘못된 JSON 형식입니다.", e);
+		}
 	}
 
 	@Override
