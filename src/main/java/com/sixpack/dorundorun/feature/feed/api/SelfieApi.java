@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 
 import com.sixpack.dorundorun.feature.feed.dto.request.CreateSelfieRequest;
 import com.sixpack.dorundorun.feature.feed.dto.request.SelfieReactionRequest;
@@ -59,10 +60,10 @@ public interface SelfieApi {
 				format = "json"
 			)
 		)
-		@org.springframework.web.bind.annotation.RequestPart(value = "data") String dataJson,
+		@RequestPart(value = "data") String dataJson,
 
 		@Parameter(description = "셀피 이미지", required = true)
-		@org.springframework.web.bind.annotation.RequestPart(value = "selfieImage") org.springframework.web.multipart.MultipartFile selfieImage
+		@RequestPart(value = "selfieImage") org.springframework.web.multipart.MultipartFile selfieImage
 	);
 
 	@Operation(summary = "주차별 친구들의 인증수 조회",
