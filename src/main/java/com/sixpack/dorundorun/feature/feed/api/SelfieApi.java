@@ -49,7 +49,20 @@ public interface SelfieApi {
 	})
 	DorunResponse<Void> createFeed(
 		@Parameter(hidden = true) @CurrentUser User user,
-		@Valid @ModelAttribute CreateSelfieRequest request
+
+		@Parameter(
+			description = "인증 데이터",
+			required = true,
+			schema = @io.swagger.v3.oas.annotations.media.Schema(
+				implementation = CreateSelfieRequest.class,
+				type = "string",
+				format = "json"
+			)
+		)
+		@org.springframework.web.bind.annotation.RequestPart(value = "data") String dataJson,
+
+		@Parameter(description = "셀피 이미지", required = true)
+		@org.springframework.web.bind.annotation.RequestPart(value = "selfieImage") org.springframework.web.multipart.MultipartFile selfieImage
 	);
 
 	@Operation(summary = "주차별 친구들의 인증수 조회",
