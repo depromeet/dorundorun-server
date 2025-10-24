@@ -30,8 +30,7 @@ public class GetWeeklySelfiesService {
 	@Transactional(readOnly = true)
 	public SelfieWeekResponse execute(User user, SelfieWeekListRequest request) {
 		// 1. 사용자의 친구 ID 목록 조회
-		List<Long> friendIds = friendJpaRepository.findFriendIdsByUserId(1L);
-		log.info(friendIds.toString());
+		List<Long> friendIds = friendJpaRepository.findFriendIdsByUserId(user.getId());
 
 		// 2. 친구가 없으면 빈 응답 반환
 		if (friendIds.isEmpty()) {
