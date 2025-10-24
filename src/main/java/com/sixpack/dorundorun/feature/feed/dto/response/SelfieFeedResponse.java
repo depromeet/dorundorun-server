@@ -30,13 +30,13 @@ public class SelfieFeedResponse {
 		@Schema(description = "친구 수", example = "7")
 		private final Integer friendCount;
 
-		@Schema(description = "누적 거리 (m)", example = "40000")
-		private final Double totalDistance;
+		@Schema(description = "누적 거리 (m)", example = "400000")
+		private final Long totalDistance;
 
 		@Schema(description = "인증 횟수", example = "120")
 		private final Integer selfieCount;
 
-		public UserSummary(String name, Integer friendCount, Double totalDistance, Integer selfieCount) {
+		public UserSummary(String name, Integer friendCount, Long totalDistance, Integer selfieCount) {
 			this.name = name;
 			this.friendCount = friendCount;
 			this.totalDistance = totalDistance;
@@ -56,17 +56,20 @@ public class SelfieFeedResponse {
 		@Schema(description = "유저 이름", example = "닉네임")
 		private final String userName;
 
+		@Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg")
+		private final String profileImageUrl;
+
 		@Schema(description = "인증 시간", example = "2025-09-20T23:58:00")
 		private final LocalDateTime selfieTime;
 
-		@Schema(description = "총 달린 거리 (m)", example = "5.10")
-		private final Double totalDistance;
+		@Schema(description = "총 달린 거리 (m)", example = "5100")
+		private final Long totalDistance;
 
 		@Schema(description = "총 달린 시간 (초)", example = "2647")
-		private final Integer totalRunTime;
+		private final Long totalRunTime;
 
 		@Schema(description = "평균 페이스 (초/km)", example = "360")
-		private final String averagePace;
+		private final Long averagePace;
 
 		@Schema(description = "케이던스 (spm)", example = "144")
 		private final Integer cadence;
@@ -77,12 +80,13 @@ public class SelfieFeedResponse {
 		@Schema(description = "반응 목록")
 		private final List<ReactionSummary> reactions;
 
-		public FeedItem(Long feedId, String date, String userName, LocalDateTime selfieTime,
-			Double totalDistance, Integer totalRunTime, String averagePace, Integer cadence,
-			String imageUrl, List<ReactionSummary> reactions) {
+		public FeedItem(Long feedId, String date, String userName, String profileImageUrl,
+			LocalDateTime selfieTime, Long totalDistance, Long totalRunTime, Long averagePace,
+			Integer cadence, String imageUrl, List<ReactionSummary> reactions) {
 			this.feedId = feedId;
 			this.date = date;
 			this.userName = userName;
+			this.profileImageUrl = profileImageUrl;
 			this.selfieTime = selfieTime;
 			this.totalDistance = totalDistance;
 			this.totalRunTime = totalRunTime;
