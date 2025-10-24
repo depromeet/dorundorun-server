@@ -31,7 +31,14 @@ public class FindSelfiesByDateService {
 		LocalDateTime endOfDay = targetDate.atTime(LocalTime.MAX);
 
 		// 1. 피드 조회
-		List<Feed> feeds = findFeedsByDateRangeService.find(userId, startOfDay, endOfDay);
+		List<Feed> feeds;
+		if (userId != null) {
+			// 특정 유저의 피드 조회 (마이페이지 또는 친구 프로필)
+			feeds = findFeedsByDateRangeService.find(userId, startOfDay, endOfDay);
+		} else {
+			// 홈 피드: 현재 유저의 친구들 피드만 조회
+			feeds = findFeedsByDateRangeService.findFriendFeeds(currentUser.getId(), startOfDay, endOfDay);
+		}
 
 		// 2. UserSummary 생성 (userId가 있을 때만)
 		SelfieFeedResponse.UserSummary userSummary = userId != null
