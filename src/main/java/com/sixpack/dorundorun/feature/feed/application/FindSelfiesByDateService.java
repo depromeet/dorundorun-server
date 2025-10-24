@@ -93,7 +93,7 @@ public class FindSelfiesByDateService {
 			feed.getRunSession().getDurationTotal(),
 			feed.getRunSession().getPaceAvg(),
 			feed.getRunSession().getCadenceAvg(),
-			feed.getSelfieImage(),
+			feed.getSelfieImageUrl(),
 			reactionSummaries
 		);
 	}

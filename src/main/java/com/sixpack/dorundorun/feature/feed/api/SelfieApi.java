@@ -43,7 +43,7 @@ public interface SelfieApi {
 	);
 
 	@Operation(summary = "인증피드 업로드",
-		description = "셀피 인증피드를 업로드합니다.")
+		description = "셀피 인증피드를 업로드합니다. 셀피 이미지는 선택사항이며, 없을 경우 맵 이미지가 대신 표시됩니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "인증 업로드에 성공하였습니다"),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청")
@@ -62,8 +62,8 @@ public interface SelfieApi {
 		)
 		@RequestPart(value = "data") String dataJson,
 
-		@Parameter(description = "셀피 이미지", required = true)
-		@RequestPart(value = "selfieImage") org.springframework.web.multipart.MultipartFile selfieImage
+		@Parameter(description = "셀피 이미지 (선택사항)", required = false)
+		@RequestPart(value = "selfieImage", required = false) org.springframework.web.multipart.MultipartFile selfieImage
 	);
 
 	@Operation(summary = "주차별 친구들의 인증수 조회",

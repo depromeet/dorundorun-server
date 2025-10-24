@@ -30,8 +30,11 @@ public class CreateSelfieService {
 			user.getId()
 		);
 
-		// 2. 셀피 이미지 S3 업로드
-		String uploadedSelfieImage = s3Service.uploadImage(selfieImage, "feed/selfie");
+		// 2. 셀피 이미지 S3 업로드 (선택사항)
+		String uploadedSelfieImage = null;
+		if (selfieImage != null && !selfieImage.isEmpty()) {
+			uploadedSelfieImage = s3Service.uploadImage(selfieImage, "feed/selfie");
+		}
 
 		// 3. Feed 생성
 		Feed feed = Feed.builder()

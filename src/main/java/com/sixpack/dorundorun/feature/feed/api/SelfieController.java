@@ -58,7 +58,7 @@ public class SelfieController implements SelfieApi {
 	public DorunResponse<Void> createFeed(
 		@CurrentUser User user,
 		@RequestPart("data") String dataJson,
-		@RequestPart("selfieImage") MultipartFile selfieImage
+		@RequestPart(value = "selfieImage", required = false) MultipartFile selfieImage
 	) {
 		try {
 			// JSON 문자열을 객체로 변환
