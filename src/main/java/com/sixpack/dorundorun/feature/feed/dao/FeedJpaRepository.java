@@ -42,4 +42,18 @@ public interface FeedJpaRepository extends JpaRepository<Feed, Long> {
 
 	// 특정 유저의 인증 횟수 조회
 	long countByUserIdAndDeletedAtIsNull(Long userId);
+
+	// 친구들의 날짜별 인증 수 조회
+	@Query("SELECT DATE(f.createdAt) as date, COUNT(f) as count " +
+		"FROM Feed f " +
+		"WHERE f.user.id IN :friendIds " +
+		"AND f.createdAt BETWEEN :startDate AND :endDate " +
+		"AND f.deletedAt IS NULL " +
+		"GROUP BY DATE(f.createdAt) " +
+		"ORDER BY DATE(f.createdAt)")
+	List<Object[]> countFeedsByFriendsAndDateRange(
+		@Param("friendIds") List<Long> friendIds,
+		@Param("startDate") LocalDateTime startDate,
+		@Param("endDate") LocalDateTime endDate
+	);
 }

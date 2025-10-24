@@ -17,6 +17,9 @@ public interface FriendJpaRepository extends JpaRepository<Friend, Long> {
 
 	long countByUserIdAndDeletedAtIsNull(Long userId);
 
+	@Query("SELECT f.friend.id FROM Friend f WHERE f.user.id = :userId AND f.deletedAt IS NULL")
+	List<Long> findFriendIdsByUserId(@Param("userId") Long userId);
+
 	Optional<Friend> findByUserAndFriendAndDeletedAtIsNull(User user, User friend);
 
 	List<Friend> findByUserIdAndFriendIdInAndDeletedAtIsNull(Long userId, List<Long> friendIds);

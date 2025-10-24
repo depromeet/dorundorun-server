@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixpack.dorundorun.feature.feed.application.CreateSelfieService;
 import com.sixpack.dorundorun.feature.feed.application.FindSelfiesByDateService;
+import com.sixpack.dorundorun.feature.feed.application.GetWeeklySelfiesService;
 import com.sixpack.dorundorun.feature.feed.dto.request.CreateSelfieRequest;
 import com.sixpack.dorundorun.feature.feed.dto.request.SelfieReactionRequest;
 import com.sixpack.dorundorun.feature.feed.dto.request.SelfieWeekListRequest;
@@ -38,6 +39,7 @@ public class SelfieController implements SelfieApi {
 
 	private final FindSelfiesByDateService findSelfiesByDateService;
 	private final CreateSelfieService createSelfieService;
+	private final GetWeeklySelfiesService getWeeklySelfiesService;
 	private final ObjectMapper objectMapper;
 
 	@Override
@@ -76,10 +78,8 @@ public class SelfieController implements SelfieApi {
 		@CurrentUser User user,
 		@ModelAttribute SelfieWeekListRequest request
 	) {
-		// TODO: 서비스 로직 구현 예정
-		// SelfieWeekResponse response = getWeeklySelfiesService.execute(user, request);
-		// return DorunResponse.success("주차별 친구들 인증수 조회에 성공하였습니다", response);
-		return DorunResponse.success("주차별 친구들 인증수 조회에 성공하였습니다", null);
+		SelfieWeekResponse response = getWeeklySelfiesService.execute(user, request);
+		return DorunResponse.success("주차별 친구들 인증수 조회에 성공하였습니다", response);
 	}
 
 	@Override
