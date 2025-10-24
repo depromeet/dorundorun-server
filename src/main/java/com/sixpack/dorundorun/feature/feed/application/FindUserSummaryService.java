@@ -38,7 +38,7 @@ public class FindUserSummaryService {
 		return new SelfieFeedResponse.UserSummary(
 			user.getNickname(),
 			(int)friendCount,
-			totalDistanceMeters.doubleValue(),
+			totalDistanceMeters,
 			(int)selfieCount
 		);
 	}
