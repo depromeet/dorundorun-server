@@ -4,15 +4,22 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sixpack.dorundorun.feature.feed.domain.Feed;
 import com.sixpack.dorundorun.feature.feed.domain.Reaction;
+import com.sixpack.dorundorun.feature.feed.domain.ReactionsByEmoji;
+import com.sixpack.dorundorun.feature.feed.dto.request.FeedListRequest;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse;
+import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse.FeedItem;
+import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse.ReactionSummary;
+import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse.UserSummary;
+import com.sixpack.dorundorun.global.response.PaginationResponse;
 import com.sixpack.dorundorun.feature.user.domain.User;
 
 import lombok.RequiredArgsConstructor;
@@ -21,87 +28,55 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FindSelfiesByDateService {
 
-	private final FindFeedsByDateRangeService findFeedsByDateRangeService;
+	private final FindAllFeedsWithReactionsByUserIdAndDateRangeService findAllFeedsWithReactionsByUserIdAndDateRangeService;
 	private final FindUserSummaryService findUserSummaryService;
-	private final FindReactionsByFeedIdsService findReactionsByFeedIdsService;
 
 	@Transactional(readOnly = true)
-	public SelfieFeedResponse find(LocalDate targetDate, Long userId, User currentUser) {
-		LocalDateTime startOfDay = targetDate.atStartOfDay();
-		LocalDateTime endOfDay = targetDate.atTime(LocalTime.MAX);
+	public PaginationResponse<SelfieFeedResponse> find(User currentUser, FeedListRequest request) {
+		Pageable pageable = PageRequest.of(request.page(), request.size());
+		Page<Feed> feedsPage = loadFeedsByCondition(
+			request.userId(), currentUser.getId(), request.currentDate(), pageable);
 
-		// 1. 피드 조회
-		List<Feed> feeds;
-		if (userId != null) {
-			// 특정 유저의 피드 조회 (마이페이지 또는 친구 프로필)
-			feeds = findFeedsByDateRangeService.find(userId, startOfDay, endOfDay);
-		} else {
-			// 홈 피드: 현재 유저의 친구들 피드만 조회
-			feeds = findFeedsByDateRangeService.findFriendFeeds(currentUser.getId(), startOfDay, endOfDay);
-		}
+		List<FeedItem> feedItems = feedsPage.getContent().stream()
+			.map(this::createFeedItem)
+			.toList();
 
-		// 2. UserSummary 생성 (userId가 있을 때만)
-		SelfieFeedResponse.UserSummary userSummary = userId != null
-			? findUserSummaryService.find(userId)
-			: null;
-
-		// 3. 모든 피드의 반응 조회
-		List<Long> feedIds = feeds.stream()
-			.map(Feed::getId)
-			.collect(Collectors.toList());
-
-		Map<Long, List<Reaction>> reactionsByFeedId = findReactionsByFeedIdsService.find(feedIds);
-
-		// 4. FeedItem 목록 생성
-		List<SelfieFeedResponse.FeedItem> feedItems = feeds.stream()
-			.map(feed -> createFeedItem(feed, reactionsByFeedId.getOrDefault(feed.getId(), List.of())))
-			.collect(Collectors.toList());
-
-		return new SelfieFeedResponse(userSummary, feedItems);
+		SelfieFeedResponse.UserSummary userSummary = loadUserSummary(request.userId());
+		SelfieFeedResponse response = new SelfieFeedResponse(userSummary, feedItems);
+		
+		return PaginationResponse.of(List.of(response), request.page(), request.size(), feedsPage.getTotalElements());
 	}
 
-	private SelfieFeedResponse.FeedItem createFeedItem(Feed feed, List<Reaction> reactions) {
-		// Reaction을 이모지 타입별로 그룹핑
-		Map<String, List<Reaction>> reactionsByEmoji = reactions.stream()
-			.collect(Collectors.groupingBy(r -> r.getEmojiType().name()));
+	private UserSummary loadUserSummary(Long userId) {
+		return userId != null
+			? findUserSummaryService.find(userId)
+			: null;
+	}
 
-		// ReactionSummary 생성
-		List<SelfieFeedResponse.ReactionSummary> reactionSummaries = reactionsByEmoji.entrySet().stream()
-			.map(entry -> {
-				String emojiType = entry.getKey();
-				List<Reaction> emojiReactions = entry.getValue();
+	private Page<Feed> loadFeedsByCondition(Long userId, Long currentUserId, LocalDate targetDate, Pageable pageable) {
+		LocalDateTime startOfDay = targetDate != null ? targetDate.atStartOfDay() : null;
+		LocalDateTime endOfDay = targetDate != null ? targetDate.atTime(LocalTime.MAX) : null;
 
-				// ReactionUser 목록 생성
-				List<SelfieFeedResponse.ReactionUser> reactionUsers = emojiReactions.stream()
-					.map(r -> new SelfieFeedResponse.ReactionUser(
-						r.getUser().getId(),
-						r.getUser().getNickname(),
-						r.getUser().getProfileImageUrl(),
-						r.getCreatedAt()
-					))
-					.collect(Collectors.toList());
+		if (userId == null) {
+			// userId가 없으면 나와 내 친구들의 피드 조회
+			return findAllFeedsWithReactionsByUserIdAndDateRangeService.find(null, currentUserId, true, startOfDay,
+				endOfDay, pageable);
+		} else if (userId.equals(currentUserId)) {
+			// userId가 내 id와 같으면 내 피드 조회
+			return findAllFeedsWithReactionsByUserIdAndDateRangeService.find(userId, currentUserId, false, startOfDay,
+				endOfDay, pageable);
+		} else {
+			// userId가 내 id와 다르면 해당 친구의 피드 조회
+			return findAllFeedsWithReactionsByUserIdAndDateRangeService.find(userId, currentUserId, false, startOfDay,
+				endOfDay, pageable);
+		}
+	}
 
-				return new SelfieFeedResponse.ReactionSummary(
-					emojiType,
-					emojiReactions.size(),
-					reactionUsers
-				);
-			})
-			.collect(Collectors.toList());
+	private FeedItem createFeedItem(Feed feed) {
+		List<Reaction> reactions = feed.getReactions();
+		ReactionsByEmoji reactionsByEmoji = ReactionsByEmoji.from(reactions);
+		List<ReactionSummary> reactionSummaries = reactionsByEmoji.toReactionSummaries();
 
-		// FeedItem 생성
-		return new SelfieFeedResponse.FeedItem(
-			feed.getId(),
-			feed.getCreatedAt().toLocalDate().toString(),
-			feed.getUser().getNickname(),
-			feed.getUser().getProfileImageUrl(),
-			feed.getCreatedAt(),
-			feed.getRunSession().getDistanceTotal(),
-			feed.getRunSession().getDurationTotal(),
-			feed.getRunSession().getPaceAvg(),
-			feed.getRunSession().getCadenceAvg(),
-			feed.getSelfieImageUrl(),
-			reactionSummaries
-		);
+		return FeedItem.of(feed, reactionSummaries);
 	}
 }

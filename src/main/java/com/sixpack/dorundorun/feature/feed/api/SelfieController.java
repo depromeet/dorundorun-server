@@ -1,7 +1,5 @@
 package com.sixpack.dorundorun.feature.feed.api;
 
-import java.time.LocalDate;
-
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -9,7 +7,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,9 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixpack.dorundorun.feature.feed.application.CreateSelfieService;
+import com.sixpack.dorundorun.feature.feed.application.FindAllWeeklySelfiesService;
 import com.sixpack.dorundorun.feature.feed.application.FindSelfiesByDateService;
-import com.sixpack.dorundorun.feature.feed.application.GetWeeklySelfiesService;
 import com.sixpack.dorundorun.feature.feed.dto.request.CreateSelfieRequest;
+import com.sixpack.dorundorun.feature.feed.dto.request.FeedListRequest;
 import com.sixpack.dorundorun.feature.feed.dto.request.SelfieReactionRequest;
 import com.sixpack.dorundorun.feature.feed.dto.request.SelfieWeekListRequest;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse;
@@ -28,6 +26,7 @@ import com.sixpack.dorundorun.feature.feed.dto.response.SelfieWeekResponse;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
 import com.sixpack.dorundorun.global.response.DorunResponse;
+import com.sixpack.dorundorun.global.response.PaginationResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,23 +38,22 @@ public class SelfieController implements SelfieApi {
 
 	private final FindSelfiesByDateService findSelfiesByDateService;
 	private final CreateSelfieService createSelfieService;
-	private final GetWeeklySelfiesService getWeeklySelfiesService;
+	private final FindAllWeeklySelfiesService findAllWeeklySelfiesService;
 	private final ObjectMapper objectMapper;
 
 	@Override
 	@GetMapping("/feeds")
-	public DorunResponse<SelfieFeedResponse> getFeedsByDate(
-		@RequestParam LocalDate currentDate,
-		@RequestParam(required = false) Long userId,
+	public DorunResponse<PaginationResponse<SelfieFeedResponse>> getFeedsByDate(
+		@ModelAttribute FeedListRequest request,
 		@CurrentUser User user
 	) {
-		SelfieFeedResponse response = findSelfiesByDateService.find(currentDate, userId, user);
+		PaginationResponse<SelfieFeedResponse> response = findSelfiesByDateService.find(user, request);
 		return DorunResponse.success("인증목록 조회에 성공하였습니다", response);
 	}
 
 	@Override
 	@PostMapping(value = "/feeds", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public DorunResponse<Void> createFeed(
+	public DorunResponse<Void> createSelfie(
 		@CurrentUser User user,
 		@RequestPart("data") String dataJson,
 		@RequestPart(value = "selfieImage", required = false) MultipartFile selfieImage
@@ -78,7 +76,7 @@ public class SelfieController implements SelfieApi {
 		@CurrentUser User user,
 		@ModelAttribute SelfieWeekListRequest request
 	) {
-		SelfieWeekResponse response = getWeeklySelfiesService.execute(user, request);
+		SelfieWeekResponse response = findAllWeeklySelfiesService.execute(user, request);
 		return DorunResponse.success("주차별 친구들 인증수 조회에 성공하였습니다", response);
 	}
 
