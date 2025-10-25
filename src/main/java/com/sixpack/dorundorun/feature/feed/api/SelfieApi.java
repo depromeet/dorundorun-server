@@ -1,15 +1,14 @@
 package com.sixpack.dorundorun.feature.feed.api;
 
-import java.time.LocalDate;
-
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.sixpack.dorundorun.feature.feed.dto.request.CreateSelfieRequest;
+import com.sixpack.dorundorun.feature.feed.dto.request.FeedListRequest;
 import com.sixpack.dorundorun.feature.feed.dto.request.SelfieReactionRequest;
 import com.sixpack.dorundorun.feature.feed.dto.request.SelfieWeekListRequest;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse;
@@ -18,6 +17,7 @@ import com.sixpack.dorundorun.feature.feed.dto.response.SelfieWeekResponse;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
 import com.sixpack.dorundorun.global.response.DorunResponse;
+import com.sixpack.dorundorun.global.response.PaginationResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -36,9 +36,8 @@ public interface SelfieApi {
 		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
 		@ApiResponse(responseCode = "404", description = "유저를 찾을 수 없음")
 	})
-	DorunResponse<SelfieFeedResponse> getFeedsByDate(
-		@Parameter(description = "조회 기준 날짜 (YYYY-MM-DD)", required = true) @RequestParam LocalDate currentDate,
-		@Parameter(description = "조회할 유저 ID") @RequestParam(required = false) Long userId,
+	DorunResponse<PaginationResponse<SelfieFeedResponse>> getFeedsByDate(
+		@ParameterObject @ModelAttribute FeedListRequest request,
 		@Parameter(hidden = true) @CurrentUser User user
 	);
 
@@ -48,7 +47,7 @@ public interface SelfieApi {
 		@ApiResponse(responseCode = "200", description = "인증 업로드에 성공하였습니다"),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청")
 	})
-	DorunResponse<Void> createFeed(
+	DorunResponse<Void> createSelfie(
 		@Parameter(hidden = true) @CurrentUser User user,
 
 		@Parameter(
@@ -63,7 +62,7 @@ public interface SelfieApi {
 		@RequestPart(value = "data") String dataJson,
 
 		@Parameter(description = "셀피 이미지 (선택사항)", required = false)
-		@RequestPart(value = "selfieImage", required = false) org.springframework.web.multipart.MultipartFile selfieImage
+		@RequestPart(value = "selfieImage", required = false) MultipartFile selfieImage
 	);
 
 	@Operation(summary = "주차별 친구들의 인증수 조회",
