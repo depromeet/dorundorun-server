@@ -1,17 +1,23 @@
 package com.sixpack.dorundorun.feature.feed.api;
 
-import java.time.LocalDate;
-
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sixpack.dorundorun.feature.feed.application.CreateSelfieService;
+import com.sixpack.dorundorun.feature.feed.application.FindAllWeeklySelfiesService;
+import com.sixpack.dorundorun.feature.feed.application.FindSelfiesByDateService;
 import com.sixpack.dorundorun.feature.feed.dto.request.CreateSelfieRequest;
+import com.sixpack.dorundorun.feature.feed.dto.request.FeedListRequest;
 import com.sixpack.dorundorun.feature.feed.dto.request.SelfieReactionRequest;
 import com.sixpack.dorundorun.feature.feed.dto.request.SelfieWeekListRequest;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse;
@@ -20,6 +26,7 @@ import com.sixpack.dorundorun.feature.feed.dto.response.SelfieWeekResponse;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
 import com.sixpack.dorundorun.global.response.DorunResponse;
+import com.sixpack.dorundorun.global.response.PaginationResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,37 +36,38 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SelfieController implements SelfieApi {
 
-	// TODO: 서비스 의존성 주입 예정
-	// private final GetSelfiesByDateService getSelfiesByDateService;
-	// private final CreateSelfieService createSelfieService;
-	// private final GetWeeklySelfiesService getWeeklySelfiesService;
-	// private final ReactToSelfieService reactToSelfieService;
+	private final FindSelfiesByDateService findSelfiesByDateService;
+	private final CreateSelfieService createSelfieService;
+	private final FindAllWeeklySelfiesService findAllWeeklySelfiesService;
+	private final ObjectMapper objectMapper;
 
 	@Override
 	@GetMapping("/feeds")
-	public DorunResponse<SelfieFeedResponse> getFeedsByDate(
-		@RequestParam(required = false) LocalDate currentDate,
-		@RequestParam(required = false) Long userId,
+	public DorunResponse<PaginationResponse<SelfieFeedResponse>> getFeedsByDate(
+		@ModelAttribute FeedListRequest request,
 		@CurrentUser User user
 	) {
-		// TODO: 서비스 로직 구현 예정
-		// SelfieFeedResponse response = getSelfiesByDateService.execute(currentDate, userId, user);
-		// return DorunResponse.success("인증목록 조회에 성공하였습니다", response);
-		return DorunResponse.success("인증목록 조회에 성공하였습니다", null);
+		PaginationResponse<SelfieFeedResponse> response = findSelfiesByDateService.find(user, request);
+		return DorunResponse.success("인증목록 조회에 성공하였습니다", response);
 	}
 
 	@Override
-	@PostMapping(value = "/feeds", consumes = "multipart/form-data")
-	public DorunResponse<Void> createFeed(
+	@PostMapping(value = "/feeds", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public DorunResponse<Void> createSelfie(
 		@CurrentUser User user,
-		@Valid @ModelAttribute CreateSelfieRequest request
+		@RequestPart("data") String dataJson,
+		@RequestPart(value = "selfieImage", required = false) MultipartFile selfieImage
 	) {
-		// TODO: 서비스 로직 구현 예정
-		// 1. MultipartFile을 S3 등에 업로드
-		// 2. 업로드된 이미지 URL과 함께 Feed 엔티티 저장
-		// createSelfieService.execute(user, request);
-		// return DorunResponse.success("인증 업로드에 성공하였습니다");
-		return DorunResponse.success("인증 업로드에 성공하였습니다");
+		try {
+			// JSON 문자열을 객체로 변환
+			CreateSelfieRequest data = objectMapper.readValue(dataJson, CreateSelfieRequest.class);
+
+			createSelfieService.create(user, data, selfieImage);
+
+			return DorunResponse.success("인증 업로드에 성공하였습니다");
+		} catch (JsonProcessingException e) {
+			throw new IllegalArgumentException("잘못된 JSON 형식입니다.", e);
+		}
 	}
 
 	@Override
@@ -68,10 +76,8 @@ public class SelfieController implements SelfieApi {
 		@CurrentUser User user,
 		@ModelAttribute SelfieWeekListRequest request
 	) {
-		// TODO: 서비스 로직 구현 예정
-		// SelfieWeekResponse response = getWeeklySelfiesService.execute(user, request);
-		// return DorunResponse.success("주차별 친구들 인증수 조회에 성공하였습니다", response);
-		return DorunResponse.success("주차별 친구들 인증수 조회에 성공하였습니다", null);
+		SelfieWeekResponse response = findAllWeeklySelfiesService.execute(user, request);
+		return DorunResponse.success("주차별 친구들 인증수 조회에 성공하였습니다", response);
 	}
 
 	@Override
