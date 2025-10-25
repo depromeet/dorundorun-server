@@ -24,28 +24,24 @@ public class CreateSelfieService {
 
 	@Transactional
 	public Feed create(User user, CreateSelfieRequest request, MultipartFile selfieImage) {
-		// 1. RunSession 조회 및 검증
-		RunSession runSession = findRunSessionByIdAndUserIdService.find(
-			request.runSessionId(),
-			user.getId()
-		);
+		RunSession runSession = findRunSessionByIdAndUserIdService.find(request.runSessionId(), user.getId());
 
-		// 2. 셀피 이미지 S3 업로드 (선택사항)
-		String uploadedSelfieImage = null;
-		if (selfieImage != null && !selfieImage.isEmpty()) {
-			uploadedSelfieImage = s3Service.uploadImage(selfieImage, "feed/selfie");
-		}
-
-		// 3. Feed 생성
 		Feed feed = Feed.builder()
 			.user(user)
 			.runSession(runSession)
 			.mapImage(runSession.getMapImage())
-			.selfieImage(uploadedSelfieImage)
+			.selfieImage(getUploadedSelfieImage(selfieImage))
 			.content(request.content())
 			.build();
 
-		// 4. Feed 저장
 		return feedJpaRepository.save(feed);
+	}
+
+	private String getUploadedSelfieImage(MultipartFile selfieImage) {
+		String uploadedSelfieImage = null;
+		if (selfieImage != null && !selfieImage.isEmpty()) {
+			uploadedSelfieImage = s3Service.uploadImage(selfieImage);
+		}
+		return uploadedSelfieImage;
 	}
 }
