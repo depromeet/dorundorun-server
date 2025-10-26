@@ -12,15 +12,25 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sixpack.dorundorun.feature.auth.exception.AuthErrorCode;
+import com.sixpack.dorundorun.global.response.DorunResponse;
+
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final ObjectMapper objectMapper;
 
 	@Bean
 	@Order(1)
@@ -39,18 +49,27 @@ public class SecurityConfig {
 		defaultFilterChain(http);
 
 		http
+			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 			.exceptionHandling(exception ->
 				exception
 					.authenticationEntryPoint(
 						(request, response, authException) -> {
-							response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+							response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+							response.setContentType("application/json;charset=UTF-8");
+
+							DorunResponse<Void> errorResponse =
+								DorunResponse.error(AuthErrorCode.INVALID_TOKEN);
+
+							response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
 						})
-			) // TODO 예외 응답 형식 통일
+			)
 			.authorizeHttpRequests(authorize ->
 				authorize
 					.requestMatchers("/public/**").permitAll()
 					.requestMatchers("/api/health").permitAll()
-					.requestMatchers("/api/**").permitAll()
+					.requestMatchers("/api/auth/sms/**").permitAll()
+					.requestMatchers("/api/auth/signup").permitAll()
+					.requestMatchers("/api/auth/refresh").permitAll()
 					.anyRequest().authenticated());
 
 		return http.build();

@@ -8,9 +8,11 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import com.sixpack.dorundorun.feature.auth.exception.AuthErrorCode;
 import com.sixpack.dorundorun.feature.user.application.FindUserByIdService;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
+import com.sixpack.dorundorun.global.config.jwt.JwtTokenProvider;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +21,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolver {
 
-	public static final String AUTHORIZATION_HEADER = "Authorization";
+	private static final String AUTHORIZATION_HEADER = "Authorization";
+	private static final String BEARER_PREFIX = "Bearer ";
 
+	private final JwtTokenProvider jwtTokenProvider;
 	private final FindUserByIdService findUserByIdService;
 
 	@Override
@@ -35,22 +39,26 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
 		ModelAndViewContainer mavContainer,
 		NativeWebRequest webRequest,
 		WebDataBinderFactory binderFactory
-	) throws Exception {
+	) {
 
 		HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-
 		String authHeader = request != null ? request.getHeader(AUTHORIZATION_HEADER) : null;
 
-		if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer ")) {
-			throw new IllegalArgumentException("Authorization header with Bearer token is required");
+		if (!StringUtils.hasText(authHeader) || !authHeader.startsWith(BEARER_PREFIX)) {
+			throw AuthErrorCode.MISSING_TOKEN.format();
 		}
 
-		try {
-			String userIdToken = authHeader.substring(7);
-			Long userId = Long.parseLong(userIdToken);
-			return findUserByIdService.find(userId);
-		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Invalid User ID format in Bearer token", e);
+		String token = extractToken(authHeader);
+
+		if (!jwtTokenProvider.validate(token)) {
+			throw AuthErrorCode.INVALID_TOKEN.format();
 		}
+
+		Long userId = jwtTokenProvider.getUserId(token);
+		return findUserByIdService.find(userId);
+	}
+
+	private String extractToken(String authHeader) {
+		return authHeader.substring(BEARER_PREFIX.length());
 	}
 }
