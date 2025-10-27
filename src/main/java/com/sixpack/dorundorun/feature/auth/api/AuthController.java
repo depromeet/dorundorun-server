@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.sixpack.dorundorun.feature.auth.application.RefreshAccessTokenService;
+import com.sixpack.dorundorun.feature.auth.application.SignUpService;
 import com.sixpack.dorundorun.feature.auth.dto.request.RefreshTokenRequest;
 import com.sixpack.dorundorun.feature.auth.dto.request.SmsSendRequest;
 import com.sixpack.dorundorun.feature.auth.dto.request.SmsVerificationRequest;
@@ -29,9 +30,8 @@ import lombok.RequiredArgsConstructor;
 public class AuthController implements AuthApi {
 
 	private final RefreshAccessTokenService refreshAccessTokenService;
+	private final SignUpService signUpService;
 
-	// private final SignUpService signUpService;
-	// private final ObjectMapper objectMapper;
 	// TODO: 서비스 의존성 주입 예정
 	// private final SmsSendService smsSendService;
 	// private final SmsVerificationService smsVerificationService;
@@ -66,7 +66,8 @@ public class AuthController implements AuthApi {
 		@RequestPart(value = "data") String dataJson,
 		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage
 	) {
-		return DorunResponse.created(null);
+		SignUpResponse response = signUpService.signUp(dataJson, profileImage);
+		return DorunResponse.created("회원가입에 성공하였습니다", response);
 	}
 
 	@Override

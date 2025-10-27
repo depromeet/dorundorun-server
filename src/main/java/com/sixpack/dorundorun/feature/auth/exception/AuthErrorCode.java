@@ -28,6 +28,7 @@ public enum AuthErrorCode implements ErrorCode {
 	PHONE_NUMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 가입된 전화번호입니다: %s"),
 	NICKNAME_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "이미 사용 중인 닉네임입니다: %s"),
 	INVALID_PHONE_NUMBER_FORMAT(HttpStatus.BAD_REQUEST, "올바르지 않은 전화번호 형식입니다"),
+	USER_CODE_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "사용자 코드 생성에 실패했습니다"),
 
 	// 회원 관련
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다"),

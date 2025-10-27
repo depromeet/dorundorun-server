@@ -8,7 +8,7 @@ import lombok.Builder;
 @Builder
 public record UserRegisteredEvent(
 	Long userId,
-	String email,
+	String phoneNumber,
 	String name
 ) implements RedisStreamEvent {
 

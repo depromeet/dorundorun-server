@@ -1,6 +1,7 @@
 package com.sixpack.dorundorun.feature.user.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sixpack.dorundorun.global.utils.PhoneNumberMaskUtil;
 import com.sixpack.dorundorun.infra.redis.stream.annotation.RedisStreamEventListener;
 import com.sixpack.dorundorun.infra.redis.stream.handler.AbstractRedisStreamEventHandler;
 import com.sixpack.dorundorun.infra.slack.SlackNotifier;
@@ -15,7 +16,7 @@ public class UserRegisteredEventListener extends AbstractRedisStreamEventHandler
 		:star2: *새로운 회원 가입 소식!* :star2:
 		
 		- 이름: %s
-		- 이메일: `%s`
+		- 연락처: `%s`
 		- 사용자 ID: `%d`
 		
 		:wave: 환영합니다!
@@ -39,10 +40,11 @@ public class UserRegisteredEventListener extends AbstractRedisStreamEventHandler
 
 	@Override
 	protected void onMessage(UserRegisteredEvent event) {
-		log.info("Processing user registration: userId={}, email={}", event.userId(), event.email());
+		log.info("Processing user registration");
 
-		slackNotifier.send(NEW_USER_WELCOME_MESSAGE.formatted(event.name(), event.email(), event.userId()));
+		String maskedPhoneNumber = PhoneNumberMaskUtil.mask(event.phoneNumber());
+		slackNotifier.send(NEW_USER_WELCOME_MESSAGE.formatted(event.name(), maskedPhoneNumber, event.userId()));
 
-		log.info("User registration processed: userId={}", event.userId());
+		log.info("User registration processed");
 	}
 }
