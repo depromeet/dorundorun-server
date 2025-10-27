@@ -67,3 +67,8 @@ firebase:
   fcm:
     enabled: false
     retry: true
+
+jwt:
+  secret: test-secret-key-for-jwt-token-generation-must-be-at-least-256-bits-long-for-hs256-algorithm-test
+  access-token-validity: 3600000      # 1시간 (milliseconds)
+  refresh-token-validity: 604800000   # 7일 (milliseconds)

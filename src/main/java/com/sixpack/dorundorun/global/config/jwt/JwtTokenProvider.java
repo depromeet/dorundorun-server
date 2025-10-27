@@ -7,7 +7,6 @@ import javax.crypto.SecretKey;
 
 import org.springframework.stereotype.Component;
 
-import com.sixpack.dorundorun.feature.auth.exception.AuthErrorCode;
 import com.sixpack.dorundorun.feature.user.domain.User;
 
 import io.jsonwebtoken.Claims;
@@ -74,7 +73,6 @@ public class JwtTokenProvider {
 			log.warn("Invalid JWT token: {}", e.getMessage());
 		} catch (ExpiredJwtException e) {
 			log.warn("Expired JWT token: {}", e.getMessage());
-			throw AuthErrorCode.EXPIRED_TOKEN.format();
 		} catch (UnsupportedJwtException e) {
 			log.warn("Unsupported JWT token: {}", e.getMessage());
 		} catch (IllegalArgumentException e) {

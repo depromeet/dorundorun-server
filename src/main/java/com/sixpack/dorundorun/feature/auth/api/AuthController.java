@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.sixpack.dorundorun.feature.auth.application.RefreshAccessTokenService;
 import com.sixpack.dorundorun.feature.auth.dto.request.RefreshTokenRequest;
 import com.sixpack.dorundorun.feature.auth.dto.request.SmsSendRequest;
 import com.sixpack.dorundorun.feature.auth.dto.request.SmsVerificationRequest;
@@ -27,13 +28,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthController implements AuthApi {
 
+	private final RefreshAccessTokenService refreshAccessTokenService;
+
 	// private final SignUpService signUpService;
 	// private final ObjectMapper objectMapper;
 	// TODO: 서비스 의존성 주입 예정
 	// private final SmsSendService smsSendService;
 	// private final SmsVerificationService smsVerificationService;
 	// private final LogoutService logoutService;
-	// private final TokenRefreshService tokenRefreshService;
 	// private final WithdrawService withdrawService;
 
 	@Override
@@ -79,10 +81,8 @@ public class AuthController implements AuthApi {
 	@Override
 	@PostMapping("/refresh")
 	public DorunResponse<TokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
-		// TODO: 서비스 로직 구현 예정
-		// TokenResponse response = tokenRefreshService.refresh(request);
-		// return DorunResponse.success("토큰 갱신에 성공하였습니다", response);
-		return DorunResponse.success("토큰 갱신에 성공하였습니다", null);
+		TokenResponse response = refreshAccessTokenService.refresh(request);
+		return DorunResponse.success("토큰 갱신에 성공하였습니다", response);
 	}
 
 	@Override
