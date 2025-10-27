@@ -2,7 +2,6 @@ package com.sixpack.dorundorun.feature.feed.api;
 
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
@@ -84,7 +83,6 @@ public interface SelfieApi {
 		@ApiResponse(responseCode = "404", description = "셀피를 찾을 수 없습니다")
 	})
 	DorunResponse<SelfieReactionResponse> reactToSelfie(
-		@Parameter(description = "셀피 ID", required = true) @PathVariable Long selfieId,
 		@Parameter(hidden = true) @CurrentUser User user,
 		@Valid @RequestBody SelfieReactionRequest request
 	);
