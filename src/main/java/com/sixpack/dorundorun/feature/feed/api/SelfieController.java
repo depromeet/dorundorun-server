@@ -3,7 +3,6 @@ package com.sixpack.dorundorun.feature.feed.api;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -81,9 +80,8 @@ public class SelfieController implements SelfieApi {
 	}
 
 	@Override
-	@PostMapping("/feeds/{selfieId}/reaction")
+	@PostMapping("/feeds/reaction")
 	public DorunResponse<SelfieReactionResponse> reactToSelfie(
-		@PathVariable Long selfieId,
 		@CurrentUser User user,
 		@Valid @RequestBody SelfieReactionRequest request
 	) {
