@@ -36,4 +36,10 @@ public interface UserJpaRepository extends JpaRepository<User, Long> {
 		  )
 		""", nativeQuery = true)
 	List<Long> findUsersNoFriendsAfter48Hours();
+
+	boolean existsByCode(String code);
+
+	boolean existsByPhoneNumber(String phoneNumber);
+
+	Optional<User> findByPhoneNumber(String phoneNumber);
 }
