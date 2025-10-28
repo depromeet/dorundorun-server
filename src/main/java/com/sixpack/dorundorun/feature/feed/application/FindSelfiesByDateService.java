@@ -19,8 +19,10 @@ import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse.FeedItem;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse.ReactionSummary;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse.UserSummary;
-import com.sixpack.dorundorun.global.response.PaginationResponse;
+import com.sixpack.dorundorun.feature.user.application.GetDefaultProfileImageUrlService;
 import com.sixpack.dorundorun.feature.user.domain.User;
+import com.sixpack.dorundorun.global.response.PaginationResponse;
+import com.sixpack.dorundorun.infra.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +32,8 @@ public class FindSelfiesByDateService {
 
 	private final FindAllFeedsWithReactionsByUserIdAndDateRangeService findAllFeedsWithReactionsByUserIdAndDateRangeService;
 	private final FindUserSummaryService findUserSummaryService;
+	private final S3Service s3Service;
+	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
 
 	@Transactional(readOnly = true)
 	public PaginationResponse<SelfieFeedResponse> find(User currentUser, FeedListRequest request) {
@@ -38,12 +42,12 @@ public class FindSelfiesByDateService {
 			request.userId(), currentUser.getId(), request.currentDate(), pageable);
 
 		List<FeedItem> feedItems = feedsPage.getContent().stream()
-			.map(this::createFeedItem)
+			.map(feed -> createFeedItem(feed, currentUser.getId()))
 			.toList();
 
 		SelfieFeedResponse.UserSummary userSummary = loadUserSummary(request.userId());
 		SelfieFeedResponse response = new SelfieFeedResponse(userSummary, feedItems);
-		
+
 		return PaginationResponse.of(List.of(response), request.page(), request.size(), feedsPage.getTotalElements());
 	}
 
@@ -57,26 +61,46 @@ public class FindSelfiesByDateService {
 		LocalDateTime startOfDay = targetDate != null ? targetDate.atStartOfDay() : null;
 		LocalDateTime endOfDay = targetDate != null ? targetDate.atTime(LocalTime.MAX) : null;
 
-		if (userId == null) {
-			// userId가 없으면 나와 내 친구들의 피드 조회
-			return findAllFeedsWithReactionsByUserIdAndDateRangeService.find(null, currentUserId, true, startOfDay,
-				endOfDay, pageable);
-		} else if (userId.equals(currentUserId)) {
-			// userId가 내 id와 같으면 내 피드 조회
-			return findAllFeedsWithReactionsByUserIdAndDateRangeService.find(userId, currentUserId, false, startOfDay,
-				endOfDay, pageable);
-		} else {
-			// userId가 내 id와 다르면 해당 친구의 피드 조회
-			return findAllFeedsWithReactionsByUserIdAndDateRangeService.find(userId, currentUserId, false, startOfDay,
-				endOfDay, pageable);
-		}
+		// userId가 null이면 나와 친구들의 피드 조회, null이 아니면 해당 유저의 피드만 조회
+		return findAllFeedsWithReactionsByUserIdAndDateRangeService.find(userId, currentUserId, startOfDay,
+			endOfDay, pageable);
 	}
 
-	private FeedItem createFeedItem(Feed feed) {
+	private FeedItem createFeedItem(Feed feed, Long currentUserId) {
 		List<Reaction> reactions = feed.getReactions();
 		ReactionsByEmoji reactionsByEmoji = ReactionsByEmoji.from(reactions);
 		List<ReactionSummary> reactionSummaries = reactionsByEmoji.toReactionSummaries();
 
-		return FeedItem.of(feed, reactionSummaries);
+		List<ReactionSummary> convertedReactionSummaries = reactionSummaries.stream()
+			.map(summary -> convertReactionSummaryUrls(summary, currentUserId))
+			.toList();
+
+		String profileImageUrl = feed.getUser().getProfileImageUrl() != null
+			? s3Service.getImageUrl(feed.getUser().getProfileImageUrl())
+			: getDefaultProfileImageUrlService.get();
+
+		String selfieImageUrl = feed.getSelfieImageUrl() != null
+			? s3Service.getImageUrl(feed.getSelfieImageUrl())
+			: null;
+
+		return FeedItem.of(feed, convertedReactionSummaries, currentUserId, profileImageUrl, selfieImageUrl);
+	}
+
+	private ReactionSummary convertReactionSummaryUrls(ReactionSummary summary, Long currentUserId) {
+		List<SelfieFeedResponse.ReactionUser> convertedUsers = summary.users().stream()
+			.map(user -> new SelfieFeedResponse.ReactionUser(
+				user.userId(),
+				user.nickname(),
+				user.profileImageUrl() != null ? s3Service.getImageUrl(user.profileImageUrl()) : getDefaultProfileImageUrlService.get(),
+				user.userId().equals(currentUserId),
+				user.reactedAt()
+			))
+			.toList();
+
+		return new ReactionSummary(
+			summary.emojiType(),
+			summary.totalCount(),
+			convertedUsers
+		);
 	}
 }

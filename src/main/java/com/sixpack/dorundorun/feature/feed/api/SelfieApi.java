@@ -50,7 +50,7 @@ public interface SelfieApi {
 		@Parameter(hidden = true) @CurrentUser User user,
 
 		@Parameter(
-			description = "인증 데이터",
+			description = "인증 데이터 -> CreateSelfieRequest",
 			required = true,
 			schema = @io.swagger.v3.oas.annotations.media.Schema(
 				implementation = CreateSelfieRequest.class,

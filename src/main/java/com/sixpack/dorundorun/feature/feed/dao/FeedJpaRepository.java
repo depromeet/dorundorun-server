@@ -22,28 +22,29 @@ public interface FeedJpaRepository extends JpaRepository<Feed, Long> {
 		JOIN FETCH f.user
 		JOIN FETCH f.runSession
 		LEFT JOIN Friend fr ON fr.friend.id = f.user.id AND fr.user.id = :currentUserId AND fr.deletedAt IS NULL
-		WHERE (:userId IS NULL AND :isFriendFeed = true AND fr.id IS NOT NULL)
-		OR (:userId IS NULL AND :isFriendFeed = false)
-		OR (:userId IS NOT NULL AND f.user.id = :userId)
+		WHERE f.deletedAt IS NULL
 		AND (:startDate IS NULL OR f.createdAt >= :startDate)
 		AND (:endDate IS NULL OR f.createdAt <= :endDate)
-		AND f.deletedAt IS NULL
+		AND (
+			(:userId IS NULL AND (fr.id IS NOT NULL OR f.user.id = :currentUserId))
+			OR (:userId IS NOT NULL AND f.user.id = :userId)
+		)
 		ORDER BY f.createdAt DESC
 		""",
 		countQuery = """
 			SELECT COUNT(f) FROM Feed f
 			LEFT JOIN Friend fr ON fr.friend.id = f.user.id AND fr.user.id = :currentUserId AND fr.deletedAt IS NULL
-			WHERE (:userId IS NULL AND :isFriendFeed = true AND fr.id IS NOT NULL)
-			OR (:userId IS NULL AND :isFriendFeed = false)
-			OR (:userId IS NOT NULL AND f.user.id = :userId)
+			WHERE f.deletedAt IS NULL
 			AND (:startDate IS NULL OR f.createdAt >= :startDate)
 			AND (:endDate IS NULL OR f.createdAt <= :endDate)
-			AND f.deletedAt IS NULL
+			AND (
+				(:userId IS NULL AND (fr.id IS NOT NULL OR f.user.id = :currentUserId))
+				OR (:userId IS NOT NULL AND f.user.id = :userId)
+			)
 			""")
 	Page<Feed> findByUserIdAndDateRangeWithReactions(
 		@Param("userId") Long userId,
 		@Param("currentUserId") Long currentUserId,
-		@Param("isFriendFeed") boolean isFriendFeed,
 		@Param("startDate") LocalDateTime startDate,
 		@Param("endDate") LocalDateTime endDate,
 		Pageable pageable

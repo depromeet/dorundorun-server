@@ -22,6 +22,9 @@ public record SelfieFeedResponse(
 		@Schema(description = "유저 이름", example = "닉네임")
 		String name,
 
+		@Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg")
+		String profileImageUrl,
+
 		@Schema(description = "친구 수", example = "7")
 		Integer friendCount,
 
@@ -47,6 +50,9 @@ public record SelfieFeedResponse(
 		@Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg")
 		String profileImageUrl,
 
+		@Schema(description = "내 피드 여부", example = "true")
+		Boolean isMyFeed,
+
 		@Schema(description = "인증 시간", example = "2025-09-20T23:58:00")
 		LocalDateTime selfieTime,
 
@@ -69,18 +75,20 @@ public record SelfieFeedResponse(
 		List<ReactionSummary> reactions
 	) {
 
-		public static FeedItem of(Feed feed, List<ReactionSummary> summaries) {
+		public static FeedItem of(Feed feed, List<ReactionSummary> summaries, Long currentUserId,
+		                          String profileImageUrl, String selfieImageUrl) {
 			return new FeedItem(
 				feed.getId(),
 				feed.getCreatedAt().toLocalDate().toString(),
 				feed.getUser().getNickname(),
-				feed.getUser().getProfileImageUrl(),
+				profileImageUrl,
+				feed.getUser().getId().equals(currentUserId),
 				feed.getCreatedAt(),
 				feed.getRunSession().getDistanceTotal(),
 				feed.getRunSession().getDurationTotal(),
 				feed.getRunSession().getPaceAvg(),
 				feed.getRunSession().getCadenceAvg(),
-				feed.getSelfieImageUrl(),
+				selfieImageUrl,
 				summaries
 			);
 		}
@@ -110,6 +118,9 @@ public record SelfieFeedResponse(
 		@Schema(description = "프로필 이미지 URL", example = "https://cdn.example.com/profiles/user123.jpg")
 		String profileImageUrl,
 
+		@Schema(description = "내 반응 여부", example = "true")
+		Boolean isMe,
+
 		@Schema(description = "반응 시간", example = "2025-10-16T14:30:00")
 		LocalDateTime reactedAt
 	) {
@@ -119,6 +130,7 @@ public record SelfieFeedResponse(
 				reaction.getUser().getId(),
 				reaction.getUser().getNickname(),
 				reaction.getUser().getProfileImageUrl(),
+				null,  // isMe는 서비스 레이어에서 설정
 				reaction.getCreatedAt()
 			);
 		}
