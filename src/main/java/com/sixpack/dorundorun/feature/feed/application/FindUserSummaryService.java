@@ -8,7 +8,9 @@ import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse;
 import com.sixpack.dorundorun.feature.friend.dao.FriendJpaRepository;
 import com.sixpack.dorundorun.feature.run.dao.RunSessionJpaRepository;
 import com.sixpack.dorundorun.feature.user.application.FindUserByIdService;
+import com.sixpack.dorundorun.feature.user.application.GetDefaultProfileImageUrlService;
 import com.sixpack.dorundorun.feature.user.domain.User;
+import com.sixpack.dorundorun.infra.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +22,8 @@ public class FindUserSummaryService {
 	private final FriendJpaRepository friendJpaRepository;
 	private final RunSessionJpaRepository runSessionJpaRepository;
 	private final FeedJpaRepository feedJpaRepository;
+	private final S3Service s3Service;
+	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
 
 	@Transactional(readOnly = true)
 	public SelfieFeedResponse.UserSummary find(Long userId) {
@@ -35,8 +39,14 @@ public class FindUserSummaryService {
 		// 4. 인증 횟수 조회
 		long selfieCount = feedJpaRepository.countByUserIdAndDeletedAtIsNull(userId);
 
+		// 5. S3 key를 Presigned URL로 변환
+		String profileImageUrl = user.getProfileImageUrl() != null
+			? s3Service.getImageUrl(user.getProfileImageUrl())
+			: getDefaultProfileImageUrlService.get();
+
 		return new SelfieFeedResponse.UserSummary(
 			user.getNickname(),
+			profileImageUrl,
 			(int)friendCount,
 			totalDistanceMeters,
 			(int)selfieCount

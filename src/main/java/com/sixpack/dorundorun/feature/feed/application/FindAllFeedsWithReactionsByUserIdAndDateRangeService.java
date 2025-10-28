@@ -21,10 +21,10 @@ public class FindAllFeedsWithReactionsByUserIdAndDateRangeService {
 	private final FeedJpaRepository feedJpaRepository;
 
 	@Transactional(readOnly = true)
-	public Page<Feed> find(Long userId, Long currentUserId, boolean isFriendFeed, LocalDateTime startOfDay,
+	public Page<Feed> find(Long userId, Long currentUserId, LocalDateTime startOfDay,
 		LocalDateTime endOfDay, Pageable pageable) {
 		return feedJpaRepository.findByUserIdAndDateRangeWithReactions(
-			userId, currentUserId, isFriendFeed, startOfDay, endOfDay, pageable
+			userId, currentUserId, startOfDay, endOfDay, pageable
 		);
 	}
 }

@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record SelfieWeekResponse(
 
 	@Schema(description = "날짜별 인증 수 목록")
-	List<DailyCertification> data
+	List<DailyCertification> countList
 ) {
 	@Schema(description = "일별 인증 정보")
 	public record DailyCertification(
