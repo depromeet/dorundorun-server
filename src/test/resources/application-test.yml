@@ -60,3 +60,10 @@ aws:
     bucket-name: sixpack-test-s3
     signature-duration-day: 2
     max-file-size-mb: 10
+
+firebase:
+  config:
+    service-account-path: test
+  fcm:
+    enabled: false
+    retry: true
