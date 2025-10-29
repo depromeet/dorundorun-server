@@ -18,4 +18,6 @@ public interface FriendRunningStatusProjection {
 
 	// JSON 전체를 가져오기
 	RunSegmentInfo getRunSegmentData();
+
+	LocalDateTime getLatestCheeredAt();
 }
