@@ -21,6 +21,9 @@ public record FriendRunningStatusResponse(
 	@Schema(description = "최근 러닝 시각 (ISO 8601 형식)", example = "2025-09-13T19:57:13Z")
 	LocalDateTime latestRanAt,
 
+	@Schema(description = "로그인한 유저가 마지막으로 해당 친구를 응원한 시각 (ISO 8601 형식, null 가능)", example = "2025-09-13T19:57:13Z")
+	LocalDateTime latestCheeredAt,
+
 	@Schema(description = "최근 러닝의 총 거리 (m)", example = "5000")
 	Long distance,
 
