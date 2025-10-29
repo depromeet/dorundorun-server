@@ -2,6 +2,7 @@ package com.sixpack.dorundorun.feature.friend.application;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sixpack.dorundorun.feature.friend.dao.projection.FriendRunningStatusProjection;
 import com.sixpack.dorundorun.feature.friend.dto.response.FriendRunningStatusResponse;
 import com.sixpack.dorundorun.feature.friend.exception.ReverseGeocodingErrorCode;
+import com.sixpack.dorundorun.feature.notification.dao.NotificationJpaRepository;
 import com.sixpack.dorundorun.feature.run.domain.RunSegmentData;
 import com.sixpack.dorundorun.feature.user.application.GetDefaultProfileImageUrlService;
 import com.sixpack.dorundorun.global.config.webclient.naver.ReverseGeocodingProperties;
@@ -44,6 +46,7 @@ public class FriendsRunningStatusService {
 	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
 	private final ReverseGeocodingService reverseGeocodingService;
 	private final ReverseGeocodingProperties reverseGeocodingProperties;
+	private final NotificationJpaRepository notificationJpaRepository;
 
 	@Transactional(readOnly = true)
 	public PaginationResponse<FriendRunningStatusResponse> find(Long userId, Integer page, Integer size) {
@@ -56,12 +59,37 @@ public class FriendsRunningStatusService {
 			return PaginationResponse.of(List.of(), page, size, 0);
 		}
 
+		// 친구들의 ID 추출 (응원 정보 배치 조회용)
+		List<Long> friendIds = friends.stream()
+			.filter(p -> p.getUserId() != null)
+			.map(FriendRunningStatusProjection::getUserId)
+			.toList();
+
+		// 배치 조회로 latestCheeredAt 가져오기
+		Map<Long, LocalDateTime> latestCheerMap = new HashMap<>();
+		if (!friendIds.isEmpty()) {
+			List<Map<String, Object>> cheerResults = notificationJpaRepository.findLatestCheersByUserAndFriends(userId, friendIds);
+			for (Map<String, Object> result : cheerResults) {
+				Long friendId = ((Number) result.get("friendId")).longValue();
+				Object dateObj = result.get("latestCheeredAt");
+				LocalDateTime latestCheeredAt = null;
+				if (dateObj instanceof java.sql.Timestamp) {
+					latestCheeredAt = ((java.sql.Timestamp) dateObj).toLocalDateTime();
+				} else if (dateObj instanceof LocalDateTime) {
+					latestCheeredAt = (LocalDateTime) dateObj;
+				}
+				latestCheerMap.put(friendId, latestCheeredAt);
+			}
+		}
+
+		// 좌표 맵 생성
 		Map<Long, SegmentCoordinates> coordinateMap = friends.stream()
 			.collect(Collectors.toMap(
 				FriendRunningStatusProjection::getUserId,
 				this::extractSegmentCoordinates
 			));
 
+		// Reverse geocoding 병렬 처리
 		int maxConcurrency = (int)reverseGeocodingProperties.api().maxConcurrentRequests();
 		ExecutorService executor = Executors.newFixedThreadPool(maxConcurrency);
 
@@ -85,10 +113,11 @@ public class FriendsRunningStatusService {
 				));
 
 			List<FriendRunningStatusResponse> responses = friends.stream()
-				.map(projection -> buildResponseWithAddress(
+				.map(projection -> buildResponse(
 					projection,
 					addressMap,
-					coordinateMap.get(projection.getUserId())
+					coordinateMap.get(projection.getUserId()),
+					latestCheerMap.get(projection.getUserId())
 				))
 				.toList();
 
@@ -141,10 +170,11 @@ public class FriendsRunningStatusService {
 		);
 	}
 
-	private FriendRunningStatusResponse buildResponseWithAddress(
+	private FriendRunningStatusResponse buildResponse(
 		FriendRunningStatusProjection projection,
 		Map<Long, AddressInfo> addressMap,
-		SegmentCoordinates coordinates) {
+		SegmentCoordinates coordinates,
+		LocalDateTime latestCheeredAt) {
 
 		String profileImageUrl = projection.getProfileImage() != null
 			? projection.getProfileImage()
@@ -169,6 +199,7 @@ public class FriendsRunningStatusService {
 			projection.getNickname(),
 			profileImageUrl,
 			projection.getLatestRanAt(),
+			latestCheeredAt,
 			distance,
 			latitude,
 			longitude,
