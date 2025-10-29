@@ -84,4 +84,33 @@ public interface RunSessionJpaRepository extends JpaRepository<RunSession, Long>
 		AND rs.finishedAt IS NOT NULL
 		""")
 	Long sumDistanceByUserId(@Param("userId") Long userId);
+
+	@Query(value = """
+		SELECT rs.id, rs.user_id
+		FROM run_session rs
+		LEFT JOIN feed f ON rs.id = f.run_session_id AND f.deleted_at IS NULL
+		WHERE rs.finished_at IS NOT NULL
+		  AND f.id IS NULL
+		  AND rs.created_at <= DATE_SUB(NOW(), INTERVAL 23 HOUR)
+		  AND rs.user_id IN (
+		    SELECT u.id FROM users u WHERE u.deleted_at IS NULL
+		  )
+		""", nativeQuery = true)
+	List<Object[]> findUnuploadedRunSessionsAfter23Hours();
+
+	@Query(value = """
+		SELECT DISTINCT u.id
+		FROM users u
+		LEFT JOIN run_session rs ON u.id = rs.user_id
+		  AND rs.finished_at IS NOT NULL
+		WHERE u.deleted_at IS NULL
+		  AND (rs.id IS NULL OR rs.finished_at < DATE_SUB(NOW(), INTERVAL 7 DAY))
+		  AND NOT EXISTS (
+		    SELECT 1 FROM run_session rs2
+		    WHERE rs2.user_id = u.id
+		      AND rs2.finished_at IS NOT NULL
+		      AND rs2.finished_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+		  )
+		""", nativeQuery = true)
+	List<Long> findUserIdsWithNoRecentRun();
 }
