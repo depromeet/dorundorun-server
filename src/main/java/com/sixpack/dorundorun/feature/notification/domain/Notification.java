@@ -36,6 +36,9 @@ public class Notification extends BaseTimeEntity {
 	@Column(name = "user_device_token", nullable = false)
 	private String userDeviceToken;
 
+	@Column(name = "recipient_user_id", nullable = false)
+	private Long recipientUserId;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "type", nullable = false)
 	private NotificationType type;

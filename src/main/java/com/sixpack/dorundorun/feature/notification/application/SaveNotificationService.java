@@ -51,6 +51,7 @@ public class SaveNotificationService {
 
 		Notification notification = Notification.builder()
 			.userDeviceToken(recipient.getDeviceToken())
+			.recipientUserId(event.recipientUserId())
 			.type(notificationType)
 			.data(notificationData)
 			.isRead(false)
