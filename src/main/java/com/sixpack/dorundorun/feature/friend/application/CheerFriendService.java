@@ -3,26 +3,34 @@ package com.sixpack.dorundorun.feature.friend.application;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sixpack.dorundorun.feature.friend.event.CheerRequestedEvent;
 import com.sixpack.dorundorun.feature.user.application.FindUserByIdService;
 import com.sixpack.dorundorun.feature.user.domain.User;
+import com.sixpack.dorundorun.infra.redis.stream.publisher.RedisStreamPublisher;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CheerFriendService {
 
 	private final FindUserByIdService findUserByIdService;
+	private final RedisStreamPublisher redisStreamPublisher;
 
 	@Transactional
 	public void cheer(Long userId, Long friendUserId) {
-		// 현재 유저 확인
-		findUserByIdService.find(userId);
 
-		// 응원할 친구 확인
+		User currentUser = findUserByIdService.find(userId);
 		User friendUser = findUserByIdService.find(friendUserId);
 
-		// TODO: 알림 전송 기능 구현 필요
-		// sendCheerNotification(friendUser);
+		CheerRequestedEvent event = CheerRequestedEvent.builder()
+			.cheererId(userId)
+			.cheeringUserId(friendUserId)
+			.build();
+
+		redisStreamPublisher.publishAfterCommit(event);
+		log.info("Cheer event published: cheererId={}, cheeringUserId={}", userId, friendUserId);
 	}
 }
