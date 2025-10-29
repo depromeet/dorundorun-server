@@ -40,13 +40,18 @@ public class Notification extends BaseTimeEntity {
 	@Column(name = "type", nullable = false)
 	private NotificationType type;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "setting", nullable = false)
-	private NotificationTrigger trigger;
-
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(name = "data", nullable = false, columnDefinition = "json")
 	private NotificationData data;
+
+	@Column(name = "is_read", nullable = false, columnDefinition = "boolean default false")
+	private Boolean isRead;
+
+	@Column(name = "read_at")
+	private LocalDateTime readAt;
+
+	@Column(name = "deep_link")
+	private String deepLink;
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
