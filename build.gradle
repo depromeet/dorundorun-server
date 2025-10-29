@@ -45,6 +45,9 @@ dependencies {
     implementation platform('software.amazon.awssdk:bom:2.21.29')
     implementation 'software.amazon.awssdk:s3'
 
+    // Firebase Admin SDK
+    implementation 'com.google.firebase:firebase-admin:9.3.0'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -66,4 +69,8 @@ jar {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+tasks.named('compileJava') {
+    options.compilerArgs << '-Xlint:deprecation'
 }
