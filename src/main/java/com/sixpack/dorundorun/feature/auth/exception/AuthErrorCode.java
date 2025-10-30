@@ -18,11 +18,13 @@ public enum AuthErrorCode implements ErrorCode {
 	REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "Refresh Token을 찾을 수 없습니다"),
 
 	// SMS 관련
-	SMS_SEND_FAILED(HttpStatus.BAD_REQUEST, "SMS 발송에 실패했습니다"),
-	SMS_RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "1분에 1회만 요청 가능합니다"),
+	SMS_SEND_FAILED(HttpStatus.BAD_GATEWAY, "SMS 발송에 실패했습니다"),
+	SMS_DAILY_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "하루 5회까지만 인증번호를 발송할 수 있습니다"),
 	VERIFICATION_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "인증 코드가 일치하지 않습니다"),
 	VERIFICATION_CODE_EXPIRED(HttpStatus.GONE, "인증 코드가 만료되었습니다"),
 	VERIFICATION_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "전화번호 인증을 먼저 완료해주세요"),
+	INVALID_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 인증 코드입니다"),
+	VERIFICATION_ATTEMPTS_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "인증 시도 횟수를 초과했습니다. 새로운 인증 코드를 요청해주세요"),
 
 	// 회원가입 관련
 	PHONE_NUMBER_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 가입된 전화번호입니다: %s"),
