@@ -42,11 +42,11 @@ public class SelfieController implements SelfieApi {
 
 	@Override
 	@GetMapping("/feeds")
-	public DorunResponse<PaginationResponse<SelfieFeedResponse>> getFeedsByDate(
+	public DorunResponse<SelfieFeedResponse> getFeedsByDate(
 		@ModelAttribute FeedListRequest request,
 		@CurrentUser User user
 	) {
-		PaginationResponse<SelfieFeedResponse> response = findSelfiesByDateService.find(user, request);
+		SelfieFeedResponse response = findSelfiesByDateService.find(user, request);
 		return DorunResponse.success("인증목록 조회에 성공하였습니다", response);
 	}
 
