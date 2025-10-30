@@ -36,7 +36,7 @@ public class FindSelfiesByDateService {
 	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
 
 	@Transactional(readOnly = true)
-	public PaginationResponse<SelfieFeedResponse> find(User currentUser, FeedListRequest request) {
+	public SelfieFeedResponse find(User currentUser, FeedListRequest request) {
 		Pageable pageable = PageRequest.of(request.page(), request.size());
 		Page<Feed> feedsPage = loadFeedsByCondition(
 			request.userId(), currentUser.getId(), request.currentDate(), pageable);
@@ -46,9 +46,10 @@ public class FindSelfiesByDateService {
 			.toList();
 
 		SelfieFeedResponse.UserSummary userSummary = loadUserSummary(request.userId());
-		SelfieFeedResponse response = new SelfieFeedResponse(userSummary, feedItems);
+		PaginationResponse<FeedItem> feedsPagination = PaginationResponse.of(
+			feedItems, request.page(), request.size(), feedsPage.getTotalElements());
 
-		return PaginationResponse.of(List.of(response), request.page(), request.size(), feedsPage.getTotalElements());
+		return new SelfieFeedResponse(userSummary, feedsPagination);
 	}
 
 	private UserSummary loadUserSummary(Long userId) {
@@ -91,7 +92,8 @@ public class FindSelfiesByDateService {
 			.map(user -> new SelfieFeedResponse.ReactionUser(
 				user.userId(),
 				user.nickname(),
-				user.profileImageUrl() != null ? s3Service.getImageUrl(user.profileImageUrl()) : getDefaultProfileImageUrlService.get(),
+				user.profileImageUrl() != null ? s3Service.getImageUrl(user.profileImageUrl()) :
+					getDefaultProfileImageUrlService.get(),
 				user.userId().equals(currentUserId),
 				user.reactedAt()
 			))
