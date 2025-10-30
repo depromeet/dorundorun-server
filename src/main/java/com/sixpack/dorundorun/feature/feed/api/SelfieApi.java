@@ -35,7 +35,7 @@ public interface SelfieApi {
 		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
 		@ApiResponse(responseCode = "404", description = "유저를 찾을 수 없음")
 	})
-	DorunResponse<PaginationResponse<SelfieFeedResponse>> getFeedsByDate(
+	DorunResponse<SelfieFeedResponse> getFeedsByDate(
 		@ParameterObject @ModelAttribute FeedListRequest request,
 		@Parameter(hidden = true) @CurrentUser User user
 	);
