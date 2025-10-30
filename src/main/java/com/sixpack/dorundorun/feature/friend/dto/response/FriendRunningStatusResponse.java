@@ -28,6 +28,9 @@ public record FriendRunningStatusResponse(
 	Double latitude,
 
 	@Schema(description = "최근 러닝의 경도", example = "127.12345")
-	Double longitude
+	Double longitude,
+
+	@Schema(description = "주소 (예: 서울 마포구, 경기 광명시)", example = "서울 마포구")
+	String address
 ) {
 }
