@@ -11,6 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.sixpack.dorundorun.feature.auth.application.RefreshAccessTokenService;
 import com.sixpack.dorundorun.feature.auth.application.SignUpService;
+import com.sixpack.dorundorun.feature.auth.application.SmsSendService;
+import com.sixpack.dorundorun.feature.auth.application.SmsVerificationService;
 import com.sixpack.dorundorun.feature.auth.dto.request.RefreshTokenRequest;
 import com.sixpack.dorundorun.feature.auth.dto.request.SmsSendRequest;
 import com.sixpack.dorundorun.feature.auth.dto.request.SmsVerificationRequest;
@@ -31,33 +33,29 @@ public class AuthController implements AuthApi {
 
 	private final RefreshAccessTokenService refreshAccessTokenService;
 	private final SignUpService signUpService;
+	private final SmsSendService smsSendService;
+	private final SmsVerificationService smsVerificationService;
 
 	// TODO: 서비스 의존성 주입 예정
-	// private final SmsSendService smsSendService;
-	// private final SmsVerificationService smsVerificationService;
 	// private final LogoutService logoutService;
 	// private final WithdrawService withdrawService;
 
 	@Override
 	@PostMapping("/sms/send")
 	public DorunResponse<Void> sendSms(@Valid @RequestBody SmsSendRequest request) {
-		// TODO: 서비스 로직 구현 예정
-		// smsSendService.sendVerificationCode(request);
-		// return DorunResponse.success("인증 코드가 발송되었습니다");
+		smsSendService.sendVerificationCode(request);
 		return DorunResponse.success("인증 코드가 발송되었습니다");
 	}
 
 	@Override
 	@PostMapping("/sms/verify")
 	public DorunResponse<SmsVerificationResponse> verifySms(@Valid @RequestBody SmsVerificationRequest request) {
-		// TODO: 서비스 로직 구현 예정
-		// SmsVerificationResponse response = smsVerificationService.verifyCode(request);
-		// if (response.isExistingUser()) {
-		//     return DorunResponse.success("인증에 성공하였습니다", response);
-		// } else {
-		//     return DorunResponse.created("인증에 성공하였습니다. 회원가입을 진행해주세요", response);
-		// }
-		return DorunResponse.success("인증에 성공하였습니다", null);
+		SmsVerificationResponse response = smsVerificationService.verifyCode(request);
+		if (response.isExistingUser()) {
+			return DorunResponse.success("인증에 성공하였습니다", response);
+		} else {
+			return DorunResponse.created("인증에 성공하였습니다. 회원가입을 진행해주세요", response);
+		}
 	}
 
 	@Override
