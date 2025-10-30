@@ -30,7 +30,7 @@ public record FriendRunningStatusResponse(
 	@Schema(description = "최근 러닝의 경도", example = "127.12345")
 	Double longitude,
 
-	@Schema(description = "로그인한 유저가 마지막으로 해당 친구를 응원한 시각 (ISO 8601 형식, null 가능)", example = "2025-09-13T19:57:13Z")
-	LocalDateTime latestCheeredAt
+	@Schema(description = "주소 (예: 서울 마포구, 경기 광명시)", example = "서울 마포구")
+	String address
 ) {
 }
