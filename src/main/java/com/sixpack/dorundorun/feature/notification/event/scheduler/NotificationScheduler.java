@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
  *   └─ value: JSON 직렬화된 ScheduledNotificationData
  *
  * 예약 알림 종류:
- * - CERTIFICATION_REMINDER: 러닝 시작 후 23시간
+ * - FEED_REMINDER: 러닝 시작 후 23시간
  * - RUNNING_PROGRESS_REMINDER: 마지막 러닝 후 7일
  * - NEW_USER_RUNNING_REMINDER: 가입 후 24시간
  * - NEW_USER_FRIEND_REMINDER: 가입 후 48시간
@@ -115,7 +115,7 @@ public class NotificationScheduler {
 					PushNotificationRequestedEvent pushEvent = PushNotificationRequestedEvent.builder()
 						.recipientUserId(scheduledData.getUserId())
 						.notificationType(scheduledData.getNotificationType())
-						.relatedId(String.valueOf(scheduledData.getUserId()))
+						.relatedId(null)
 						.metadata(new HashMap<>())
 						.build();
 					redisStreamPublisher.publishAfterCommit(pushEvent);

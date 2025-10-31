@@ -49,16 +49,16 @@ public class FeedUploadedEventHandler
 
 	@Override
 	protected void onMessage(FeedUploadedRequestedEvent event) throws Exception {
-		log.info("Processing feed uploaded event: userId={}, certificationId={}",
-			event.userId(), event.certificationId());
+		log.info("Processing feed uploaded event: userId={}, feedId={}",
+			event.userId(), event.feedId());
 
 		try {
 			// 피드 조회
-			Feed feed = findFeedByRunSessionIdService.findOrNull(event.certificationId())
+			Feed feed = findFeedByRunSessionIdService.findOrNull(event.feedId())
 				.orElse(null);
 
 			if (feed == null) {
-				log.warn("Feed not found for run session: {}", event.certificationId());
+				log.warn("Feed not found for run session: {}", event.feedId());
 				return;
 			}
 
@@ -72,7 +72,7 @@ public class FeedUploadedEventHandler
 			// PushNotificationRequestedEvent로 변환하여 발행
 			PushNotificationRequestedEvent pushEvent = PushNotificationRequestedEvent.builder()
 				.recipientUserId(event.userId())
-				.notificationType("CERTIFICATION_UPLOADED")
+				.notificationType("FEED_UPLOADED")
 				.relatedId(String.valueOf(feed.getId()))
 				.metadata(metadata)
 				.build();
@@ -82,8 +82,8 @@ public class FeedUploadedEventHandler
 				event.userId(), feed.getId());
 
 		} catch (Exception e) {
-			log.error("Failed to process feed uploaded event: userId={}, certificationId={}",
-				event.userId(), event.certificationId(), e);
+			log.error("Failed to process feed uploaded event: userId={}, feedId={}",
+				event.userId(), event.feedId(), e);
 			throw e;
 		}
 	}
