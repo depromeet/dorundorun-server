@@ -69,4 +69,20 @@ public interface FeedJpaRepository extends JpaRepository<Feed, Long> {
 		@Param("startDate") LocalDateTime startDate,
 		@Param("endDate") LocalDateTime endDate
 	);
+
+	@Query("""
+		SELECT f FROM Feed f
+		JOIN FETCH f.user
+		LEFT JOIN Friend fr ON fr.friend.id = f.user.id AND fr.user.id = :currentUserId AND fr.deletedAt IS NULL
+		WHERE f.deletedAt IS NULL
+		AND (:startDate IS NULL OR f.createdAt >= :startDate)
+		AND (:endDate IS NULL OR f.createdAt <= :endDate)
+		AND (fr.id IS NOT NULL OR f.user.id = :currentUserId)
+		ORDER BY f.createdAt DESC
+		""")
+	List<Feed> findByCurrentUserAndFriendsAndDateRange(
+		@Param("currentUserId") Long currentUserId,
+		@Param("startDate") LocalDateTime startDate,
+		@Param("endDate") LocalDateTime endDate
+	);
 }
