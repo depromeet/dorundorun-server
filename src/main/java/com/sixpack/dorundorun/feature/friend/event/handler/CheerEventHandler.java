@@ -51,6 +51,7 @@ public class CheerEventHandler extends AbstractRedisStreamEventHandler<CheerRequ
 
 			// 메타데이터 생성
 			Map<String, Object> metadata = new HashMap<>();
+			metadata.put("senderId", event.cheererId());
 			metadata.put("cheererName", cheerer.getNickname());
 
 			// PushNotificationRequestedEvent로 변환하여 발행

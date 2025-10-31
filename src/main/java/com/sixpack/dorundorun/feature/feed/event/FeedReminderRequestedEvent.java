@@ -11,7 +11,7 @@ public record FeedReminderRequestedEvent(
 	Long runSessionId
 ) implements RedisStreamEvent {
 
-	public static final String TYPE = RedisStreamEventType.CERTIFICATION_REMINDER_NOTIFICATION_REQUESTED;
+	public static final String TYPE = RedisStreamEventType.FEED_REMINDER_NOTIFICATION_REQUESTED;
 
 	@Override
 	public String type() {
