@@ -81,11 +81,19 @@ public class NotificationResponse {
 	private LocalDateTime createdAt;
 
 	public static NotificationResponse from(Notification notification) {
+		String message = notification.getData().getMessage();
+		String sender = getSenderName(notification);
+
+		// 응답에서는 메시지에서 발신자 이름 제거
+		if (sender != null && message != null) {
+			message = message.replace(sender + "님", "님");
+		}
+
 		return NotificationResponse.builder()
 			.id(notification.getId())
 			.title(notification.getData().getTitle())
-			.message(notification.getData().getMessage())
-			.sender(getSenderName(notification))
+			.message(message)
+			.sender(sender)
 			.profileImage("/api/images/defaultProfileImage.jpg")
 			.type(notification.getType())
 			.isRead(notification.getIsRead())
@@ -119,11 +127,19 @@ public class NotificationResponse {
 	}
 
 	public static NotificationResponse from(Notification notification, String profileImage, String selfieImage) {
+		String message = notification.getData().getMessage();
+		String sender = getSenderName(notification);
+
+		// 응답에서는 메시지에서 발신자 이름 제거
+		if (sender != null && message != null) {
+			message = message.replace(sender + "님", "님");
+		}
+
 		return NotificationResponse.builder()
 			.id(notification.getId())
 			.title(notification.getData().getTitle())
-			.message(notification.getData().getMessage())
-			.sender(getSenderName(notification))
+			.message(message)
+			.sender(sender)
 			.profileImage(profileImage)
 			.type(notification.getType())
 			.isRead(notification.getIsRead())
