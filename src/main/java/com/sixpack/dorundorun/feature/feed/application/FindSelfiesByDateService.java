@@ -80,9 +80,7 @@ public class FindSelfiesByDateService {
 			? s3Service.getImageUrl(feed.getUser().getProfileImageUrl())
 			: getDefaultProfileImageUrlService.get();
 
-		String selfieImageUrl = feed.getSelfieImageUrl() != null
-			? s3Service.getImageUrl(feed.getSelfieImageUrl())
-			: null;
+		String selfieImageUrl = feed.getSelfieImageUrl();
 
 		return FeedItem.of(feed, convertedReactionSummaries, currentUserId, profileImageUrl, selfieImageUrl);
 	}
