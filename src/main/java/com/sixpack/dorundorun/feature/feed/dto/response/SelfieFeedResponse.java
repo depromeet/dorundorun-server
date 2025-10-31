@@ -103,6 +103,9 @@ public record SelfieFeedResponse(
 		@Schema(description = "전체 반응 수", example = "5")
 		Integer totalCount,
 
+		@Schema(description = "내가 이 이모지로 반응했는지 여부", example = "true")
+		Boolean isReactedByMe,
+
 		@Schema(description = "반응한 유저 목록 (전체 포함, 상세 화면에서 사용)")
 		List<ReactionUser> users
 	) {
