@@ -74,4 +74,13 @@ public class Feed extends BaseTimeEntity {
 		}
 		return S3ImageUrlUtil.getPresignedImageUrl(this.selfieImage);
 	}
+
+	public String getSelfieImageKey() {
+		return this.selfieImage;
+	}
+
+	public void update(String content, String selfieImage) {
+		this.content = content;
+		this.selfieImage = selfieImage;  // null이면 이미지 삭제
+	}
 }
