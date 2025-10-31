@@ -66,15 +66,18 @@ public class PushNotificationContentDeterminer {
 	}
 
 	private String buildCheerFriendMessage(Map<String, Object> metadata) {
-		return "님이 회원님을 깨웠어요";
+		String cheererName = (String)metadata.getOrDefault("cheererName", "친구");
+		return cheererName + "님이 회원님을 깨웠어요";
 	}
 
 	private String buildFeedUploadedMessage(Map<String, Object> metadata) {
-		return "님이 피드를 업로드 했어요";
+		String uploaderName = (String)metadata.getOrDefault("uploaderName", "친구");
+		return uploaderName + "님이 피드를 업로드 했어요";
 	}
 
 	private String buildFeedReactionMessage(Map<String, Object> metadata) {
-		return "님이 회원님의 피드에 리액션을 남겼어요";
+		String reactionUserName = (String)metadata.getOrDefault("reactionUserName", "친구");
+		return reactionUserName + "님이 회원님의 피드에 리액션을 남겼어요";
 	}
 
 	private String getDefaultMessage(String notificationType) {
