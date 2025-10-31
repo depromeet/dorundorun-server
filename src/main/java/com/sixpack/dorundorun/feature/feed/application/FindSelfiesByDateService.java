@@ -70,7 +70,7 @@ public class FindSelfiesByDateService {
 	private FeedItem createFeedItem(Feed feed, Long currentUserId) {
 		List<Reaction> reactions = feed.getReactions();
 		ReactionsByEmoji reactionsByEmoji = ReactionsByEmoji.from(reactions);
-		List<ReactionSummary> reactionSummaries = reactionsByEmoji.toReactionSummaries();
+		List<ReactionSummary> reactionSummaries = reactionsByEmoji.toReactionSummaries(currentUserId);
 
 		List<ReactionSummary> convertedReactionSummaries = reactionSummaries.stream()
 			.map(summary -> convertReactionSummaryUrls(summary, currentUserId))
@@ -102,6 +102,7 @@ public class FindSelfiesByDateService {
 		return new ReactionSummary(
 			summary.emojiType(),
 			summary.totalCount(),
+			summary.isReactedByMe(),
 			convertedUsers
 		);
 	}
