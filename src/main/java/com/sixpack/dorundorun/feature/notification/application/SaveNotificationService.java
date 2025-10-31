@@ -69,10 +69,9 @@ public class SaveNotificationService {
 	private NotificationType convertToNotificationType(String notificationTypeString) {
 		return switch (notificationTypeString) {
 			case "CHEER_FRIEND" -> NotificationType.CHEER_FRIEND;
-			case "CERTIFICATION_UPLOADED" -> NotificationType.CERTIFICATION_UPLOADED;
-			case "POST_REACTION" -> NotificationType.POST_REACTION;
-			case "POST_COMMENT" -> NotificationType.POST_COMMENT;
-			case "CERTIFICATION_REMINDER" -> NotificationType.CERTIFICATION_REMINDER;
+			case "FEED_UPLOADED" -> NotificationType.FEED_UPLOADED;
+			case "FEED_REACTION" -> NotificationType.FEED_REACTION;
+			case "FEED_REMINDER" -> NotificationType.FEED_REMINDER;
 			case "RUNNING_PROGRESS_REMINDER" -> NotificationType.RUNNING_PROGRESS_REMINDER;
 			case "NEW_USER_RUNNING_REMINDER" -> NotificationType.NEW_USER_RUNNING_REMINDER;
 			case "NEW_USER_FRIEND_REMINDER" -> NotificationType.NEW_USER_FRIEND_REMINDER;

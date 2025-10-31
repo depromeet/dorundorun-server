@@ -62,7 +62,7 @@ public class FeedReminderEventHandler
 			// originalEvent는 저장하지 않음 (NotificationScheduler에서 PushNotificationRequestedEvent 직접 생성)
 			ScheduledNotificationData scheduledData = ScheduledNotificationData.builder()
 				.eventId(eventId)
-				.notificationType("CERTIFICATION_REMINDER")
+				.notificationType("FEED_REMINDER")
 				.userId(event.userId())
 				.scheduledAt(scheduledTime)
 				.build();

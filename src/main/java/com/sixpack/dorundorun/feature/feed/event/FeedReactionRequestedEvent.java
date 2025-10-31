@@ -6,13 +6,13 @@ import com.sixpack.dorundorun.infra.redis.stream.event.RedisStreamEventType;
 import lombok.Builder;
 
 @Builder
-public record PostReactionRequestedEvent(
-	Long postId,
+public record FeedReactionRequestedEvent(
+	Long feedId,
 	Long reactorId,
-	Long postOwnerId
+	Long feedOwnerId
 ) implements RedisStreamEvent {
 
-	public static final String TYPE = RedisStreamEventType.POST_REACTION_NOTIFICATION_REQUESTED;
+	public static final String TYPE = RedisStreamEventType.FEED_REACTION_NOTIFICATION_REQUESTED;
 
 	@Override
 	public String type() {

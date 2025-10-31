@@ -223,9 +223,9 @@ public class NotificationIntegrationTest extends ServiceTest {
 		// given
 		String[] types = {
 			"CHEER_FRIEND",
-			"CERTIFICATION_UPLOADED",
+			"FEED_UPLOADED",
 			"NEW_USER_RUNNING_REMINDER",
-			"CERTIFICATION_REMINDER"
+			"FEED_REMINDER"
 		};
 
 		// when & then
@@ -461,10 +461,9 @@ public class NotificationIntegrationTest extends ServiceTest {
 		// given
 		String[] allTypes = {
 			"CHEER_FRIEND",
-			"CERTIFICATION_UPLOADED",
-			"POST_REACTION",
-			"POST_COMMENT",
-			"CERTIFICATION_REMINDER",
+			"FEED_UPLOADED",
+			"FEED_REACTION",
+			"FEED_REMINDER",
 			"RUNNING_PROGRESS_REMINDER",
 			"NEW_USER_RUNNING_REMINDER",
 			"NEW_USER_FRIEND_REMINDER"

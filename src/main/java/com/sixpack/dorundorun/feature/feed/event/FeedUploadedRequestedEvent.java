@@ -8,10 +8,10 @@ import lombok.Builder;
 @Builder
 public record FeedUploadedRequestedEvent(
 	Long userId,
-	Long certificationId
+	Long feedId
 ) implements RedisStreamEvent {
 
-	public static final String TYPE = RedisStreamEventType.CERTIFICATION_UPLOADED_NOTIFICATION_REQUESTED;
+	public static final String TYPE = RedisStreamEventType.FEED_UPLOADED_NOTIFICATION_REQUESTED;
 
 	@Override
 	public String type() {
