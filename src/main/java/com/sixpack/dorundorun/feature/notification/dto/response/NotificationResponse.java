@@ -1,6 +1,7 @@
 package com.sixpack.dorundorun.feature.notification.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import com.sixpack.dorundorun.feature.notification.domain.Notification;
 import com.sixpack.dorundorun.feature.notification.domain.NotificationType;
@@ -13,18 +14,21 @@ import lombok.Getter;
 @Builder
 @Schema(description = "알림 응답",
 	example = """
-	{
-	  "id": 1,
-	  "title": "친구 응원",
-	  "message": "김철수님이 당신을 응원합니다!",
-	  "type": "CHEER_FRIEND",
-	  "isRead": false,
-	  "readAt": null,
-	  "deepLink": "/user/123",
-	  "relatedId": 123,
-	  "createdAt": "2025-10-29T14:35:13"
-	}
-	""")
+		{
+		  "id": 1,
+		  "title": "친구 응원",
+		  "message": "님이 당신을 응원합니다!",
+		  "sender": "김철수",
+		  "profileImage": "/api/images/defaultProfileImage.jpg",
+		  "type": "CHEER_FRIEND",
+		  "isRead": false,
+		  "readAt": null,
+		  "deepLink": "/user/123",
+		  "relatedId": 123,
+		  "selfieImage": null,
+		  "createdAt": "2025-10-29T14:35:13"
+		}
+		""")
 public class NotificationResponse {
 
 	@Schema(description = "알림 ID", example = "1")
@@ -33,15 +37,20 @@ public class NotificationResponse {
 	@Schema(description = "알림 제목", example = "친구 응원")
 	private String title;
 
-	@Schema(description = "알림 메시지", example = "김철수님이 당신을 응원합니다!")
+	@Schema(description = "알림 메시지 (닉네임 제외)", example = "님이 당신을 응원합니다!")
 	private String message;
 
-	@Schema(description = "알림 유형 - 8가지 타입 지원:\n" +
+	@Schema(description = "발신자 닉네임", example = "김철수")
+	private String sender;
+
+	@Schema(description = "발신자 프로필 이미지", example = "/api/images/defaultProfileImage.jpg")
+	private String profileImage;
+
+	@Schema(description = "알림 유형 - 7가지 타입 지원:\n" +
 		"- CHEER_FRIEND: 친구 응원\n" +
-		"- CERTIFICATION_UPLOADED: 친구의 인증게시물 업로드\n" +
-		"- POST_REACTION: 게시물 리액션\n" +
-		"- POST_COMMENT: 게시물 댓글\n" +
-		"- CERTIFICATION_REMINDER: 인증 독촉\n" +
+		"- FEED_UPLOADED: 친구의 피드 업로드\n" +
+		"- FEED_REACTION: 피드 리액션\n" +
+		"- FEED_REMINDER: 피드 업로드 독촉\n" +
 		"- RUNNING_PROGRESS_REMINDER: 러닝 진행 독촉\n" +
 		"- NEW_USER_RUNNING_REMINDER: 신규 가입 러닝 독촉\n" +
 		"- NEW_USER_FRIEND_REMINDER: 신규 가입 친구추가 독촉",
@@ -59,12 +68,14 @@ public class NotificationResponse {
 
 	@Schema(description = "관련 엔티티의 ID (타입별 다름):\n" +
 		"- CHEER_FRIEND: friendId\n" +
-		"- CERTIFICATION_UPLOADED: certificationId\n" +
-		"- POST_REACTION: postId\n" +
-		"- POST_COMMENT: postId\n" +
+		"- FEED_UPLOADED: feedId\n" +
+		"- FEED_REACTION: feedId\n" +
 		"- 정보성 알림: 0 또는 null",
 		example = "123")
 	private Long relatedId;
+
+	@Schema(description = "셀피 이미지 (FEED_UPLOADED 타입일 때만 값 있음, 나머지는 null)", example = "null")
+	private String selfieImage;
 
 	@Schema(description = "생성 시간", example = "2025-10-29T14:35:13")
 	private LocalDateTime createdAt;
@@ -74,6 +85,8 @@ public class NotificationResponse {
 			.id(notification.getId())
 			.title(notification.getData().getTitle())
 			.message(notification.getData().getMessage())
+			.sender(getSenderName(notification))
+			.profileImage("/api/images/defaultProfileImage.jpg")
 			.type(notification.getType())
 			.isRead(notification.getIsRead())
 			.readAt(notification.getReadAt())
@@ -81,6 +94,45 @@ public class NotificationResponse {
 			.relatedId(notification.getData().getAdditionalData() != null ?
 				Long.valueOf(notification.getData().getAdditionalData().getOrDefault("relatedId", 0).toString()) :
 				null)
+			.selfieImage(null)
+			.createdAt(notification.getCreatedAt())
+			.build();
+	}
+
+	private static String getSenderName(Notification notification) {
+		if (notification.getData().getAdditionalData() == null) {
+			return null;
+		}
+
+		Map<String, Object> additionalData = notification.getData().getAdditionalData();
+
+		// 알림 타입별로 해당하는 발신자명 필드 조회
+		if (additionalData.containsKey("cheererName")) {
+			return additionalData.get("cheererName").toString();
+		} else if (additionalData.containsKey("uploaderName")) {
+			return additionalData.get("uploaderName").toString();
+		} else if (additionalData.containsKey("reactorName")) {
+			return additionalData.get("reactorName").toString();
+		}
+
+		return null;
+	}
+
+	public static NotificationResponse from(Notification notification, String profileImage, String selfieImage) {
+		return NotificationResponse.builder()
+			.id(notification.getId())
+			.title(notification.getData().getTitle())
+			.message(notification.getData().getMessage())
+			.sender(getSenderName(notification))
+			.profileImage(profileImage)
+			.type(notification.getType())
+			.isRead(notification.getIsRead())
+			.readAt(notification.getReadAt())
+			.deepLink(notification.getDeepLink())
+			.relatedId(notification.getData().getAdditionalData() != null ?
+				Long.valueOf(notification.getData().getAdditionalData().getOrDefault("relatedId", 0).toString()) :
+				null)
+			.selfieImage(selfieImage)
 			.createdAt(notification.getCreatedAt())
 			.build();
 	}

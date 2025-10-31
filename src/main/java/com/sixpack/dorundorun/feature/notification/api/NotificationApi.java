@@ -19,15 +19,14 @@ public interface NotificationApi {
 
 	@Operation(summary = "사용자의 알림 목록 조회",
 		description = "사용자가 받은 알림 목록을 최신순으로 조회합니다.\n\n" +
-			"**알림 타입:**\n" +
-			"- CHEER_FRIEND: 친구 응원\n" +
-			"- CERTIFICATION_UPLOADED: 친구의 인증게시물 업로드\n" +
-			"- POST_REACTION: 게시물 리액션\n" +
-			"- POST_COMMENT: 게시물 댓글\n" +
-			"- CERTIFICATION_REMINDER: 인증 독촉\n" +
-			"- RUNNING_PROGRESS_REMINDER: 러닝 진행 독촉\n" +
-			"- NEW_USER_RUNNING_REMINDER: 신규 가입 러닝 독촉\n" +
-			"- NEW_USER_FRIEND_REMINDER: 신규 가입 친구추가 독촉")
+			"알림 타입별 Deeplink 경로:\n" +
+			"- CHEER_FRIEND: 친구 응원 → app://friend/profile/{relatedId = friendId} (응원한 친구의 프로필)\n" +
+			"- FEED_UPLOADED: 친구의 피드 업로드 → app://feed/{relatedId = feedId} (업로드된 피드 상세 보기)\n" +
+			"- FEED_REACTION: 피드 리액션 → app://feed/{relatedId = feedId} (리액션이 달린 피드 상세 보기)\n" +
+			"- FEED_REMINDER: 피드 업로드 독촉 → app://feed/upload (피드 작성 화면)\n" +
+			"- RUNNING_PROGRESS_REMINDER: 러닝 진행 독촉 → app://running/start (러닝 시작 화면)\n" +
+			"- NEW_USER_RUNNING_REMINDER: 신규 가입 러닝 독촉 → app://running/start (러닝 시작 화면)\n" +
+			"- NEW_USER_FRIEND_REMINDER: 신규 가입 친구추가 독촉 → app://friend/add (친구 추가 화면)")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "알림 목록 조회 성공"),
 		@ApiResponse(responseCode = "401", description = "인증 필요")
