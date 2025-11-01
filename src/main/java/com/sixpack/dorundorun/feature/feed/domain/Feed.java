@@ -69,15 +69,7 @@ public class Feed extends BaseTimeEntity {
 	}
 
 	public String getSelfieImageUrl() {
-		// 셀피 이미지가 없으면 맵 이미지 URL 반환
-		if (this.selfieImage == null) {
-			return getMapImageUrl();
-		}
 		return S3ImageUrlUtil.getPresignedImageUrl(this.selfieImage);
-	}
-
-	public String getSelfieImageKey() {
-		return this.selfieImage;
 	}
 
 	public void update(String content, String selfieImage) {
