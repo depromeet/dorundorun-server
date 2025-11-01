@@ -36,7 +36,7 @@ public class FindSelfiesByDateService {
 	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
 
 	@Transactional(readOnly = true)
-	public PaginationResponse<SelfieFeedResponse> find(User currentUser, FeedListRequest request) {
+	public SelfieFeedResponse find(User currentUser, FeedListRequest request) {
 		Pageable pageable = PageRequest.of(request.page(), request.size());
 		Page<Feed> feedsPage = loadFeedsByCondition(
 			request.userId(), currentUser.getId(), request.currentDate(), pageable);
@@ -46,9 +46,10 @@ public class FindSelfiesByDateService {
 			.toList();
 
 		SelfieFeedResponse.UserSummary userSummary = loadUserSummary(request.userId());
-		SelfieFeedResponse response = new SelfieFeedResponse(userSummary, feedItems);
+		PaginationResponse<FeedItem> feedsPagination = PaginationResponse.of(
+			feedItems, request.page(), request.size(), feedsPage.getTotalElements());
 
-		return PaginationResponse.of(List.of(response), request.page(), request.size(), feedsPage.getTotalElements());
+		return new SelfieFeedResponse(userSummary, feedsPagination);
 	}
 
 	private UserSummary loadUserSummary(Long userId) {
@@ -69,7 +70,7 @@ public class FindSelfiesByDateService {
 	private FeedItem createFeedItem(Feed feed, Long currentUserId) {
 		List<Reaction> reactions = feed.getReactions();
 		ReactionsByEmoji reactionsByEmoji = ReactionsByEmoji.from(reactions);
-		List<ReactionSummary> reactionSummaries = reactionsByEmoji.toReactionSummaries();
+		List<ReactionSummary> reactionSummaries = reactionsByEmoji.toReactionSummaries(currentUserId);
 
 		List<ReactionSummary> convertedReactionSummaries = reactionSummaries.stream()
 			.map(summary -> convertReactionSummaryUrls(summary, currentUserId))
@@ -79,9 +80,9 @@ public class FindSelfiesByDateService {
 			? s3Service.getImageUrl(feed.getUser().getProfileImageUrl())
 			: getDefaultProfileImageUrlService.get();
 
-		String selfieImageUrl = feed.getSelfieImageUrl() != null
-			? s3Service.getImageUrl(feed.getSelfieImageUrl())
-			: null;
+		String selfieImageUrl = feed.getSelfieImage() != null
+			? feed.getSelfieImageUrl()
+			: feed.getMapImageUrl();
 
 		return FeedItem.of(feed, convertedReactionSummaries, currentUserId, profileImageUrl, selfieImageUrl);
 	}
@@ -91,7 +92,8 @@ public class FindSelfiesByDateService {
 			.map(user -> new SelfieFeedResponse.ReactionUser(
 				user.userId(),
 				user.nickname(),
-				user.profileImageUrl() != null ? s3Service.getImageUrl(user.profileImageUrl()) : getDefaultProfileImageUrlService.get(),
+				user.profileImageUrl() != null ? s3Service.getImageUrl(user.profileImageUrl()) :
+					getDefaultProfileImageUrlService.get(),
 				user.userId().equals(currentUserId),
 				user.reactedAt()
 			))
@@ -100,6 +102,7 @@ public class FindSelfiesByDateService {
 		return new ReactionSummary(
 			summary.emojiType(),
 			summary.totalCount(),
+			summary.isReactedByMe(),
 			convertedUsers
 		);
 	}

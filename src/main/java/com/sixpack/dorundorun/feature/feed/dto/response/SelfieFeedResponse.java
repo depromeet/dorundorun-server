@@ -5,17 +5,18 @@ import java.util.List;
 
 import com.sixpack.dorundorun.feature.feed.domain.Feed;
 import com.sixpack.dorundorun.feature.feed.domain.Reaction;
+import com.sixpack.dorundorun.global.response.PaginationResponse;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "셀피 피드 응답")
 public record SelfieFeedResponse(
 
-	@Schema(description = "유저 정보 (userId가 있을 때만)")
+	@Schema(description = "유저 요약 정보 (userId가 있을 때만)")
 	UserSummary userSummary,
 
-	@Schema(description = "인증 피드 목록")
-	List<FeedItem> feeds
+	@Schema(description = "인증 피드 목록 (페이지네이션)")
+	PaginationResponse<FeedItem> feeds
 ) {
 	@Schema(description = "유저 요약 정보")
 	public record UserSummary(
@@ -101,6 +102,9 @@ public record SelfieFeedResponse(
 
 		@Schema(description = "전체 반응 수", example = "5")
 		Integer totalCount,
+
+		@Schema(description = "내가 이 이모지로 반응했는지 여부", example = "true")
+		Boolean isReactedByMe,
 
 		@Schema(description = "반응한 유저 목록 (전체 포함, 상세 화면에서 사용)")
 		List<ReactionUser> users

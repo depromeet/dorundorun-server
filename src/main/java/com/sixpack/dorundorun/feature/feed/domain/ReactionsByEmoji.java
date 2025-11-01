@@ -17,14 +17,17 @@ public record ReactionsByEmoji(
 		return new ReactionsByEmoji(reactionsByEmoji);
 	}
 
-	public List<SelfieFeedResponse.ReactionSummary> toReactionSummaries() {
+	public List<SelfieFeedResponse.ReactionSummary> toReactionSummaries(Long currentUserId) {
 		return reactionMap.entrySet().stream()
-			.map(entry -> createReactionSummary(entry.getKey(), entry.getValue()))
+			.map(entry -> createReactionSummary(entry.getKey(), entry.getValue(), currentUserId))
 			.toList();
 	}
 
 	private SelfieFeedResponse.ReactionSummary createReactionSummary(
-		String emojiType, List<Reaction> reactions) {
+		String emojiType, List<Reaction> reactions, Long currentUserId) {
+
+		boolean isReactedByMe = reactions.stream()
+			.anyMatch(r -> r.getUser().getId().equals(currentUserId));
 
 		List<ReactionUser> reactionUsers = reactions.stream()
 			.map(ReactionUser::from)
@@ -33,6 +36,7 @@ public record ReactionsByEmoji(
 		return new SelfieFeedResponse.ReactionSummary(
 			emojiType,
 			reactions.size(),
+			isReactedByMe,
 			reactionUsers
 		);
 	}
