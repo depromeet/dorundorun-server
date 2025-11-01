@@ -32,7 +32,7 @@ public class UpdateSelfieService {
 			throw FeedErrorCode.FORBIDDEN_FEED_ACCESS.format();
 		}
 
-		String oldSelfieImageKey = feed.getSelfieImageKey();
+		String oldSelfieImageKey = feed.getSelfieImage();
 
 		String finalImageKey = determineFinalImageKey(oldSelfieImageKey, request.deleteSelfieImage(),
 			newSelfieImageKey);
