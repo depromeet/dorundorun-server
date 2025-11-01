@@ -40,7 +40,7 @@ public class DeleteSelfieService {
 		}
 
 		// 삭제 전에 이미지 키 저장
-		String selfieImageKey = feed.getSelfieImageKey();
+		String selfieImageKey = feed.getSelfieImage();
 
 		// Hard delete (트랜잭션 내)
 		feedJpaRepository.delete(feed);
