@@ -11,6 +11,7 @@ import com.sixpack.dorundorun.feature.run.domain.RunSession;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.utils.S3ImageUrlUtil;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -60,7 +61,7 @@ public class Feed extends BaseTimeEntity {
 	private LocalDateTime deletedAt;
 
 	@BatchSize(size = 50)
-	@OneToMany(mappedBy = "feed", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "feed", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<Reaction> reactions = new ArrayList<>();
 
 	public String getMapImageUrl() {

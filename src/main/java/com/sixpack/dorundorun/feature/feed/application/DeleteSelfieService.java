@@ -18,8 +18,18 @@ public class DeleteSelfieService {
 	private final FeedJpaRepository feedJpaRepository;
 	private final S3Service s3Service;
 
-	@Transactional
 	public void delete(Long feedId, User user) {
+		// 삭제할 이미지 키들을 먼저 조회
+		String selfieImageKey = deleteFeedInTransaction(feedId, user);
+
+		// 트랜잭션 커밋 후 S3에서 이미지 삭제
+		if (selfieImageKey != null) {
+			s3Service.deleteImage(selfieImageKey);
+		}
+	}
+
+	@Transactional
+	public String deleteFeedInTransaction(Long feedId, User user) {
 		Feed feed = feedJpaRepository.findById(feedId)
 			.filter(f -> f.getDeletedAt() == null)
 			.orElseThrow(() -> FeedErrorCode.NOT_FOUND_FEED.format(feedId));
@@ -29,13 +39,13 @@ public class DeleteSelfieService {
 			throw FeedErrorCode.FORBIDDEN_FEED_ACCESS.format();
 		}
 
-		// S3에서 셀피 이미지 삭제
+		// 삭제 전에 이미지 키 저장
 		String selfieImageKey = feed.getSelfieImageKey();
-		if (selfieImageKey != null) {
-			s3Service.deleteImage(selfieImageKey);
-		}
 
-		// Hard delete
+		// Hard delete (트랜잭션 내)
 		feedJpaRepository.delete(feed);
+
+		// 이미지 키 반환 (트랜잭션 커밋 후 S3 삭제용)
+		return selfieImageKey;
 	}
 }

@@ -22,6 +22,8 @@ public class UpdateSelfieService {
 
 	@Transactional
 	public Feed update(Long feedId, User user, UpdateSelfieRequest request, MultipartFile selfieImage) {
+		String newSelfieImageKey = uploadNewImageIfNeeded(selfieImage);
+
 		Feed feed = feedJpaRepository.findById(feedId)
 			.filter(f -> f.getDeletedAt() == null)
 			.orElseThrow(() -> FeedErrorCode.NOT_FOUND_FEED.format(feedId));
@@ -31,32 +33,40 @@ public class UpdateSelfieService {
 		}
 
 		String oldSelfieImageKey = feed.getSelfieImageKey();
-		String newSelfieImageKey = determineNewSelfieImageKey(oldSelfieImageKey, request.deleteSelfieImage(),
-			selfieImage);
 
-		// 이미지가 변경되는 경우 (새 이미지 업로드 또는 삭제) 기존 이미지를 S3에서 삭제
-		if (oldSelfieImageKey != null && !oldSelfieImageKey.equals(newSelfieImageKey)) {
-			s3Service.deleteImage(oldSelfieImageKey);
-		}
+		String finalImageKey = determineFinalImageKey(oldSelfieImageKey, request.deleteSelfieImage(),
+			newSelfieImageKey);
 
-		feed.update(request.content(), newSelfieImageKey);
+		feed.update(request.content(), finalImageKey);
+
+		deleteOldImageIfNeeded(oldSelfieImageKey, finalImageKey);
 
 		return feed;
 	}
 
-	private String determineNewSelfieImageKey(String oldImageKey, Boolean deleteSelfieImage,
-		MultipartFile newSelfieImage) {
-		// 1. 새 이미지가 업로드된 경우 -> 새 이미지로 교체
+	private String uploadNewImageIfNeeded(MultipartFile newSelfieImage) {
 		if (newSelfieImage != null && !newSelfieImage.isEmpty()) {
-			return s3Service.uploadImage(newSelfieImage);
+			String uploadedKey = s3Service.uploadImage(newSelfieImage);
+			return uploadedKey;
+		}
+		return null;
+	}
+
+	private String determineFinalImageKey(String oldImageKey, Boolean deleteSelfieImage, String uploadedImageKey) {
+		if (uploadedImageKey != null) {
+			return uploadedImageKey;
 		}
 
-		// 2. 명시적으로 이미지 삭제를 요청한 경우 -> null 반환
 		if (Boolean.TRUE.equals(deleteSelfieImage)) {
 			return null;
 		}
 
-		// 3. 그 외의 경우 -> 기존 이미지 유지
 		return oldImageKey;
+	}
+
+	private void deleteOldImageIfNeeded(String oldImageKey, String newImageKey) {
+		if (oldImageKey != null && !oldImageKey.equals(newImageKey)) {
+			s3Service.deleteImage(oldImageKey);
+		}
 	}
 }
