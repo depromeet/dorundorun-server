@@ -112,7 +112,7 @@ public class NotificationIntegrationTest extends ServiceTest {
 		// then
 		assertEquals("깨우기 알림", title);
 		assertEquals("김철수님이 회원님을 깨웠어요", message);
-		assertThat(deepLink).contains("app://friend/profile/");
+		assertThat(deepLink).contains("dorundorun://friend/profile/");
 	}
 
 	@Test
@@ -131,7 +131,7 @@ public class NotificationIntegrationTest extends ServiceTest {
 		// then
 		assertEquals("러닝 시작", title);
 		assertEquals("두런두런과 설레는 첫 러닝을 시작해봐요!", message);
-		assertEquals("app://running/start", deepLink);
+		assertEquals("dorundorun://running/start", deepLink);
 	}
 
 	@Test
@@ -390,7 +390,7 @@ public class NotificationIntegrationTest extends ServiceTest {
 		assertNotNull(saved.getId());
 		assertEquals("깨우기 알림", saved.getData().getTitle());
 		assertEquals("김철수님이 회원님을 깨웠어요", saved.getData().getMessage());
-		assertEquals("app://friend/profile/" + testFriend.getId(), saved.getDeepLink());
+		assertEquals("dorundorun://friend/profile/" + testFriend.getId(), saved.getDeepLink());
 
 		Notification retrieved = notificationRepository.findById(saved.getId()).orElse(null);
 		assertNotNull(retrieved);
