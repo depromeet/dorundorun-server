@@ -84,9 +84,9 @@ public class NotificationResponse {
 		String message = notification.getData().getMessage();
 		String sender = getSenderName(notification);
 
-		// 응답에서는 메시지에서 발신자 이름만 제거 ("이"는 유지)
+		// 응답에서는 메시지에서 발신자 이름과 "님" 제거
 		if (sender != null && message != null) {
-			message = message.replace(sender, "");
+			message = message.replace(sender + "님", "");
 		}
 
 		return NotificationResponse.builder()
@@ -130,9 +130,9 @@ public class NotificationResponse {
 		String message = notification.getData().getMessage();
 		String sender = getSenderName(notification);
 
-		// 응답에서는 메시지에서 발신자 이름만 제거
+		// 응답에서는 메시지에서 발신자 이름과 "님" 제거
 		if (sender != null && message != null) {
-			message = message.replace(sender, "");
+			message = message.replace(sender + "님", "");
 		}
 
 		return NotificationResponse.builder()
