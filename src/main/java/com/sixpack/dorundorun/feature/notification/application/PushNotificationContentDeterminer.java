@@ -51,15 +51,15 @@ public class PushNotificationContentDeterminer {
 	public String determineDeepLink(String notificationType, String relatedId, Map<String, Object> metadata) {
 		return switch (notificationType) {
 			// 즉시 알림
-			case "CHEER_FRIEND" -> "app://friend/profile/" + relatedId;
-			case "FEED_UPLOADED" -> "app://feed/" + relatedId;
-			case "FEED_REACTION" -> "app://feed/" + relatedId;
+			case "CHEER_FRIEND" -> "dorundorun://friend/profile/" + relatedId;
+			case "FEED_UPLOADED" -> "dorundorun://feed/" + relatedId;
+			case "FEED_REACTION" -> "dorundorun://feed/" + relatedId;
 
 			// 스케줄 알림
-			case "FEED_REMINDER" -> "app://feed/upload";
-			case "RUNNING_PROGRESS_REMINDER" -> "app://running/start";
-			case "NEW_USER_RUNNING_REMINDER" -> "app://running/start";
-			case "NEW_USER_FRIEND_REMINDER" -> "app://friend/add";
+			case "FEED_REMINDER" -> "dorundorun://feed/upload";
+			case "RUNNING_PROGRESS_REMINDER" -> "dorundorun://running/start";
+			case "NEW_USER_RUNNING_REMINDER" -> "dorundorun://running/start";
+			case "NEW_USER_FRIEND_REMINDER" -> "dorundorun://friend/add";
 
 			default -> null;
 		};
@@ -67,17 +67,17 @@ public class PushNotificationContentDeterminer {
 
 	private String buildCheerFriendMessage(Map<String, Object> metadata) {
 		String cheererName = (String)metadata.getOrDefault("cheererName", "친구");
-		return cheererName + "님이 회원님을 깨웠어요";
+		return cheererName + "이 회원님을 깨웠어요";
 	}
 
 	private String buildFeedUploadedMessage(Map<String, Object> metadata) {
 		String uploaderName = (String)metadata.getOrDefault("uploaderName", "친구");
-		return uploaderName + "님이 피드를 업로드 했어요";
+		return uploaderName + "이 피드를 업로드 했어요";
 	}
 
 	private String buildFeedReactionMessage(Map<String, Object> metadata) {
 		String reactionUserName = (String)metadata.getOrDefault("reactionUserName", "친구");
-		return reactionUserName + "님이 회원님의 피드에 리액션을 남겼어요";
+		return reactionUserName + "이 회원님의 피드에 리액션을 남겼어요";
 	}
 
 	private String getDefaultMessage(String notificationType) {

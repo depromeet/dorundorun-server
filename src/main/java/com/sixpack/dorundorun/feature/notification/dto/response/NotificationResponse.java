@@ -17,7 +17,7 @@ import lombok.Getter;
 		{
 		  "id": 1,
 		  "title": "친구 응원",
-		  "message": "님이 당신을 응원합니다!",
+		  "message": "이 당신을 응원합니다!",
 		  "sender": "김철수",
 		  "profileImage": "/api/images/defaultProfileImage.jpg",
 		  "type": "CHEER_FRIEND",
@@ -84,9 +84,9 @@ public class NotificationResponse {
 		String message = notification.getData().getMessage();
 		String sender = getSenderName(notification);
 
-		// 응답에서는 메시지에서 발신자 이름 제거
+		// 응답에서는 메시지에서 발신자 이름만 제거 ("이"는 유지)
 		if (sender != null && message != null) {
-			message = message.replace(sender + "님", "님");
+			message = message.replace(sender, "");
 		}
 
 		return NotificationResponse.builder()
@@ -130,9 +130,9 @@ public class NotificationResponse {
 		String message = notification.getData().getMessage();
 		String sender = getSenderName(notification);
 
-		// 응답에서는 메시지에서 발신자 이름 제거
+		// 응답에서는 메시지에서 발신자 이름만 제거
 		if (sender != null && message != null) {
-			message = message.replace(sender + "님", "님");
+			message = message.replace(sender, "");
 		}
 
 		return NotificationResponse.builder()
