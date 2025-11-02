@@ -43,7 +43,7 @@ public class FriendController implements FriendApi {
 		@Valid @RequestBody AddFriendRequest request
 	) {
 		Friend friend = addFriendService.add(user.getId(), request.code());
-		AddFriendResponse response = new AddFriendResponse(friend.getFriend().getId());
+		AddFriendResponse response = new AddFriendResponse(friend.getFriend().getNickname());
 		return DorunResponse.success("친구가 성공적으로 추가되었습니다.", response);
 	}
 
