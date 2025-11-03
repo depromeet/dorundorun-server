@@ -14,6 +14,7 @@ import com.sixpack.dorundorun.feature.auth.application.RefreshAccessTokenService
 import com.sixpack.dorundorun.feature.auth.application.SignUpService;
 import com.sixpack.dorundorun.feature.auth.application.SmsSendService;
 import com.sixpack.dorundorun.feature.auth.application.SmsVerificationService;
+import com.sixpack.dorundorun.feature.auth.application.WithdrawService;
 import com.sixpack.dorundorun.feature.auth.dto.request.RefreshTokenRequest;
 import com.sixpack.dorundorun.feature.auth.dto.request.SmsSendRequest;
 import com.sixpack.dorundorun.feature.auth.dto.request.SmsVerificationRequest;
@@ -37,9 +38,7 @@ public class AuthController implements AuthApi {
 	private final SmsSendService smsSendService;
 	private final SmsVerificationService smsVerificationService;
 	private final LogoutService logoutService;
-
-	// TODO: 서비스 의존성 주입 예정
-	// private final WithdrawService withdrawService;
+	private final WithdrawService withdrawService;
 
 	@Override
 	@PostMapping("/sms/send")
@@ -86,9 +85,7 @@ public class AuthController implements AuthApi {
 	@Override
 	@DeleteMapping("/withdraw")
 	public DorunResponse<Void> withdraw(@CurrentUser User user) {
-		// TODO: 서비스 로직 구현 예정
-		// withdrawService.withdraw(user);
-		// return DorunResponse.success("회원 탈퇴가 완료되었습니다");
+		withdrawService.withdraw(user);
 		return DorunResponse.success("회원 탈퇴가 완료되었습니다");
 	}
 }

@@ -85,4 +85,8 @@ public interface FeedJpaRepository extends JpaRepository<Feed, Long> {
 		@Param("startDate") LocalDateTime startDate,
 		@Param("endDate") LocalDateTime endDate
 	);
+
+	List<Feed> findAllByUserId(Long userId);
+
+	int deleteByUserId(Long userId);
 }

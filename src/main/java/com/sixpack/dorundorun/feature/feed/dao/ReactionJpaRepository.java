@@ -17,4 +17,7 @@ public interface ReactionJpaRepository extends JpaRepository<Reaction, Long> {
 		"AND r.deletedAt IS NULL " +
 		"ORDER BY r.createdAt ASC")
 	List<Reaction> findByFeedIdIn(@Param("feedIds") List<Long> feedIds);
+
+	// 특정 사용자의 모든 Reaction 삭제 (회원 탈퇴용)
+	int deleteByUserId(Long userId);
 }

@@ -56,4 +56,8 @@ public interface FriendJpaRepository extends JpaRepository<Friend, Long> {
 			WHERE u.id = :userId OR f.id IS NOT NULL
 			""")
 	Page<FriendRunningStatusProjection> findFriendsRunningStatus(@Param("userId") Long userId, Pageable pageable);
+
+	int deleteByUserId(Long userId);
+
+	int deleteByFriendId(Long friendId);
 }

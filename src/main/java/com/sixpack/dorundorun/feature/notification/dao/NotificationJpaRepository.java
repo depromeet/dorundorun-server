@@ -57,4 +57,6 @@ public interface NotificationJpaRepository extends JpaRepository<Notification, L
 		@Param("userId") Long userId,
 		@Param("friendIds") List<Long> friendIds
 	);
+
+	int deleteByUserId(Long userId);
 }
