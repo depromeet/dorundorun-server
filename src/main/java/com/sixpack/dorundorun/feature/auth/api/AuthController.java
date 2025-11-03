@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.sixpack.dorundorun.feature.auth.application.LogoutService;
 import com.sixpack.dorundorun.feature.auth.application.RefreshAccessTokenService;
 import com.sixpack.dorundorun.feature.auth.application.SignUpService;
 import com.sixpack.dorundorun.feature.auth.application.SmsSendService;
@@ -35,9 +36,9 @@ public class AuthController implements AuthApi {
 	private final SignUpService signUpService;
 	private final SmsSendService smsSendService;
 	private final SmsVerificationService smsVerificationService;
+	private final LogoutService logoutService;
 
 	// TODO: 서비스 의존성 주입 예정
-	// private final LogoutService logoutService;
 	// private final WithdrawService withdrawService;
 
 	@Override
@@ -71,9 +72,7 @@ public class AuthController implements AuthApi {
 	@Override
 	@PostMapping("/logout")
 	public DorunResponse<Void> logout(@CurrentUser User user) {
-		// TODO: 서비스 로직 구현 예정
-		// logoutService.logout(user);
-		// return DorunResponse.success("로그아웃에 성공하였습니다");
+		logoutService.logout(user);
 		return DorunResponse.success("로그아웃에 성공하였습니다");
 	}
 
