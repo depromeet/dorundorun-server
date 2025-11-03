@@ -113,4 +113,10 @@ public interface RunSessionJpaRepository extends JpaRepository<RunSession, Long>
 		  )
 		""", nativeQuery = true)
 	List<Long> findUserIdsWithNoRecentRun();
+
+	// 특정 사용자의 모든 RunSession 조회 (회원 탈퇴용 - 이미지 삭제)
+	List<RunSession> findAllByUserId(Long userId);
+
+	// 특정 사용자의 모든 RunSession 삭제 (회원 탈퇴용)
+	int deleteByUserId(Long userId);
 }
