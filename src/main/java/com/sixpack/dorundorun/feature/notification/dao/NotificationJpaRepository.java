@@ -59,4 +59,7 @@ public interface NotificationJpaRepository extends JpaRepository<Notification, L
 	);
 
 	int deleteByUserId(Long userId);
+
+	//       recipientUserId 컬럼 반영 후 아래 메서드로 교체 필요
+	// int deleteByRecipientUserId(Long recipientUserId);
 }
