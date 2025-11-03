@@ -54,7 +54,7 @@ public class AuthController implements AuthApi {
 		if (response.isExistingUser()) {
 			return DorunResponse.success("인증에 성공하였습니다", response);
 		} else {
-			return DorunResponse.created("인증에 성공하였습니다. 회원가입을 진행해주세요", response);
+			return DorunResponse.success("인증에 성공하였습니다. 회원가입을 진행해주세요", response);
 		}
 	}
 
