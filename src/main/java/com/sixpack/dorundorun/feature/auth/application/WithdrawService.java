@@ -1,9 +1,9 @@
 package com.sixpack.dorundorun.feature.auth.application;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import com.sixpack.dorundorun.feature.feed.dao.FeedJpaRepository;
 import com.sixpack.dorundorun.feature.feed.domain.Feed;
@@ -41,7 +41,7 @@ public class WithdrawService {
 		deleteFriends(userId);
 		deleteRunSegments(userId);
 		deleteRunSessions(userId);
-		deleteNotifications(userId);
+		deleteNotifications(userId);  // TODO: 현재는 아무 동작 안 함, recipientUserId 추가 후 활성화
 		deleteProfileImage(user);
 		redisTokenRepository.delete(userId);
 		userJpaRepository.delete(user);
@@ -65,7 +65,8 @@ public class WithdrawService {
 	}
 
 	private void deleteNotifications(Long userId) {
-		notificationJpaRepository.deleteByUserId(userId);
+		// TODO: recipientUserId 컬럼 추가 후
+		//  notificationJpaRepository.deleteByRecipientUserId(userId) 호출 필요
 	}
 
 	private void deleteFeedImages(Long userId) {
