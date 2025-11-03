@@ -27,7 +27,13 @@ import jakarta.validation.Valid;
 public interface AuthApi {
 
 	@Operation(summary = "SMS 인증 코드 발송",
-		description = "회원가입 또는 로그인 시 전화번호로 6자리 인증 코드를 발송합니다. 유효시간은 3분입니다.")
+		description = """
+			회원가입 또는 로그인 시 전화번호로 6자리 인증 코드를 발송합니다. 유효시간은 3분입니다.
+
+			**개발/테스트용 번호:**
+			- 전화번호: 000-1111-2222 (또는 00011112222)
+			- 고정 인증번호: 000000
+			""")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "OK - 인증 코드 발송 성공"),
 		@ApiResponse(responseCode = "400", description = "BAD_REQUEST - 올바르지 않은 전화번호 형식입니다"),
@@ -39,6 +45,10 @@ public interface AuthApi {
 	@Operation(summary = "SMS 인증 코드 확인",
 		description = """
 			발송된 인증 코드를 확인합니다. 기존 회원이면 자동 로그인(토큰 발급), 신규 회원이면 회원가입 필요 응답을 반환합니다.
+
+			**개발/테스트용 번호:**
+			- 전화번호: 000-1111-2222 (또는 00011112222)
+			- 고정 인증번호: 000000
 
 			**토큰 처리 방법:**
 			- accessToken: Authorization 헤더에 'Bearer {accessToken}' 형식으로 포함하여 API 요청
