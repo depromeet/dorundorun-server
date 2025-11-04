@@ -10,6 +10,7 @@ import com.sixpack.dorundorun.feature.user.dao.UserJpaRepository;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.config.jwt.JwtTokenProvider;
 import com.sixpack.dorundorun.global.exception.CustomException;
+import com.sixpack.dorundorun.global.utils.PhoneNumberNormalizationUtil;
 import com.sixpack.dorundorun.infra.redis.sms.SmsVerificationCodeManager;
 import com.sixpack.dorundorun.infra.redis.token.RedisTokenRepository;
 
@@ -24,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SmsVerificationService {
 
+	private final PhoneNumberNormalizationUtil phoneNumberNormalizationUtil;
 	private final SmsVerificationCodeManager codeManager;
 	private final UserJpaRepository userJpaRepository;
 	private final JwtTokenProvider jwtTokenProvider;
@@ -39,7 +41,7 @@ public class SmsVerificationService {
 	 */
 	@Transactional
 	public SmsVerificationResponse verifyCode(SmsVerificationRequest request) {
-		String phoneNumber = request.phoneNumber();
+		String phoneNumber = phoneNumberNormalizationUtil.normalize(request.phoneNumber());
 		String verificationCode = request.verificationCode();
 
 		// 1. 인증 시도 횟수 확인 및 증가

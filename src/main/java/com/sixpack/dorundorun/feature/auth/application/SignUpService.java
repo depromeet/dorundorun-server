@@ -14,6 +14,7 @@ import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.feature.user.event.UserRegisteredEvent;
 import com.sixpack.dorundorun.global.config.jwt.JwtTokenProvider;
 import com.sixpack.dorundorun.global.exception.CustomException;
+import com.sixpack.dorundorun.global.utils.PhoneNumberNormalizationUtil;
 import com.sixpack.dorundorun.infra.redis.stream.publisher.RedisStreamPublisher;
 import com.sixpack.dorundorun.infra.redis.token.RedisTokenRepository;
 
@@ -30,6 +31,7 @@ public class SignUpService {
 	private final ValidatePhoneNumberService validatePhoneNumberService;
 	private final UploadProfileImageService uploadProfileImageService;
 	private final GenerateUserCodeService generateUserCodeService;
+	private final PhoneNumberNormalizationUtil phoneNumberNormalizationUtil;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RedisTokenRepository redisTokenRepository;
 	private final UserJpaRepository userJpaRepository;
@@ -40,7 +42,7 @@ public class SignUpService {
 	public SignUpResponse signUp(String dataJson, MultipartFile profileImage) {
 		SignUpRequest request = parseRequest(dataJson);
 
-		String normalizedPhoneNumber = normalizePhoneNumber(request.phoneNumber());
+		String normalizedPhoneNumber = phoneNumberNormalizationUtil.normalize(request.phoneNumber());
 
 		validatePhoneNumberService.validate(normalizedPhoneNumber);
 
@@ -74,20 +76,6 @@ public class SignUpService {
 		} catch (JsonProcessingException e) {
 			throw new IllegalArgumentException("Invalid JSON format", e);
 		}
-	}
-
-	private String normalizePhoneNumber(String phoneNumber) {
-		if (phoneNumber == null) {
-			throw new CustomException(AuthErrorCode.INVALID_PHONE_NUMBER_FORMAT);
-		}
-
-		String normalized = phoneNumber.replaceAll("-", "");
-
-		if (!normalized.matches("^\\d{11}$")) {
-			throw new CustomException(AuthErrorCode.INVALID_PHONE_NUMBER_FORMAT);
-		}
-
-		return normalized;
 	}
 
 	private User createUser(SignUpRequest request, String profileImageUrl, String userCode,
