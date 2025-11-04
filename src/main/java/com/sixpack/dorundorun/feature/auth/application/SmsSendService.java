@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import com.sixpack.dorundorun.feature.auth.application.strategy.SmsVerificationStrategy;
 import com.sixpack.dorundorun.feature.auth.application.strategy.SmsVerificationStrategyFactory;
 import com.sixpack.dorundorun.feature.auth.dto.request.SmsSendRequest;
+import com.sixpack.dorundorun.global.utils.PhoneNumberNormalizationUtil;
 import com.sixpack.dorundorun.infra.redis.sms.SmsVerificationCodeManager;
 
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SmsSendService {
 
+	private final PhoneNumberNormalizationUtil phoneNumberNormalizationUtil;
 	private final SmsVerificationCodeManager codeManager;
 	private final SmsVerificationStrategyFactory strategyFactory;
 
@@ -27,7 +29,7 @@ public class SmsSendService {
 	 * @param request SMS 발송 요청 (전화번호 포함)
 	 */
 	public void sendVerificationCode(SmsSendRequest request) {
-		String phoneNumber = request.phoneNumber();
+		String phoneNumber = phoneNumberNormalizationUtil.normalize(request.phoneNumber());
 
 		SmsVerificationStrategy strategy = strategyFactory.getStrategy(phoneNumber);
 
