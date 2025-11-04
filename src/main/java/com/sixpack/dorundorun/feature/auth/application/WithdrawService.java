@@ -41,7 +41,7 @@ public class WithdrawService {
 		deleteFriends(userId);
 		deleteRunSegments(userId);
 		deleteRunSessions(userId);
-		deleteNotifications(userId);  // TODO: 현재는 아무 동작 안 함, recipientUserId 추가 후 활성화
+		deleteNotifications(userId);
 		deleteProfileImage(user);
 		redisTokenRepository.delete(userId);
 		userJpaRepository.delete(user);
@@ -65,8 +65,7 @@ public class WithdrawService {
 	}
 
 	private void deleteNotifications(Long userId) {
-		// TODO: recipientUserId 컬럼 추가 후
-		//  notificationJpaRepository.deleteByRecipientUserId(userId) 호출 필요
+		notificationJpaRepository.deleteByRecipientUserId(userId);
 	}
 
 	private void deleteFeedImages(Long userId) {
