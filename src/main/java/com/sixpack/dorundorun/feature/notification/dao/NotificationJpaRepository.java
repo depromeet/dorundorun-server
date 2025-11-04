@@ -5,16 +5,6 @@ import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -60,6 +50,5 @@ public interface NotificationJpaRepository extends JpaRepository<Notification, L
 
 	int deleteByUserId(Long userId);
 
-	//       recipientUserId 컬럼 반영 후 아래 메서드로 교체 필요
-	// int deleteByRecipientUserId(Long recipientUserId);
+	int deleteByRecipientUserId(Long recipientUserId);
 }
