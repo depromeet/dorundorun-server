@@ -8,6 +8,8 @@ public interface SmsVerificationStrategy {
 
 	void incrementDailySendCount(String phoneNumber);
 
+	void sendSms(String phoneNumber, String message);
+
 	boolean supports(String phoneNumber);
 
 	String getStrategyName();
