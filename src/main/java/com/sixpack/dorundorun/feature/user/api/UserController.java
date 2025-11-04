@@ -7,8 +7,11 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.sixpack.dorundorun.feature.user.application.FindMyProfileService;
+import com.sixpack.dorundorun.feature.user.application.UpdateMyProfileService;
 import com.sixpack.dorundorun.feature.user.domain.User;
-import com.sixpack.dorundorun.feature.user.dto.response.MeProfileResponse;
+import com.sixpack.dorundorun.feature.user.dto.response.MyProfileResponse;
+import com.sixpack.dorundorun.feature.user.dto.response.NewProfileResponse;
 import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
 import com.sixpack.dorundorun.global.response.DorunResponse;
 
@@ -18,20 +21,24 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController implements UserApi {
 
+	private final FindMyProfileService findMyProfileService;
+	private final UpdateMyProfileService updateMyProfileService;
+
 	@Override
 	@GetMapping("/api/users/me/profile")
-	public DorunResponse<MeProfileResponse> getMeProfile(@CurrentUser User currentUser) {
-		MeProfileResponse response = MeProfileResponse.of(currentUser);
+	public DorunResponse<MyProfileResponse> getMyProfile(@CurrentUser User currentUser) {
+		MyProfileResponse response = findMyProfileService.find(currentUser);
 		return DorunResponse.success(response);
 	}
 
 	@Override
 	@PatchMapping(value = "/api/users/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public DorunResponse<Void> updateMeProfile(
+	public DorunResponse<NewProfileResponse> updateMyProfile(
 		@CurrentUser User currentUser,
 		@RequestPart(value = "data") String dataJson,
 		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage
 	) {
-		return DorunResponse.success("프로필 수정에 성공하였습니다");
+		NewProfileResponse response = updateMyProfileService.updateProfile(currentUser, dataJson, profileImage);
+		return DorunResponse.success(response);
 	}
 }
