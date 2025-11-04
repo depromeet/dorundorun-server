@@ -4,8 +4,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.sixpack.dorundorun.feature.user.domain.User;
-import com.sixpack.dorundorun.feature.user.dto.request.MeProfileUpdateRequest;
-import com.sixpack.dorundorun.feature.user.dto.response.MeProfileResponse;
+import com.sixpack.dorundorun.feature.user.dto.request.MyProfileUpdateRequest;
+import com.sixpack.dorundorun.feature.user.dto.response.MyProfileResponse;
+import com.sixpack.dorundorun.feature.user.dto.response.NewProfileResponse;
 import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
 import com.sixpack.dorundorun.global.response.DorunResponse;
 
@@ -24,7 +25,7 @@ public interface UserApi {
 		@ApiResponse(responseCode = "200", description = "OK - 프로필 조회 성공"),
 		@ApiResponse(responseCode = "401", description = "UNAUTHORIZED - 유효하지 않거나 만료되었거나 누락된 토큰")
 	})
-	DorunResponse<MeProfileResponse> getMeProfile(
+	DorunResponse<MyProfileResponse> getMyProfile(
 		@Parameter(hidden = true) @CurrentUser User currentUser
 	);
 
@@ -34,28 +35,27 @@ public interface UserApi {
 			
 			**요청 형식:**
 			- Content-Type: multipart/form-data
-			- data: MeProfileUpdateRequest
-			- profileImage: 프로필 이미지 파일 (선택)
+			- data: MyProfileUpdateRequest (nickname, imageOption)
+			- profileImage: 프로필 이미지 파일 (imageOption=SET인 경우 필수)
 			
-			**프로필 이미지 처리 로직:**
-			- removeProfileImage=true, profileImage=null → 기존 이미지 삭제
-			- removeProfileImage=false, profileImage=null → 기존 이미지 유지
-			- removeProfileImage=false, profileImage=파일 → 새 이미지로 교체
-			- removeProfileImage=true, profileImage=파일 → 새 이미지로 교체 (removeProfileImage 무시)
+			**프로필 이미지 처리 옵션:**
+			- SET: 새 이미지로 교체 (profileImage 파일 필수)
+			- REMOVE: 이미지 삭제
+			- KEEP: 기존 이미지 유지 (또는 null일 경우 기본값)
 			""")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "OK - 프로필 수정 성공"),
 		@ApiResponse(responseCode = "400", description = "BAD_REQUEST - 올바르지 않은 닉네임 형식 (2~8자, 한글 허용)"),
 		@ApiResponse(responseCode = "401", description = "UNAUTHORIZED - 유효하지 않거나 만료되었거나 누락된 토큰")
 	})
-	DorunResponse<Void> updateMeProfile(
+	DorunResponse<NewProfileResponse> updateMyProfile(
 		@Parameter(hidden = true) @CurrentUser User currentUser,
 
 		@Parameter(
 			description = "프로필 수정 데이터",
 			required = true,
 			schema = @Schema(
-				implementation = MeProfileUpdateRequest.class,
+				implementation = MyProfileUpdateRequest.class,
 				type = "string",
 				format = "json"
 			)

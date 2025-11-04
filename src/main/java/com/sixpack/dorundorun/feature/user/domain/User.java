@@ -68,4 +68,9 @@ public class User extends BaseTimeEntity {
 		this.fcmToken = newFcmToken;
 		this.fcmTokenUpdatedAt = LocalDateTime.now();
 	}
+
+	public void updateProfile(String nickname, String profileImageUrl) {
+		this.nickname = nickname;
+		this.profileImageUrl = profileImageUrl;
+	}
 }
