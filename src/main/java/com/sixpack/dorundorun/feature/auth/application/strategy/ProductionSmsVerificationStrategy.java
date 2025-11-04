@@ -3,6 +3,7 @@ package com.sixpack.dorundorun.feature.auth.application.strategy;
 import org.springframework.stereotype.Component;
 
 import com.sixpack.dorundorun.infra.redis.sms.SmsVerificationCodeManager;
+import com.sixpack.dorundorun.infra.sms.SmsProvider;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class ProductionSmsVerificationStrategy implements SmsVerificationStrategy {
 
 	private final SmsVerificationCodeManager codeManager;
+	private final SmsProvider smsProvider;
 
 	@Override
 	public String generateVerificationCode() {
@@ -29,6 +31,11 @@ public class ProductionSmsVerificationStrategy implements SmsVerificationStrateg
 	@Override
 	public void incrementDailySendCount(String phoneNumber) {
 		codeManager.incrementDailySendCount(phoneNumber);
+	}
+
+	@Override
+	public void sendSms(String phoneNumber, String message) {
+		smsProvider.sendMessage(phoneNumber, message);
 	}
 
 	@Override
