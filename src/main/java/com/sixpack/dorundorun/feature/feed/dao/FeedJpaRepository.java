@@ -89,4 +89,13 @@ public interface FeedJpaRepository extends JpaRepository<Feed, Long> {
 	List<Feed> findAllByUserId(Long userId);
 
 	int deleteByUserId(Long userId);
+
+	@Query("""
+		SELECT f FROM Feed f
+		JOIN FETCH f.user
+		JOIN FETCH f.runSession
+		WHERE f.id = :feedId
+		AND f.deletedAt IS NULL
+		""")
+	Optional<Feed> findByIdWithUserAndRunSession(@Param("feedId") Long feedId);
 }
