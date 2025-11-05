@@ -17,6 +17,7 @@ import com.sixpack.dorundorun.feature.friend.dto.request.CheerFriendRequest;
 import com.sixpack.dorundorun.feature.friend.dto.request.DeleteFriendsRequest;
 import com.sixpack.dorundorun.feature.friend.dto.request.FriendRunningStatusRequest;
 import com.sixpack.dorundorun.feature.friend.dto.response.AddFriendResponse;
+import com.sixpack.dorundorun.feature.friend.dto.response.DeleteFriendsResponse;
 import com.sixpack.dorundorun.feature.friend.dto.response.FriendRunningStatusResponse;
 import com.sixpack.dorundorun.feature.friend.dto.response.GetMyCodeResponse;
 import com.sixpack.dorundorun.feature.user.domain.User;
@@ -70,12 +71,13 @@ public class FriendController implements FriendApi {
 	}
 
 	@PostMapping("/api/friends/delete")
-	public DorunResponse<Void> deleteFriends(
+	public DorunResponse<DeleteFriendsResponse> deleteFriends(
 		@CurrentUser User user,
 		@Valid @RequestBody DeleteFriendsRequest request
 	) {
-		deleteFriendsService.delete(user.getId(), request.friendIds());
-		return DorunResponse.success("친구가 성공적으로 삭제되었습니다.", null);
+		var deletedFriends = deleteFriendsService.delete(user.getId(), request.friendIds());
+		DeleteFriendsResponse response = new DeleteFriendsResponse(deletedFriends);
+		return DorunResponse.success("친구가 성공적으로 삭제되었습니다.", response);
 	}
 
 	@PostMapping("/api/friends/reaction")
