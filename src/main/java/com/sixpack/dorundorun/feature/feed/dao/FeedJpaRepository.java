@@ -55,9 +55,8 @@ public interface FeedJpaRepository extends JpaRepository<Feed, Long> {
 	@Query("""
 		SELECT DATE(f.createdAt) as date, COUNT(f) as count
 		FROM Feed f
-		JOIN Friend fr ON fr.friend.id = f.user.id
-		WHERE fr.user.id = :userId
-		AND fr.deletedAt IS NULL
+		LEFT JOIN Friend fr ON fr.friend.id = f.user.id AND fr.user.id = :userId AND fr.deletedAt IS NULL
+		WHERE (fr.id IS NOT NULL OR f.user.id = :userId)
 		AND (:startDate IS NULL OR f.createdAt >= :startDate)
 		AND (:endDate IS NULL OR f.createdAt <= :endDate)
 		AND f.deletedAt IS NULL
