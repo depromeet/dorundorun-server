@@ -22,7 +22,6 @@ public class CheerFriendService {
 	@Transactional
 	public String cheer(Long userId, Long friendUserId) {
 
-		User currentUser = findUserByIdService.find(userId);
 		User friendUser = findUserByIdService.find(friendUserId);
 
 		CheerRequestedEvent event = CheerRequestedEvent.builder()

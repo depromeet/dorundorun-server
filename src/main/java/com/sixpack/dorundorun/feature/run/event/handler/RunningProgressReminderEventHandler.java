@@ -9,23 +9,22 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixpack.dorundorun.feature.notification.domain.ScheduledNotificationData;
-import com.sixpack.dorundorun.feature.run.event.WeeklyRunningReminderRequestedEvent;
+import com.sixpack.dorundorun.feature.run.event.RunningProgressReminderRequestedEvent;
 import com.sixpack.dorundorun.infra.redis.stream.annotation.RedisStreamEventListener;
 import com.sixpack.dorundorun.infra.redis.stream.handler.AbstractRedisStreamEventHandler;
 
 import lombok.extern.slf4j.Slf4j;
 
-// 러닝 진행 독촉 알림 이벤트를 처리하고 Redis Sorted Set에 예약
 @Slf4j
 @Component
 @RedisStreamEventListener
-public class WeeklyRunningReminderEventHandler
-	extends AbstractRedisStreamEventHandler<WeeklyRunningReminderRequestedEvent> {
+public class RunningProgressReminderEventHandler
+	extends AbstractRedisStreamEventHandler<RunningProgressReminderRequestedEvent> {
 
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
 
-	public WeeklyRunningReminderEventHandler(
+	public RunningProgressReminderEventHandler(
 		ObjectMapper objectMapper,
 		RedisTemplate<String, String> redisTemplate
 	) {
@@ -36,38 +35,43 @@ public class WeeklyRunningReminderEventHandler
 
 	@Override
 	public String getEventType() {
-		return WeeklyRunningReminderRequestedEvent.TYPE;
+		return RunningProgressReminderRequestedEvent.TYPE;
 	}
 
 	@Override
-	protected Class<WeeklyRunningReminderRequestedEvent> payloadType() {
-		return WeeklyRunningReminderRequestedEvent.class;
+	protected Class<RunningProgressReminderRequestedEvent> payloadType() {
+		return RunningProgressReminderRequestedEvent.class;
 	}
 
 	@Override
-	protected void onMessage(WeeklyRunningReminderRequestedEvent event) throws Exception {
-		log.info("Processing weekly running progress reminder event: userId={}, daysSinceLastRun={}",
-			event.userId(), event.daysSinceLastRun());
+	protected void onMessage(RunningProgressReminderRequestedEvent event) throws Exception {
+		log.info("Processing running progress reminder event: userId={}, runSessionId={}",
+			event.userId(), event.runSessionId());
 
 		try {
-			// 예약 시간 계산: 지금 + 7일 (마지막 러닝 후 7일)
+			// 예약 시간 계산: 지금 + 7일 (마지막 러닝 완료 후 7일)
 			LocalDateTime scheduledTime = LocalDateTime.now().plusDays(7);
 			long scheduledTimestamp = scheduledTime.atZone(ZoneId.of("Asia/Seoul"))
 				.toInstant()
 				.getEpochSecond();
 
-			// 고유 이벤트 ID 생성
 			String eventId = UUID.randomUUID().toString();
 
-			// ScheduledNotificationData 생성
+			java.util.Map<String, Object> additionalData = new java.util.HashMap<>();
+			additionalData.put("runSessionId", event.runSessionId());
+
 			ScheduledNotificationData scheduledData = ScheduledNotificationData.builder()
 				.eventId(eventId)
 				.notificationType("RUNNING_PROGRESS_REMINDER")
 				.userId(event.userId())
 				.scheduledAt(scheduledTime)
+				.additionalData(additionalData)
 				.build();
 
 			// Redis Sorted Set에 추가
+			// key: "pending-notifications"
+			// score: 예약 시간의 Unix timestamp
+			// member: eventId
 			redisTemplate.opsForZSet().add(
 				"pending-notifications",
 				eventId,
@@ -75,6 +79,9 @@ public class WeeklyRunningReminderEventHandler
 			);
 
 			// Redis Hash에 이벤트 데이터 저장
+			// key: "notifications"
+			// field: eventId
+			// value: 직렬화된 ScheduledNotificationData
 			String eventJson = objectMapper.writeValueAsString(scheduledData);
 			redisTemplate.opsForHash().put(
 				"notifications",
@@ -82,16 +89,15 @@ public class WeeklyRunningReminderEventHandler
 				eventJson
 			);
 
-			// TTL 설정
-			redisTemplate.expire("notifications", java.time.Duration.ofDays(30));
+			// TTL 설정 (30일 후 자동 삭제)
+			redisTemplate.expire("notifications", java.time.Duration.ofDays(8));
 
-			log.info(
-				"Weekly running progress reminder scheduled: eventId={}, userId={}, daysSinceLastRun={}, scheduledTime={}",
-				eventId, event.userId(), event.daysSinceLastRun(), scheduledTime);
+			log.info("Running progress reminder scheduled: eventId={}, userId={}, runSessionId={}, scheduledTime={}",
+				eventId, event.userId(), event.runSessionId(), scheduledTime);
 
 		} catch (Exception e) {
-			log.error("Failed to schedule weekly running progress reminder event: userId={}",
-				event.userId(), e);
+			log.error("Failed to schedule running progress reminder event: userId={}, runSessionId={}",
+				event.userId(), event.runSessionId(), e);
 			throw e;
 		}
 	}

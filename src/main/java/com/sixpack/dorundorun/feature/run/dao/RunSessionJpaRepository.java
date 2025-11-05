@@ -119,4 +119,23 @@ public interface RunSessionJpaRepository extends JpaRepository<RunSession, Long>
 
 	// 특정 사용자의 모든 RunSession 삭제 (회원 탈퇴용)
 	int deleteByUserId(Long userId);
+
+	@Query("""
+		SELECT CASE WHEN COUNT(rs) > 0 THEN true ELSE false END
+		FROM RunSession rs
+		WHERE rs.id > :runSessionId
+		  AND rs.user.id = (
+		    SELECT user.id FROM RunSession WHERE id = :runSessionId
+		  )
+		  AND rs.finishedAt IS NOT NULL
+		""")
+	boolean existsNewRunAfter(@Param("runSessionId") Long runSessionId);
+
+	@Query("""
+		SELECT CASE WHEN COUNT(rs) > 0 THEN true ELSE false END
+		FROM RunSession rs
+		WHERE rs.user.id = :userId
+		  AND rs.finishedAt IS NOT NULL
+		""")
+	boolean existsByUserIdAndFinishedAtIsNotNull(@Param("userId") Long userId);
 }

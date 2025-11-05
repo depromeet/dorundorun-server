@@ -15,7 +15,6 @@ import com.sixpack.dorundorun.infra.redis.stream.handler.AbstractRedisStreamEven
 
 import lombok.extern.slf4j.Slf4j;
 
-// 신규 사용자 러닝 독촉 알림 이벤트를 처리하고 Redis Sorted Set에 예약
 @Slf4j
 @Component
 @RedisStreamEventListener
@@ -55,10 +54,8 @@ public class NewUserRunningReminderEventHandler
 				.toInstant()
 				.getEpochSecond();
 
-			// 고유 이벤트 ID 생성
 			String eventId = UUID.randomUUID().toString();
 
-			// ScheduledNotificationData 생성
 			ScheduledNotificationData scheduledData = ScheduledNotificationData.builder()
 				.eventId(eventId)
 				.notificationType("NEW_USER_RUNNING_REMINDER")
@@ -81,8 +78,8 @@ public class NewUserRunningReminderEventHandler
 				eventJson
 			);
 
-			// TTL 설정 (30일 후 자동 삭제)
-			redisTemplate.expire("notifications", java.time.Duration.ofDays(30));
+			// TTL 설정
+			redisTemplate.expire("notifications", java.time.Duration.ofDays(2));
 
 			log.info("New user running reminder scheduled: eventId={}, userId={}, scheduledTime={}",
 				eventId, event.userId(), scheduledTime);

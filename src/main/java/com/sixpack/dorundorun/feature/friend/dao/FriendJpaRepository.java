@@ -60,4 +60,12 @@ public interface FriendJpaRepository extends JpaRepository<Friend, Long> {
 	int deleteByUserId(Long userId);
 
 	int deleteByFriendId(Long friendId);
+
+	@Query("""
+		SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END
+		FROM Friend f
+		WHERE f.user.id = :userId
+		  AND f.deletedAt IS NULL
+		""")
+	boolean existsByUserIdAndDeletedAtIsNull(@Param("userId") Long userId);
 }

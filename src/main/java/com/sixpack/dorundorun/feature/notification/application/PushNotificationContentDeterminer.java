@@ -39,7 +39,7 @@ public class PushNotificationContentDeterminer {
 			case "FEED_REACTION" -> buildFeedReactionMessage(metadata);
 
 			// 스케줄 알림
-			case "FEED_REMINDER" -> "피드를 아직 업로드하지 않으셨나요? 피드를 업로드하고 친구들과 함께해요!";
+			case "FEED_REMINDER" -> "러닝 인증 마감 1시간 전이에요! 인증을 진행해주세요.";
 			case "RUNNING_PROGRESS_REMINDER" -> "오랜만에 가볍게 달려볼까요?";
 			case "NEW_USER_RUNNING_REMINDER" -> "두런두런과 설레는 첫 러닝을 시작해봐요!";
 			case "NEW_USER_FRIEND_REMINDER" -> "친구를 추가하고 멀리서도 함께 러닝을 즐겨보세요!";

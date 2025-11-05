@@ -49,22 +49,25 @@ public class FeedReminderEventHandler
 			event.userId(), event.runSessionId());
 
 		try {
-			// 예약 시간 계산: 지금 + 23시간 (러닝 시작 후 23시간)
+			// 예약 시간 계산: 지금 + 23시간 (러닝 완료 후 23시간)
 			LocalDateTime scheduledTime = LocalDateTime.now().plusHours(23);
 			long scheduledTimestamp = scheduledTime.atZone(ZoneId.of("Asia/Seoul"))
 				.toInstant()
 				.getEpochSecond();
 
-			// 고유 이벤트 ID 생성
 			String eventId = UUID.randomUUID().toString();
 
 			// ScheduledNotificationData 생성
-			// originalEvent는 저장하지 않음 (NotificationScheduler에서 PushNotificationRequestedEvent 직접 생성)
+			// additionalData에 runSessionId 저장 (23시간 후 게시물 여부 확인용)
+			java.util.Map<String, Object> additionalData = new java.util.HashMap<>();
+			additionalData.put("runSessionId", event.runSessionId());
+
 			ScheduledNotificationData scheduledData = ScheduledNotificationData.builder()
 				.eventId(eventId)
 				.notificationType("FEED_REMINDER")
 				.userId(event.userId())
 				.scheduledAt(scheduledTime)
+				.additionalData(additionalData)
 				.build();
 
 			// Redis Sorted Set에 추가
@@ -80,7 +83,7 @@ public class FeedReminderEventHandler
 			// Redis Hash에 이벤트 데이터 저장
 			// key: "notifications"
 			// field: eventId
-			// value: 직렬화된 ScheduledNotificationData
+			// value: ScheduledNotificationData
 			String eventJson = objectMapper.writeValueAsString(scheduledData);
 			redisTemplate.opsForHash().put(
 				"notifications",
@@ -88,8 +91,8 @@ public class FeedReminderEventHandler
 				eventJson
 			);
 
-			// TTL 설정 (30일 후 자동 삭제)
-			redisTemplate.expire("notifications", java.time.Duration.ofDays(30));
+			// TTL 설정 (1일 후 자동 삭제)
+			redisTemplate.expire("notifications", java.time.Duration.ofDays(1));
 
 			log.info("Feed reminder scheduled: eventId={}, userId={}, runSessionId={}, scheduledTime={}",
 				eventId, event.userId(), event.runSessionId(), scheduledTime);
