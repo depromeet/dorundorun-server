@@ -48,12 +48,12 @@ public class UserController implements UserApi {
 	}
 
 	@Override
-	@PatchMapping("/api/users/device-token")
+	@PatchMapping("/api/users/me/device-token")
 	public DorunResponse<Void> updateDeviceToken(
 		@CurrentUser User currentUser,
 		@Valid @RequestBody DeviceTokenUpdateRequest request
 	) {
 		updateDeviceTokenService.updateDeviceToken(currentUser, request);
-		return DorunResponse.success("FCM device token 업데이트가 성공적으로 진행됐습니다.", null);
+		return DorunResponse.success("FCM device token 업데이트가 성공적으로 진행됐습니다.");
 	}
 }
