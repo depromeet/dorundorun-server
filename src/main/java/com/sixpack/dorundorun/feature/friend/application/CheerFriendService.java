@@ -20,7 +20,7 @@ public class CheerFriendService {
 	private final RedisStreamPublisher redisStreamPublisher;
 
 	@Transactional
-	public void cheer(Long userId, Long friendUserId) {
+	public String cheer(Long userId, Long friendUserId) {
 
 		User currentUser = findUserByIdService.find(userId);
 		User friendUser = findUserByIdService.find(friendUserId);
@@ -32,5 +32,7 @@ public class CheerFriendService {
 
 		redisStreamPublisher.publishAfterCommit(event);
 		log.info("Cheer event published: cheererId={}, cheeringUserId={}", userId, friendUserId);
+
+		return friendUser.getNickname();
 	}
 }
