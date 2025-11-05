@@ -32,6 +32,7 @@ import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieReactionResponse;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieUsersResponse;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieWeekResponse;
+import com.sixpack.dorundorun.feature.feed.dto.response.UpdateSelfieResponse;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
 import com.sixpack.dorundorun.global.response.DorunResponse;
@@ -119,7 +120,7 @@ public class SelfieController implements SelfieApi {
 
 	@Override
 	@PutMapping(value = "/feeds/{feedId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public DorunResponse<Void> updateSelfie(
+	public DorunResponse<UpdateSelfieResponse> updateSelfie(
 		@PathVariable Long feedId,
 		@CurrentUser User user,
 		@RequestPart("data") String dataJson,
@@ -127,8 +128,8 @@ public class SelfieController implements SelfieApi {
 	) {
 		try {
 			UpdateSelfieRequest data = objectMapper.readValue(dataJson, UpdateSelfieRequest.class);
-			updateSelfieService.update(feedId, user, data, selfieImage);
-			return DorunResponse.success("셀피 수정에 성공하였습니다");
+			String selfieImageUrl = updateSelfieService.update(feedId, user, data, selfieImage);
+			return DorunResponse.success("셀피 수정에 성공하였습니다", new UpdateSelfieResponse(selfieImageUrl));
 		} catch (JsonProcessingException e) {
 			throw new IllegalArgumentException("잘못된 JSON 형식입니다.", e);
 		}

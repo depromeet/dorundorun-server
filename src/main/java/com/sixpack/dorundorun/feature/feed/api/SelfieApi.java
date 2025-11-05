@@ -16,6 +16,7 @@ import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieReactionResponse;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieUsersResponse;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieWeekResponse;
+import com.sixpack.dorundorun.feature.feed.dto.response.UpdateSelfieResponse;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
 import com.sixpack.dorundorun.global.response.DorunResponse;
@@ -99,14 +100,14 @@ public interface SelfieApi {
 	);
 
 	@Operation(summary = "인증피드 수정",
-		description = "인증피드 내용 및 이미지를 수정합니다.")
+		description = "인증피드 내용 및 이미지를 수정합니다. 수정된 셀피 이미지 URL을 응답으로 반환합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "OK - 인증피드 수정에 성공하였습니다"),
 		@ApiResponse(responseCode = "400", description = "BAD_REQUEST - 잘못된 형식입니다"),
 		@ApiResponse(responseCode = "403", description = "FORBIDDEN - 해당 피드에 대한 권한이 없습니다"),
 		@ApiResponse(responseCode = "404", description = "NOT_FOUND - 해당 피드를 찾을 수 없습니다"),
 	})
-	DorunResponse<Void> updateSelfie(
+	DorunResponse<UpdateSelfieResponse> updateSelfie(
 		@Parameter(description = "피드 ID", required = true) Long feedId,
 		@Parameter(hidden = true) @CurrentUser User user,
 		@Parameter(
