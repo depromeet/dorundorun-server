@@ -25,7 +25,8 @@ public class FindAllRunSessionsService {
 		List<RunSessionWithFeedProjection> results = runSessionJpaRepository.findAllBySelfiedStatusAndStartDateTime(
 			userId,
 			request.isSelfied(),
-			request.startDateTime()
+			request.startDateTime(),
+			request.endDateTime()
 		);
 
 		return results.stream()

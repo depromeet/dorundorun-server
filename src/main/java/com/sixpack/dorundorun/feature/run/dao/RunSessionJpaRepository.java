@@ -36,6 +36,10 @@ public interface RunSessionJpaRepository extends JpaRepository<RunSession, Long>
 			 OR rs.createdAt >= :startDateTime
 		 )
 		 AND (
+			 :endDateTime IS NULL
+			 OR rs.createdAt <= :endDateTime
+		 )
+		 AND (
 			 :isSelfied IS NULL
 			 OR(:isSelfied = true AND f.id IS NOT NULL)
 		     OR (:isSelfied = false AND f.id IS NULL)
@@ -45,7 +49,8 @@ public interface RunSessionJpaRepository extends JpaRepository<RunSession, Long>
 	List<RunSessionWithFeedProjection> findAllBySelfiedStatusAndStartDateTime(
 		@Param("userId") Long userId,
 		@Param("isSelfied") Boolean isSelfied,
-		@Param("startDateTime") LocalDateTime startDateTime
+		@Param("startDateTime") LocalDateTime startDateTime,
+		@Param("endDateTime") LocalDateTime endDateTime
 	);
 
 	Optional<RunSession> findByIdAndUserId(Long id, Long userId);
