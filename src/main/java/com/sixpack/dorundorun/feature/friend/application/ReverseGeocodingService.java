@@ -18,7 +18,6 @@ import com.sixpack.dorundorun.infra.naver.dto.response.ReverseGeocodingResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 @Slf4j
@@ -33,44 +32,48 @@ public class ReverseGeocodingService {
 
 	private static final String CACHE_KEY_PREFIX = "reverse-geocoding:";
 
-	public Mono<AddressInfo> addressByCoordinates(Double latitude, Double longitude) {
+	public AddressInfo addressByCoordinates(Double latitude, Double longitude) {
 		if (latitude == null || longitude == null) {
-			return Mono.error(new IllegalArgumentException("latitude and longitude must not be null"));
+			throw ReverseGeocodingErrorCode.REVERSE_GEOCODING_FAILED.format(latitude, longitude);
 		}
 
 		String cacheKey = CACHE_KEY_PREFIX + CoordinateUtil.roundToKey(latitude, longitude);
 
-		// Redis 캐시 조회
 		String cachedJson = redisTemplate.opsForValue().get(cacheKey);
+		// 캐시가 있으면 즉시 반환
 		if (cachedJson != null) {
-			return parseFromCache(cachedJson);
+			return parseFromCacheSync(cachedJson);
 		}
 
 		// 캐시 없으면 API 호출
 		int retryAttempts = (int)reverseGeocodingProperties.api().retryAttempts();
 		long retryDelayMillis = reverseGeocodingProperties.api().retryDelayMillis();
 
-		return naverReverseGeocodingApi.reverseGeocode(latitude, longitude)
-			.retryWhen(
-				Retry.backoff(retryAttempts, Duration.ofMillis(retryDelayMillis))
-					.filter(throwable ->
-						throwable instanceof WebClientResponseException.ServiceUnavailable ||
-							throwable instanceof WebClientResponseException.TooManyRequests ||
-							throwable instanceof ClosedChannelException
-					)
-			)
-			.map(this::toAddressInfo)
-			.doOnNext(addressInfo -> {
-				cacheAddressInfo(cacheKey, addressInfo);
-			})
-			.onErrorResume(throwable -> {
-				log.error("Reverse geocoding API 호출 실패: latitude={}, longitude={}, error={}",
-					latitude, longitude, throwable.getMessage());
-				throw ReverseGeocodingErrorCode.REVERSE_GEOCODING_FAILED.format(latitude, longitude);
-			});
+		try {
+			ReverseGeocodingResponse response = naverReverseGeocodingApi
+				.reverseGeocode(latitude, longitude)
+				.retryWhen(
+					Retry.backoff(retryAttempts, Duration.ofMillis(retryDelayMillis))
+						.filter(throwable ->
+							throwable instanceof WebClientResponseException.ServiceUnavailable ||
+								throwable instanceof WebClientResponseException.TooManyRequests ||
+								throwable instanceof ClosedChannelException
+						)
+				)
+				.block();  // 동기 대기
+
+			AddressInfo addressInfo = toAddressInfo(response);
+			cacheAddressInfo(cacheKey, addressInfo);
+			return addressInfo;
+		} catch (Exception e) {
+			log.error("Reverse geocoding API 호출 실패: latitude={}, longitude={}, error={}",
+				latitude, longitude, e.getMessage());
+			throw ReverseGeocodingErrorCode.REVERSE_GEOCODING_FAILED.format(latitude, longitude);
+		}
 	}
 
 	private AddressInfo toAddressInfo(ReverseGeocodingResponse response) {
+
 		if (response == null || response.results() == null || response.results().isEmpty()) {
 			return new AddressInfo(
 				reverseGeocodingProperties.api().fallbackAddress(),
@@ -79,7 +82,9 @@ public class ReverseGeocodingService {
 		}
 
 		ReverseGeocodingResponse.Region region = response.results().get(0).region();
+		// 시/도 명 추출
 		String area1 = region.area1() != null ? region.area1().name() : "";
+		// 시/군/구 명 추출
 		String area2 = region.area2() != null ? region.area2().name() : "";
 
 		// "서울특별시" → "서울", "경기도" → "경기" 정제
@@ -112,20 +117,14 @@ public class ReverseGeocodingService {
 		}
 	}
 
-	private Mono<AddressInfo> parseFromCache(String json) {
+	private AddressInfo parseFromCacheSync(String json) {
 		try {
-			AddressInfo addressInfo = objectMapper.readValue(json, AddressInfo.class);
-			return Mono.just(addressInfo);
+			// JSON을 AddressInfo 객체로 역직렬화
+			return objectMapper.readValue(json, AddressInfo.class);
 		} catch (Exception e) {
 			log.error("Redis 캐시 파싱 실패: {}, error={}", json, e.getMessage());
-			return Mono.error(ReverseGeocodingErrorCode.CACHE_OPERATION_FAILED.format(json));
+			throw ReverseGeocodingErrorCode.CACHE_OPERATION_FAILED.format(json);
 		}
 	}
 
-	private AddressInfo fallbackAddressInfo() {
-		return new AddressInfo(
-			reverseGeocodingProperties.api().fallbackAddress(),
-			LocalDateTime.now()
-		);
-	}
 }
