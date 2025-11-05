@@ -79,7 +79,7 @@ public class NewUserRunningReminderEventHandler
 			);
 
 			// TTL 설정
-			redisTemplate.expire("notifications", java.time.Duration.ofDays(2));
+			redisTemplate.expire("notifications", java.time.Duration.ofDays(4));
 
 			log.info("New user running reminder scheduled: eventId={}, userId={}, scheduledTime={}",
 				eventId, event.userId(), scheduledTime);

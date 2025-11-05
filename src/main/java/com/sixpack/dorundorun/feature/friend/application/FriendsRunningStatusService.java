@@ -70,7 +70,8 @@ public class FriendsRunningStatusService {
 			.map(projection -> buildResponse(
 				projection,
 				addressMap,
-				coordinateMap.get(projection.getUserId()),
+				coordinateMap.getOrDefault(projection.getUserId(),
+					new CoordinateAddressService.CoordinateData(null, null, null)),
 				cheerMap.get(projection.getUserId())
 			))
 			.toList();

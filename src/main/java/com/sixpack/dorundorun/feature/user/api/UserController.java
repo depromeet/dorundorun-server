@@ -18,6 +18,7 @@ import com.sixpack.dorundorun.feature.user.dto.response.NewProfileResponse;
 import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
 import com.sixpack.dorundorun.global.response.DorunResponse;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -50,9 +51,9 @@ public class UserController implements UserApi {
 	@PatchMapping("/api/users/device-token")
 	public DorunResponse<Void> updateDeviceToken(
 		@CurrentUser User currentUser,
-		@RequestBody DeviceTokenUpdateRequest request
+		@Valid @RequestBody DeviceTokenUpdateRequest request
 	) {
 		updateDeviceTokenService.updateDeviceToken(currentUser, request);
-		return DorunResponse.success("fdm device token 업데이트가 성공적으로 진행됐습니다.", null);
+		return DorunResponse.success("FCM device token 업데이트가 성공적으로 진행됐습니다.", null);
 	}
 }

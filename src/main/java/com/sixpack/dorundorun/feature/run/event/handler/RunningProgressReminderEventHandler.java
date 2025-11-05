@@ -89,7 +89,7 @@ public class RunningProgressReminderEventHandler
 				eventJson
 			);
 
-			// TTL 설정 (30일 후 자동 삭제)
+			// TTL 설정 (8일 후 자동 삭제)
 			redisTemplate.expire("notifications", java.time.Duration.ofDays(8));
 
 			log.info("Running progress reminder scheduled: eventId={}, userId={}, runSessionId={}, scheduledTime={}",
