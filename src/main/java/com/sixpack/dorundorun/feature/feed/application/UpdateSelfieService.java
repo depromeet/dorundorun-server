@@ -21,7 +21,7 @@ public class UpdateSelfieService {
 	private final S3Service s3Service;
 
 	@Transactional
-	public Feed update(Long feedId, User user, UpdateSelfieRequest request, MultipartFile selfieImage) {
+	public String update(Long feedId, User user, UpdateSelfieRequest request, MultipartFile selfieImage) {
 		String newSelfieImageKey = uploadNewImageIfNeeded(selfieImage);
 
 		Feed feed = feedJpaRepository.findById(feedId)
@@ -41,7 +41,7 @@ public class UpdateSelfieService {
 
 		deleteOldImageIfNeeded(oldSelfieImageKey, finalImageKey);
 
-		return feed;
+		return finalImageKey != null ? feed.getSelfieImageUrl() : null;
 	}
 
 	private String uploadNewImageIfNeeded(MultipartFile newSelfieImage) {
