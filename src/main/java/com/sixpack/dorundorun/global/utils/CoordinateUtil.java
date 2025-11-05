@@ -3,8 +3,6 @@ package com.sixpack.dorundorun.global.utils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import com.sixpack.dorundorun.feature.run.domain.RunSegmentData;
-
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -23,14 +21,6 @@ public class CoordinateUtil {
 		String roundedLongitude = roundToString(longitude);
 
 		return roundedLatitude + COORDINATE_SEPARATOR + roundedLongitude;
-	}
-
-	public static String roundToKey(RunSegmentData segmentData) {
-		if (segmentData == null) {
-			throw new NullPointerException("segmentData must not be null");
-		}
-
-		return roundToKey(segmentData.latitude(), segmentData.longitude());
 	}
 
 	private static String roundToString(Double value) {
