@@ -7,14 +7,18 @@ import org.springframework.web.multipart.MultipartFile;
 import com.sixpack.dorundorun.feature.feed.dao.FeedJpaRepository;
 import com.sixpack.dorundorun.feature.feed.domain.Feed;
 import com.sixpack.dorundorun.feature.feed.dto.request.CreateSelfieRequest;
+import com.sixpack.dorundorun.feature.feed.event.FeedUploadedRequestedEvent;
 import com.sixpack.dorundorun.feature.feed.exception.FeedErrorCode;
 import com.sixpack.dorundorun.feature.run.application.FindRunSessionByIdAndUserIdService;
 import com.sixpack.dorundorun.feature.run.domain.RunSession;
 import com.sixpack.dorundorun.feature.user.domain.User;
+import com.sixpack.dorundorun.infra.redis.stream.publisher.RedisStreamPublisher;
 import com.sixpack.dorundorun.infra.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CreateSelfieService {
@@ -22,6 +26,7 @@ public class CreateSelfieService {
 	private final FindRunSessionByIdAndUserIdService findRunSessionByIdAndUserIdService;
 	private final FeedJpaRepository feedJpaRepository;
 	private final S3Service s3Service;
+	private final RedisStreamPublisher redisStreamPublisher;
 
 	@Transactional
 	public Feed create(User user, CreateSelfieRequest request, MultipartFile selfieImage) {
@@ -41,7 +46,18 @@ public class CreateSelfieService {
 			.content(request.content())
 			.build();
 
-		return feedJpaRepository.save(feed);
+		Feed savedFeed = feedJpaRepository.save(feed);
+
+		// 게시물 업로드 이벤트 발행 (친구들에게 즉시알림 발송)
+		FeedUploadedRequestedEvent event = FeedUploadedRequestedEvent.builder()
+			.userId(user.getId())
+			.feedId(savedFeed.getId())
+			.build();
+
+		redisStreamPublisher.publishAfterCommit(event);
+		log.info("FeedUploadedRequestedEvent published: userId={}, feedId={}", user.getId(), savedFeed.getId());
+
+		return savedFeed;
 	}
 
 	private String getUploadedSelfieImage(MultipartFile selfieImage) {

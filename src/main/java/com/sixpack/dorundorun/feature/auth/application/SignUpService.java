@@ -11,6 +11,8 @@ import com.sixpack.dorundorun.feature.auth.dto.response.SignUpResponse;
 import com.sixpack.dorundorun.feature.auth.exception.AuthErrorCode;
 import com.sixpack.dorundorun.feature.user.dao.UserJpaRepository;
 import com.sixpack.dorundorun.feature.user.domain.User;
+import com.sixpack.dorundorun.feature.user.event.NewUserFriendReminderRequestedEvent;
+import com.sixpack.dorundorun.feature.user.event.NewUserRunningReminderRequestedEvent;
 import com.sixpack.dorundorun.feature.user.event.UserRegisteredEvent;
 import com.sixpack.dorundorun.global.config.jwt.JwtTokenProvider;
 import com.sixpack.dorundorun.global.exception.CustomException;
@@ -109,6 +111,7 @@ public class SignUpService {
 	}
 
 	private void publishUserRegisteredEvent(User user) {
+		// 사용자 가입 알림 (Slack 알림)
 		UserRegisteredEvent event = UserRegisteredEvent.builder()
 			.userId(user.getId())
 			.phoneNumber(user.getPhoneNumber())
@@ -116,5 +119,21 @@ public class SignUpService {
 			.build();
 
 		eventPublisher.publishAfterCommit(event);
+
+		// 신규 사용자 러닝 독촉 알림 (24시간 후, 러닝 없을 시에만)
+		NewUserRunningReminderRequestedEvent newUserRunningEvent = NewUserRunningReminderRequestedEvent.builder()
+			.userId(user.getId())
+			.build();
+
+		eventPublisher.publishAfterCommit(newUserRunningEvent);
+		log.info("NewUserRunningReminderRequestedEvent published: userId={}", user.getId());
+
+		// 신규 사용자 친구추가 독촉 알림 (48시간 후, 친구 없을 시에만)
+		NewUserFriendReminderRequestedEvent newUserFriendEvent = NewUserFriendReminderRequestedEvent.builder()
+			.userId(user.getId())
+			.build();
+
+		eventPublisher.publishAfterCommit(newUserFriendEvent);
+		log.info("NewUserFriendReminderRequestedEvent published: userId={}", user.getId());
 	}
 }

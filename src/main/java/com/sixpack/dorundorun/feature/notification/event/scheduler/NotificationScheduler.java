@@ -9,41 +9,17 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sixpack.dorundorun.feature.feed.dao.FeedJpaRepository;
+import com.sixpack.dorundorun.feature.friend.dao.FriendJpaRepository;
 import com.sixpack.dorundorun.feature.notification.domain.ScheduledNotificationData;
 import com.sixpack.dorundorun.feature.notification.event.PushNotificationRequestedEvent;
+import com.sixpack.dorundorun.feature.run.dao.RunSessionJpaRepository;
+import com.sixpack.dorundorun.feature.user.dao.UserJpaRepository;
 import com.sixpack.dorundorun.infra.redis.stream.publisher.RedisStreamPublisher;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Redis Sorted Set 기반 예약 알림 스케줄러
- *
- * 역할:
- * 1. 매분마다 Redis Sorted Set에서 예약된 알림 조회
- * 2. 현재 시간이 도래한 알림 처리
- * 3. Redis Stream으로 이벤트 재발행
- * 4. Redis에서 처리된 알림 제거
- *
- * 예약 시간:
- * - 매분 정각 (1분마다 체크)
- * - 지연: 최대 1분 이내
- *
- * Redis 구조:
- * - Sorted Set: "pending-notifications"
- *   ├─ member: eventId (UUID)
- *   └─ score: 예약 시간 (Unix timestamp)
- *
- * - Hash: "notifications"
- *   ├─ field: eventId
- *   └─ value: JSON 직렬화된 ScheduledNotificationData
- *
- * 예약 알림 종류:
- * - FEED_REMINDER: 러닝 시작 후 23시간
- * - RUNNING_PROGRESS_REMINDER: 마지막 러닝 후 7일
- * - NEW_USER_RUNNING_REMINDER: 가입 후 24시간
- * - NEW_USER_FRIEND_REMINDER: 가입 후 48시간
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -52,29 +28,16 @@ public class NotificationScheduler {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
 	private final RedisStreamPublisher redisStreamPublisher;
+	private final FeedJpaRepository feedJpaRepository;
+	private final RunSessionJpaRepository runSessionJpaRepository;
+	private final UserJpaRepository userJpaRepository;
+	private final FriendJpaRepository friendJpaRepository;
 
-	/**
-	 * 매분 실행: Redis Sorted Set에서 예약된 알림을 조회하고 처리
-	 *
-	 * 동작 방식:
-	 * 1. ZRANGEBYSCORE로 현재 시간 이전의 모든 알림 조회
-	 *    - O(log N + M) 시간복잡도로 매우 빠름
-	 * 2. 각 알림 ID에 대해 Hash에서 이벤트 데이터 복원
-	 * 3. 원본 이벤트를 Redis Stream으로 재발행
-	 * 4. 처리 완료 후 Sorted Set과 Hash에서 제거
-	 *
-	 * 보장 사항:
-	 * - 최대 1분 이내 지연 (매분 정각 실행)
-	 * - 정확도: 분 단위 (초 단위 정확도 불필요)
-	 * - 중복 방지: 처리 후 Redis에서 제거되므로 자동 방지
-	 * - 실패 복구: 재시도는 Redis Stream 메커니즘에 의존
-	 */
 	@Scheduled(cron = "0 * * * * *", zone = "Asia/Seoul")
 	public void processScheduledNotifications() {
 		log.debug("Starting scheduled notification processor");
 
 		try {
-			// 현재 시간 (Unix timestamp)
 			long now = Instant.now().getEpochSecond();
 
 			// Sorted Set에서 score가 now 이하인 모든 항목 조회
@@ -110,6 +73,93 @@ public class NotificationScheduler {
 						eventData.toString(),
 						ScheduledNotificationData.class
 					);
+
+					// FEED_REMINDER: 게시물 업로드 여부 확인
+					if ("FEED_REMINDER".equals(scheduledData.getNotificationType())) {
+						// 메타데이터에서 runSessionId 확인
+						Object runSessionIdObj = scheduledData.getAdditionalData() != null ?
+							scheduledData.getAdditionalData().get("runSessionId") : null;
+
+						if (runSessionIdObj != null) {
+							Long runSessionId = Long.parseLong(runSessionIdObj.toString());
+
+							// 해당 러닝 세션의 게시물 여부 확인
+							boolean feedExists = feedJpaRepository.findByRunSessionIdAndDeletedAtIsNull(runSessionId)
+								.isPresent();
+
+							if (feedExists) {
+								log.info("Feed already uploaded for runSessionId: {}, skipping notification",
+									runSessionId);
+								// 게시물이 이미 있으면 알림 발송 안 함
+								// Redis에서만 제거
+								redisTemplate.opsForZSet().remove("pending-notifications", eventId);
+								redisTemplate.opsForHash().delete("notifications", eventId);
+								successCount++;
+								continue;
+							}
+						}
+					}
+
+					// RUNNING_PROGRESS_REMINDER: 신규 러닝 여부 확인
+					if ("RUNNING_PROGRESS_REMINDER".equals(scheduledData.getNotificationType())) {
+						// 메타데이터에서 runSessionId 확인
+						Object runSessionIdObj = scheduledData.getAdditionalData() != null ?
+							scheduledData.getAdditionalData().get("runSessionId") : null;
+
+						if (runSessionIdObj != null) {
+							Long runSessionId = Long.parseLong(runSessionIdObj.toString());
+
+							// 해당 러닝 세션 이후 신규 러닝이 있는지 확인
+							boolean hasNewRun = runSessionJpaRepository.existsNewRunAfter(runSessionId);
+
+							if (hasNewRun) {
+								log.info("New run exists after runSessionId: {}, skipping notification",
+									runSessionId);
+								// 신규 러닝이 있으면 알림 발송 안 함
+								// Redis에서만 제거
+								redisTemplate.opsForZSet().remove("pending-notifications", eventId);
+								redisTemplate.opsForHash().delete("notifications", eventId);
+								successCount++;
+								continue;
+							}
+						}
+					}
+
+					// NEW_USER_RUNNING_REMINDER: 러닝 여부 확인
+					if ("NEW_USER_RUNNING_REMINDER".equals(scheduledData.getNotificationType())) {
+						Long userId = scheduledData.getUserId();
+
+						// 해당 사용자의 완료된 러닝이 있는지 확인
+						boolean hasAnyRun = runSessionJpaRepository.existsByUserIdAndFinishedAtIsNotNull(userId);
+
+						if (hasAnyRun) {
+							log.info("User has already completed a run: userId={}, skipping notification", userId);
+							// 러닝이 있으면 알림 발송 안 함
+							// Redis에서만 제거
+							redisTemplate.opsForZSet().remove("pending-notifications", eventId);
+							redisTemplate.opsForHash().delete("notifications", eventId);
+							successCount++;
+							continue;
+						}
+					}
+
+					// NEW_USER_FRIEND_REMINDER: 친구 여부 확인
+					if ("NEW_USER_FRIEND_REMINDER".equals(scheduledData.getNotificationType())) {
+						Long userId = scheduledData.getUserId();
+
+						// 해당 사용자가 추가한 친구가 있는지 확인
+						boolean hasFriends = friendJpaRepository.existsByUserIdAndDeletedAtIsNull(userId);
+
+						if (hasFriends) {
+							log.info("User has already added friends: userId={}, skipping notification", userId);
+							// 친구가 있으면 알림 발송 안 함
+							// Redis에서만 제거
+							redisTemplate.opsForZSet().remove("pending-notifications", eventId);
+							redisTemplate.opsForHash().delete("notifications", eventId);
+							successCount++;
+							continue;
+						}
+					}
 
 					// 원본 이벤트를 Redis Stream으로 재발행
 					PushNotificationRequestedEvent pushEvent = PushNotificationRequestedEvent.builder()
@@ -157,4 +207,5 @@ public class NotificationScheduler {
 			log.error("Critical error in scheduled notification processor", e);
 		}
 	}
+
 }

@@ -6,9 +6,9 @@ import com.sixpack.dorundorun.infra.redis.stream.event.RedisStreamEventType;
 import lombok.Builder;
 
 @Builder
-public record WeeklyRunningReminderRequestedEvent(
+public record RunningProgressReminderRequestedEvent(
 	Long userId,
-	int daysSinceLastRun
+	Long runSessionId
 ) implements RedisStreamEvent {
 
 	public static final String TYPE = RedisStreamEventType.WEEKLY_RUNNING_PROGRESS_REMINDER_NOTIFICATION_REQUESTED;
