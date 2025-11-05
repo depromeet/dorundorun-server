@@ -13,29 +13,37 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import com.sixpack.dorundorun.feature.friend.dao.projection.FriendRunningStatusProjection;
 import com.sixpack.dorundorun.feature.run.domain.RunSegmentData;
 import com.sixpack.dorundorun.feature.run.domain.RunSegmentInfo;
+import com.sixpack.dorundorun.global.config.webclient.naver.ReverseGeocodingProperties;
 import com.sixpack.dorundorun.infra.naver.dto.AddressInfo;
 
-@SpringBootTest
 @DisplayName("CoordinateAddressService 성능 비교 테스트")
 class CoordinateAddressServiceTest {
 
 	private static final Logger log = LoggerFactory.getLogger(CoordinateAddressServiceTest.class);
 
-	@Autowired
-	private CoordinateAddressService coordinateAddressService;
-
-	@MockBean
+	@Mock
 	private ReverseGeocodingService reverseGeocodingService;
+
+	private CoordinateAddressService coordinateAddressService;
 
 	@BeforeEach
 	void setUp() {
+		// Mockito 초기화
+		MockitoAnnotations.openMocks(this);
+
+		// ReverseGeocodingProperties 설정
+		ReverseGeocodingProperties.Api apiProperties = new ReverseGeocodingProperties.Api(5, 3, 1000, "Unknown Location");
+		ReverseGeocodingProperties properties = new ReverseGeocodingProperties(null, apiProperties);
+
+		// CoordinateAddressService 인스턴스 생성
+		coordinateAddressService = new CoordinateAddressService(reverseGeocodingService, properties);
+
 		// API 호출 시 100ms 지연을 시뮬레이션
 		when(reverseGeocodingService.addressByCoordinates(anyDouble(), anyDouble()))
 			.thenAnswer(invocation -> {
