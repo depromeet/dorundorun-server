@@ -91,8 +91,8 @@ public class FeedReminderEventHandler
 				eventJson
 			);
 
-			// TTL 설정 (1일 후 자동 삭제)
-			redisTemplate.expire("notifications", java.time.Duration.ofDays(1));
+			// TTL 설정 (8일 후 자동 삭제)
+			redisTemplate.expire("notifications", java.time.Duration.ofDays(8));
 
 			log.info("Feed reminder scheduled: eventId={}, userId={}, runSessionId={}, scheduledTime={}",
 				eventId, event.userId(), event.runSessionId(), scheduledTime);
