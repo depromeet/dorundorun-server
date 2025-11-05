@@ -1,7 +1,9 @@
 package com.sixpack.dorundorun.feature.friend.application;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +23,7 @@ public class DeleteFriendsService {
 	private final FriendJpaRepository friendJpaRepository;
 
 	@Transactional
-	public void delete(Long userId, List<Long> friendIds) {
+	public Map<Long, String> delete(Long userId, List<Long> friendIds) {
 		// 유저 존재 확인
 		findUserByIdService.find(userId);
 
@@ -34,7 +36,13 @@ public class DeleteFriendsService {
 		LocalDateTime now = LocalDateTime.now();
 
 		// 양방향 Soft delete 처리
-		userToFriends.forEach(friend -> friend.delete(now));
+		Map<Long, String> deletedFriends = new HashMap<>();
+		userToFriends.forEach(friend -> {
+			friend.delete(now);
+			deletedFriends.put(friend.getFriend().getId(), friend.getFriend().getNickname());
+		});
 		friendToUsers.forEach(friend -> friend.delete(now));
+
+		return deletedFriends;
 	}
 }
