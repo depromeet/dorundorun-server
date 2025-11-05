@@ -40,7 +40,7 @@ public class Notification extends BaseTimeEntity {
 	private Long recipientUserId;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "type", nullable = false)
+	@Column(name = "type", nullable = false, length = 50)
 	private NotificationType type;
 
 	@JdbcTypeCode(SqlTypes.JSON)
