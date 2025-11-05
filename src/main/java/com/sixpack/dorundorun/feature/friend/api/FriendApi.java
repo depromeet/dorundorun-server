@@ -9,6 +9,7 @@ import com.sixpack.dorundorun.feature.friend.dto.request.CheerFriendRequest;
 import com.sixpack.dorundorun.feature.friend.dto.request.DeleteFriendsRequest;
 import com.sixpack.dorundorun.feature.friend.dto.request.FriendRunningStatusRequest;
 import com.sixpack.dorundorun.feature.friend.dto.response.AddFriendResponse;
+import com.sixpack.dorundorun.feature.friend.dto.response.CheerFriendResponse;
 import com.sixpack.dorundorun.feature.friend.dto.response.DeleteFriendsResponse;
 import com.sixpack.dorundorun.feature.friend.dto.response.FriendRunningStatusResponse;
 import com.sixpack.dorundorun.feature.friend.dto.response.GetMyCodeResponse;
@@ -71,7 +72,7 @@ public interface FriendApi {
 		@ApiResponse(responseCode = "400", description = "잘못된 요청"),
 		@ApiResponse(responseCode = "404", description = "해당 유저를 찾을 수 없습니다.")
 	})
-	DorunResponse<Void> cheerFriend(
+	DorunResponse<CheerFriendResponse> cheerFriend(
 		@Parameter(hidden = true) @CurrentUser User user,
 		@Valid @RequestBody CheerFriendRequest request
 	);

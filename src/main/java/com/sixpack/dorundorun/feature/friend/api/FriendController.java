@@ -17,6 +17,7 @@ import com.sixpack.dorundorun.feature.friend.dto.request.CheerFriendRequest;
 import com.sixpack.dorundorun.feature.friend.dto.request.DeleteFriendsRequest;
 import com.sixpack.dorundorun.feature.friend.dto.request.FriendRunningStatusRequest;
 import com.sixpack.dorundorun.feature.friend.dto.response.AddFriendResponse;
+import com.sixpack.dorundorun.feature.friend.dto.response.CheerFriendResponse;
 import com.sixpack.dorundorun.feature.friend.dto.response.DeleteFriendsResponse;
 import com.sixpack.dorundorun.feature.friend.dto.response.FriendRunningStatusResponse;
 import com.sixpack.dorundorun.feature.friend.dto.response.GetMyCodeResponse;
@@ -81,11 +82,12 @@ public class FriendController implements FriendApi {
 	}
 
 	@PostMapping("/api/friends/reaction")
-	public DorunResponse<Void> cheerFriend(
+	public DorunResponse<CheerFriendResponse> cheerFriend(
 		@CurrentUser User user,
 		@Valid @RequestBody CheerFriendRequest request
 	) {
-		cheerFriendService.cheer(user.getId(), request.userId());
-		return DorunResponse.success("친구 응원이 성공적으로 처리되었습니다.", null);
+		String friendNickname = cheerFriendService.cheer(user.getId(), request.userId());
+		CheerFriendResponse response = new CheerFriendResponse(friendNickname);
+		return DorunResponse.success("친구 응원이 성공적으로 처리되었습니다.", response);
 	}
 }
