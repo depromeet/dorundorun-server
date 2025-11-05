@@ -1,9 +1,11 @@
 package com.sixpack.dorundorun.feature.user.api;
 
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.sixpack.dorundorun.feature.user.domain.User;
+import com.sixpack.dorundorun.feature.user.dto.request.DeviceTokenUpdateRequest;
 import com.sixpack.dorundorun.feature.user.dto.request.MyProfileUpdateRequest;
 import com.sixpack.dorundorun.feature.user.dto.response.MyProfileResponse;
 import com.sixpack.dorundorun.feature.user.dto.response.NewProfileResponse;
@@ -64,5 +66,15 @@ public interface UserApi {
 
 		@Parameter(description = "프로필 이미지", required = false)
 		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+	);
+
+	@Operation(summary = "디바이스 토큰 수정", description = "FCM 디바이스 토큰을 수정합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "OK - 디바이스 토큰 수정 성공"),
+		@ApiResponse(responseCode = "401", description = "UNAUTHORIZED - 유효하지 않거나 만료되었거나 누락된 토큰")
+	})
+	DorunResponse<Void> updateDeviceToken(
+		@Parameter(hidden = true) @CurrentUser User currentUser,
+		@RequestBody DeviceTokenUpdateRequest request
 	);
 }
