@@ -134,4 +134,15 @@ public interface SelfieApi {
 		@Parameter(description = "피드 ID", required = true) Long feedId,
 		@Parameter(hidden = true) @CurrentUser User user
 	);
+
+	@Operation(summary = "인증피드 단건 조회",
+		description = "피드 ID로 특정 인증피드 상세 정보를 조회합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "OK - 인증피드 조회에 성공하였습니다"),
+		@ApiResponse(responseCode = "404", description = "NOT_FOUND - 해당 피드를 찾을 수 없습니다"),
+	})
+	DorunResponse<SelfieFeedResponse.FeedItem> getFeedById(
+		@Parameter(description = "피드 ID", required = true) Long feedId,
+		@Parameter(hidden = true) @CurrentUser User user
+	);
 }

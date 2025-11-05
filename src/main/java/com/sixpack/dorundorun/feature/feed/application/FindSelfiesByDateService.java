@@ -12,17 +12,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sixpack.dorundorun.feature.feed.domain.Feed;
-import com.sixpack.dorundorun.feature.feed.domain.Reaction;
-import com.sixpack.dorundorun.feature.feed.domain.ReactionsByEmoji;
 import com.sixpack.dorundorun.feature.feed.dto.request.FeedListRequest;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse.FeedItem;
-import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse.ReactionSummary;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse.UserSummary;
-import com.sixpack.dorundorun.feature.user.application.GetDefaultProfileImageUrlService;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.response.PaginationResponse;
-import com.sixpack.dorundorun.infra.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,8 +27,7 @@ public class FindSelfiesByDateService {
 
 	private final FindAllFeedsWithReactionsByUserIdAndDateRangeService findAllFeedsWithReactionsByUserIdAndDateRangeService;
 	private final FindUserSummaryService findUserSummaryService;
-	private final S3Service s3Service;
-	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
+	private final FeedItemMapper feedItemMapper;
 
 	@Transactional(readOnly = true)
 	public SelfieFeedResponse find(User currentUser, FeedListRequest request) {
@@ -42,7 +36,7 @@ public class FindSelfiesByDateService {
 			request.userId(), currentUser.getId(), request.currentDate(), pageable);
 
 		List<FeedItem> feedItems = feedsPage.getContent().stream()
-			.map(feed -> createFeedItem(feed, currentUser.getId()))
+			.map(feed -> feedItemMapper.toFeedItem(feed, currentUser.getId()))
 			.toList();
 
 		SelfieFeedResponse.UserSummary userSummary = loadUserSummary(request.userId());
@@ -65,45 +59,5 @@ public class FindSelfiesByDateService {
 		// userId가 null이면 나와 친구들의 피드 조회, null이 아니면 해당 유저의 피드만 조회
 		return findAllFeedsWithReactionsByUserIdAndDateRangeService.find(userId, currentUserId, startOfDay,
 			endOfDay, pageable);
-	}
-
-	private FeedItem createFeedItem(Feed feed, Long currentUserId) {
-		List<Reaction> reactions = feed.getReactions();
-		ReactionsByEmoji reactionsByEmoji = ReactionsByEmoji.from(reactions);
-		List<ReactionSummary> reactionSummaries = reactionsByEmoji.toReactionSummaries(currentUserId);
-
-		List<ReactionSummary> convertedReactionSummaries = reactionSummaries.stream()
-			.map(summary -> convertReactionSummaryUrls(summary, currentUserId))
-			.toList();
-
-		String profileImageUrl = feed.getUser().getProfileImageUrl() != null
-			? s3Service.getImageUrl(feed.getUser().getProfileImageUrl())
-			: getDefaultProfileImageUrlService.get();
-
-		String selfieImageUrl = feed.getSelfieImage() != null
-			? feed.getSelfieImageUrl()
-			: feed.getMapImageUrl();
-
-		return FeedItem.of(feed, convertedReactionSummaries, currentUserId, profileImageUrl, selfieImageUrl);
-	}
-
-	private ReactionSummary convertReactionSummaryUrls(ReactionSummary summary, Long currentUserId) {
-		List<SelfieFeedResponse.ReactionUser> convertedUsers = summary.users().stream()
-			.map(user -> new SelfieFeedResponse.ReactionUser(
-				user.userId(),
-				user.nickname(),
-				user.profileImageUrl() != null ? s3Service.getImageUrl(user.profileImageUrl()) :
-					getDefaultProfileImageUrlService.get(),
-				user.userId().equals(currentUserId),
-				user.reactedAt()
-			))
-			.toList();
-
-		return new ReactionSummary(
-			summary.emojiType(),
-			summary.totalCount(),
-			summary.isReactedByMe(),
-			convertedUsers
-		);
 	}
 }
