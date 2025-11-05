@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixpack.dorundorun.feature.feed.application.CreateSelfieService;
 import com.sixpack.dorundorun.feature.feed.application.DeleteSelfieService;
 import com.sixpack.dorundorun.feature.feed.application.FindAllWeeklySelfiesService;
+import com.sixpack.dorundorun.feature.feed.application.FindFeedByIdService;
 import com.sixpack.dorundorun.feature.feed.application.FindSelfieUsersByDateService;
 import com.sixpack.dorundorun.feature.feed.application.FindSelfiesByDateService;
 import com.sixpack.dorundorun.feature.feed.application.UpdateSelfieService;
@@ -49,6 +50,7 @@ public class SelfieController implements SelfieApi {
 	private final DeleteSelfieService deleteSelfieService;
 	private final FindAllWeeklySelfiesService findAllWeeklySelfiesService;
 	private final FindSelfieUsersByDateService findSelfieUsersByDateService;
+	private final FindFeedByIdService findFeedByIdService;
 	private final ObjectMapper objectMapper;
 
 	@Override
@@ -140,5 +142,15 @@ public class SelfieController implements SelfieApi {
 	) {
 		deleteSelfieService.delete(feedId, user);
 		return DorunResponse.success("셀피 삭제에 성공하였습니다");
+	}
+
+	@Override
+	@GetMapping("/feeds/{feedId}")
+	public DorunResponse<SelfieFeedResponse.FeedItem> getFeedById(
+		@PathVariable Long feedId,
+		@CurrentUser User user
+	) {
+		SelfieFeedResponse.FeedItem response = findFeedByIdService.find(feedId, user);
+		return DorunResponse.success("인증피드 조회에 성공하였습니다", response);
 	}
 }
