@@ -72,14 +72,6 @@ public class Feed extends BaseTimeEntity {
 		return S3ImageUrlUtil.getPresignedImageUrl(this.selfieImage);
 	}
 
-	/**
-	 * 활성화된 반응만 조회합니다 (deletedAt이 null인 반응).
-	 *
-	 * <p>주의: {@link #getReactions()}는 비활성화된 반응도 포함하므로,
-	 * API 응답에는 반드시 이 메서드를 사용해야 합니다.
-	 *
-	 * @return 활성화된(삭제되지 않은) 반응 목록
-	 */
 	public List<Reaction> getActiveReactions() {
 		return reactions.stream()
 			.filter(Reaction::isActive)
@@ -88,6 +80,6 @@ public class Feed extends BaseTimeEntity {
 
 	public void update(String content, String selfieImage) {
 		this.content = content;
-		this.selfieImage = selfieImage;  // null이면 이미지 삭제
+		this.selfieImage = selfieImage;
 	}
 }

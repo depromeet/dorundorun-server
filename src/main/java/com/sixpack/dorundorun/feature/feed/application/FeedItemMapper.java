@@ -14,10 +14,6 @@ import com.sixpack.dorundorun.infra.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * Feed를 FeedItem 응답 DTO로 변환하는 매퍼
- * FindSelfiesByDateService와 FindFeedByIdService에서 공통으로 사용
- */
 @Component
 @RequiredArgsConstructor
 public class FeedItemMapper {
@@ -26,7 +22,6 @@ public class FeedItemMapper {
 	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
 
 	public FeedItem toFeedItem(Feed feed, Long currentUserId) {
-		// 활성화된 반응만 조회 (deletedAt == null)
 		List<Reaction> activeReactions = feed.getActiveReactions();
 		ReactionsByEmoji reactionsByEmoji = ReactionsByEmoji.from(activeReactions);
 		List<ReactionSummary> reactionSummaries = reactionsByEmoji.toReactionSummaries(currentUserId);
