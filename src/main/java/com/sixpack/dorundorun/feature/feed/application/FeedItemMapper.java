@@ -26,8 +26,9 @@ public class FeedItemMapper {
 	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
 
 	public FeedItem toFeedItem(Feed feed, Long currentUserId) {
-		List<Reaction> reactions = feed.getReactions();
-		ReactionsByEmoji reactionsByEmoji = ReactionsByEmoji.from(reactions);
+		// 활성화된 반응만 조회 (deletedAt == null)
+		List<Reaction> activeReactions = feed.getActiveReactions();
+		ReactionsByEmoji reactionsByEmoji = ReactionsByEmoji.from(activeReactions);
 		List<ReactionSummary> reactionSummaries = reactionsByEmoji.toReactionSummaries(currentUserId);
 
 		List<ReactionSummary> convertedReactionSummaries = reactionSummaries.stream()

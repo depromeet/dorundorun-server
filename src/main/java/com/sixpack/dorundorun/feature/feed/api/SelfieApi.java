@@ -78,10 +78,20 @@ public interface SelfieApi {
 	);
 
 	@Operation(summary = "친구 인증 반응 남기기",
-		description = "특정 인증에 이모지 반응을 추가하거나 취소합니다. 사용자가 누른 반응에 대해 이미 동일한 이모지 이력이 있으면 취소(-1), 없으면 새로 추가(+1) 됩니다.")
+		description = """
+			특정 인증에 이모지 반응을 추가하거나 취소합니다. 사용자가 누른 반응에 대해 이미 동일한 이모지 이력이 있으면 취소(-1), 없으면 새로 추가(+1) 됩니다.
+
+			**사용 가능한 이모지 타입:**
+			- SURPRISE (놀람)
+			- HEART (하트)
+			- THUMBS_UP (따봉)
+			- CONGRATS (축하)
+			- FIRE (불)
+			""")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "OK - 인증 반응 남기기에 성공하였습니다 / 인증 반응 취소에 성공하였습니다"),
 		@ApiResponse(responseCode = "400", description = "BAD_REQUEST - 잘못된 입력 값입니다"),
+		@ApiResponse(responseCode = "404", description = "NOT_FOUND - 해당 피드를 찾을 수 없습니다"),
 	})
 	DorunResponse<SelfieReactionResponse> reactToSelfie(
 		@Parameter(hidden = true) @CurrentUser User user,
