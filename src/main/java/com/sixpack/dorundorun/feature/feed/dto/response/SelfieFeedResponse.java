@@ -134,8 +134,8 @@ public record SelfieFeedResponse(
 				reaction.getUser().getId(),
 				reaction.getUser().getNickname(),
 				reaction.getUser().getProfileImageUrl(),
-				null,  // isMe는 서비스 레이어에서 설정
-				reaction.getUpdatedAt()  // soft delete 패턴에서는 updatedAt이 실제 반응 시간
+				null,
+				reaction.getUpdatedAt()
 			);
 		}
 	}
