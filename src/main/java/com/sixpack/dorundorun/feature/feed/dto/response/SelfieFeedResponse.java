@@ -125,7 +125,7 @@ public record SelfieFeedResponse(
 		@Schema(description = "내 반응 여부", example = "true")
 		Boolean isMe,
 
-		@Schema(description = "반응 시간", example = "2025-10-16T14:30:00")
+		@Schema(description = "반응 시간 (마지막 반응 시간)", example = "2025-10-16T14:30:00")
 		LocalDateTime reactedAt
 	) {
 
@@ -135,7 +135,7 @@ public record SelfieFeedResponse(
 				reaction.getUser().getNickname(),
 				reaction.getUser().getProfileImageUrl(),
 				null,  // isMe는 서비스 레이어에서 설정
-				reaction.getCreatedAt()
+				reaction.getUpdatedAt()  // soft delete 패턴에서는 updatedAt이 실제 반응 시간
 			);
 		}
 	}
