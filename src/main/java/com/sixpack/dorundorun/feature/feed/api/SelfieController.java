@@ -21,6 +21,7 @@ import com.sixpack.dorundorun.feature.feed.application.FindAllWeeklySelfiesServi
 import com.sixpack.dorundorun.feature.feed.application.FindFeedByIdService;
 import com.sixpack.dorundorun.feature.feed.application.FindSelfieUsersByDateService;
 import com.sixpack.dorundorun.feature.feed.application.FindSelfiesByDateService;
+import com.sixpack.dorundorun.feature.feed.application.ReactToSelfieService;
 import com.sixpack.dorundorun.feature.feed.application.UpdateSelfieService;
 import com.sixpack.dorundorun.feature.feed.dto.request.CreateSelfieRequest;
 import com.sixpack.dorundorun.feature.feed.dto.request.FeedListRequest;
@@ -52,6 +53,7 @@ public class SelfieController implements SelfieApi {
 	private final FindAllWeeklySelfiesService findAllWeeklySelfiesService;
 	private final FindSelfieUsersByDateService findSelfieUsersByDateService;
 	private final FindFeedByIdService findFeedByIdService;
+	private final ReactToSelfieService reactToSelfieService;
 	private final ObjectMapper objectMapper;
 
 	@Override
@@ -99,13 +101,12 @@ public class SelfieController implements SelfieApi {
 		@CurrentUser User user,
 		@Valid @RequestBody SelfieReactionRequest request
 	) {
-		// TODO: 서비스 로직 구현 예정
-		// SelfieReactionResponse response = reactToSelfieService.execute(selfieId, user, request);
-		// String message = response.getAction().equals("ADDED") 
-		// 	? "인증 반응 남기기에 성공하였습니다" 
-		// 	: "인증 반응 취소에 성공하였습니다";
-		// return DorunResponse.success(message, response);
-		return DorunResponse.success("인증 반응 남기기에 성공하였습니다", null);
+		SelfieReactionResponse response = reactToSelfieService.execute(user, request);
+		String message = switch (response.action()) {
+			case ADDED -> "인증 반응 남기기에 성공하였습니다";
+			case REMOVED -> "인증 반응 취소에 성공하였습니다";
+		};
+		return DorunResponse.success(message, response);
 	}
 
 	@Override
