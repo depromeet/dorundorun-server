@@ -14,9 +14,13 @@ import lombok.RequiredArgsConstructor;
 public class FindMyProfileService {
 
 	private final S3Service s3Service;
+	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
 
 	public MyProfileResponse find(User user) {
-		String presignedImageUrl = getPresignedUrl(user.getProfileImageUrl());
+		String presignedImageUrl = user.getProfileImageUrl() != null
+			? s3Service.getImageUrl(user.getProfileImageUrl())
+			: getDefaultProfileImageUrlService.get();
+
 		String formattedPhoneNumber = PhoneNumberFormatUtil.format(user.getPhoneNumber());
 
 		return new MyProfileResponse(
@@ -27,12 +31,5 @@ public class FindMyProfileService {
 			formattedPhoneNumber,
 			user.getCreatedAt()
 		);
-	}
-
-	private String getPresignedUrl(String imageUrl) {
-		if (imageUrl == null || imageUrl.isEmpty()) {
-			return null;
-		}
-		return s3Service.getImageUrl(imageUrl);
 	}
 }
