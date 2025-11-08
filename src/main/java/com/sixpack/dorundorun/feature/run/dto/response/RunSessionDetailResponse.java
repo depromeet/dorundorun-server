@@ -13,13 +13,13 @@ public record RunSessionDetailResponse(
 	@Schema(description = "세션 고유 ID", example = "1")
 	Long id,
 
-	@Schema(description = "생성 일시", example = "2024-01-15T09:00:00")
+	@Schema(description = "생성 일시", example = "2024-01-15T09:00:00.000000Z")
 	LocalDateTime createdAt,
 
-	@Schema(description = "수정 일시", example = "2024-01-15T10:30:00")
+	@Schema(description = "수정 일시", example = "2024-01-15T10:30:00.000000Z")
 	LocalDateTime updatedAt,
 
-	@Schema(description = "종료된 일시", example = "2024-01-15T10:30:00")
+	@Schema(description = "종료된 일시", example = "2024-01-15T10:30:00.000000Z")
 	LocalDateTime finishedAt,
 
 	@Schema(description = "총 거리 (m 단위)", example = "5000")

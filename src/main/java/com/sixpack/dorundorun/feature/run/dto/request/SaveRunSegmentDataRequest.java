@@ -27,7 +27,7 @@ public record SaveRunSegmentDataRequest(
 	@Schema(description = "누적 거리 (m)", example = "1000")
 	Long distance,
 
-	@Schema(description = "측정 시각 (ISO 8601)", example = "2024-01-15T09:00:00Z")
+	@Schema(description = "측정 시각 (ISO 8601)", example = "2024-01-15T09:00:00.000000Z")
 	LocalDateTime time
 ) {
 }

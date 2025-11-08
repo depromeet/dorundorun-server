@@ -20,13 +20,13 @@ public record SignUpRequest(
 ) {
 	@Schema(description = "약관 동의 정보")
 	public record ConsentInfo(
-		@Schema(description = "마케팅 수신 동의 시각", example = "2025-10-16T14:30:00")
+		@Schema(description = "마케팅 수신 동의 시각", example = "2025-10-16T14:30:00.000000Z")
 		LocalDateTime marketingConsentAt,
 
-		@Schema(description = "위치 정보 수집 동의 시각", example = "2025-10-16T14:30:00")
+		@Schema(description = "위치 정보 수집 동의 시각", example = "2025-10-16T14:30:00.000000Z")
 		LocalDateTime locationConsentAt,
 
-		@Schema(description = "개인정보 수집 동의 시각 (필수)", example = "2025-10-16T14:30:00")
+		@Schema(description = "개인정보 수집 동의 시각 (필수)", example = "2025-10-16T14:30:00.000000Z")
 		LocalDateTime personalConsentAt
 	) {
 	}

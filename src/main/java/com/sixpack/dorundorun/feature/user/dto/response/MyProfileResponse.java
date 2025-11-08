@@ -21,7 +21,7 @@ public record MyProfileResponse(
 	@Schema(description = "전화번호", example = "010-7724-8020")
 	String phoneNumberFormatted,
 
-	@Schema(description = "가입 시간", example = "2024-01-15T10:30:00")
+	@Schema(description = "가입 시간", example = "2024-01-15T10:30:00.000000Z")
 	LocalDateTime createdAt
 ) {
 }
