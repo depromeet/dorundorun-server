@@ -58,15 +58,8 @@ public class User extends BaseTimeEntity {
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 
-	@Column(name = "fcm_token", length = 500)
-	private String fcmToken;
-
-	@Column(name = "fcm_token_updated_at")
-	private LocalDateTime fcmTokenUpdatedAt;
-
-	public void updateFcmToken(String newFcmToken) {
-		this.fcmToken = newFcmToken;
-		this.fcmTokenUpdatedAt = LocalDateTime.now();
+	public void updateDeviceToken(String newDeviceToken) {
+		this.deviceToken = newDeviceToken;
 	}
 
 	public void updateProfile(String nickname, String profileImageUrl) {

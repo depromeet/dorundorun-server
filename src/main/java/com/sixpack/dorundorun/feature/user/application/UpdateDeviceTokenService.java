@@ -14,6 +14,6 @@ public class UpdateDeviceTokenService {
 
 	@Transactional
 	public void updateDeviceToken(User user, DeviceTokenUpdateRequest request) {
-		user.updateFcmToken(request.deviceToken());
+		user.updateDeviceToken(request.deviceToken());
 	}
 }
