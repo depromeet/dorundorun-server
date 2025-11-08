@@ -13,15 +13,15 @@ public class PushNotificationContentDeterminer {
 	public String determineTitle(String notificationType, Map<String, Object> metadata) {
 		return switch (notificationType) {
 			// 즉시 알림
-			case "CHEER_FRIEND" -> "깨우기 알림";
-			case "FEED_UPLOADED" -> "친구의 피드 업로드";
-			case "FEED_REACTION" -> "피드 리액션";
+			case "CHEER_FRIEND" -> "누군가가 당신을 깨웠어요!";
+			case "FEED_UPLOADED" -> "친구의 새 인증이 도착했어요!";
+			case "FEED_REACTION" -> "새 리액션이 도착했어요!";
 
 			// 스케줄 알림
-			case "FEED_REMINDER" -> "피드 업로드 독촉";
-			case "RUNNING_PROGRESS_REMINDER" -> "러닝 독촉";
-			case "NEW_USER_RUNNING_REMINDER" -> "러닝 시작";
-			case "NEW_USER_FRIEND_REMINDER" -> "친구 추가";
+			case "FEED_REMINDER" -> "러닝 인증 마감 임박!";
+			case "RUNNING_PROGRESS_REMINDER" -> "오늘은 러닝하기 딱 좋은 날!";
+			case "NEW_USER_RUNNING_REMINDER" -> "첫 러닝을 시작해볼 시간이에요";
+			case "NEW_USER_FRIEND_REMINDER" -> "함께 달릴 친구를 만들어보세요";
 
 			default -> "새로운 알림";
 		};
