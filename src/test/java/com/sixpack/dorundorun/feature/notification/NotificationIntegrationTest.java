@@ -110,7 +110,7 @@ public class NotificationIntegrationTest extends ServiceTest {
 			metadata);
 
 		// then
-		assertEquals("깨우기 알림", title);
+		assertEquals("누군가가 당신을 깨웠어요!", title);
 		assertEquals("김철수님이 회원님을 깨웠어요", message);
 		assertThat(deepLink).contains("dorundorun://friend/profile/");
 	}
@@ -129,7 +129,7 @@ public class NotificationIntegrationTest extends ServiceTest {
 		String deepLink = contentDeterminer.determineDeepLink(notificationType, null, metadata);
 
 		// then
-		assertEquals("러닝 시작", title);
+		assertEquals("첫 러닝을 시작해볼 시간이에요", title);
 		assertEquals("두런두런과 설레는 첫 러닝을 시작해봐요!", message);
 		assertEquals("dorundorun://running/start", deepLink);
 	}
@@ -388,7 +388,7 @@ public class NotificationIntegrationTest extends ServiceTest {
 
 		// then
 		assertNotNull(saved.getId());
-		assertEquals("깨우기 알림", saved.getData().getTitle());
+		assertEquals("누군가가 당신을 깨웠어요!", saved.getData().getTitle());
 		assertEquals("김철수님이 회원님을 깨웠어요", saved.getData().getMessage());
 		assertEquals("dorundorun://friend/profile/" + testFriend.getId(), saved.getDeepLink());
 
