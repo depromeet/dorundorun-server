@@ -20,7 +20,7 @@ public record FeedResponse(
 	@Schema(description = "피드 내용", example = "오늘 아침 러닝 완주!")
 	String content,
 
-	@Schema(description = "피드 생성 일시", example = "2024-01-15T10:30:00")
+	@Schema(description = "피드 생성 일시", example = "2024-01-15T10:30:00.000000Z")
 	LocalDateTime createdAt
 ) {
 	public static FeedResponse from(Feed feed) {

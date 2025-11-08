@@ -17,7 +17,6 @@ public class DorunResponse<T> {
 	private HttpStatus status;
 	private String message;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime timestamp;
 
 	private T data;

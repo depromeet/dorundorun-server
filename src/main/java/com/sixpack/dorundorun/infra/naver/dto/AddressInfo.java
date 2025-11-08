@@ -9,7 +9,7 @@ public record AddressInfo(
 	@Schema(description = "주소 (시/도 시/구/군 형식)", example = "서울 마포구")
 	String address,
 
-	@Schema(description = "캐시 생성 시간 (ISO 8601 형식)", example = "2025-10-30T14:30:00")
+	@Schema(description = "캐시 생성 시간 (ISO 8601 형식)", example = "2025-10-30T14:30:00.000000Z")
 	LocalDateTime cachedAt
 ) {
 }

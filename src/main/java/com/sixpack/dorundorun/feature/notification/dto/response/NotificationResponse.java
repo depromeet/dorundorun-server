@@ -60,7 +60,7 @@ public class NotificationResponse {
 	@Schema(description = "읽음 여부", example = "false")
 	private Boolean isRead;
 
-	@Schema(description = "읽은 시간 (읽지 않았을 경우 null)", example = "2025-10-28T14:30:00")
+	@Schema(description = "읽은 시간 (읽지 않았을 경우 null)", example = "2025-10-28T14:30:00.000000Z")
 	private LocalDateTime readAt;
 
 	@Schema(description = "딥링크 (알림 클릭 시 이동할 앱 내 경로)", example = "/user/123")
@@ -77,7 +77,7 @@ public class NotificationResponse {
 	@Schema(description = "셀피 이미지 (FEED_UPLOADED 타입일 때만 값 있음, 나머지는 null)", example = "null")
 	private String selfieImage;
 
-	@Schema(description = "생성 시간", example = "2025-10-29T14:35:13")
+	@Schema(description = "생성 시간", example = "2025-10-29T14:35:13.000000Z")
 	private LocalDateTime createdAt;
 
 	public static NotificationResponse from(Notification notification) {

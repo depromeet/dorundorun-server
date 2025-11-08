@@ -54,7 +54,7 @@ public record SelfieFeedResponse(
 		@Schema(description = "내 피드 여부", example = "true")
 		Boolean isMyFeed,
 
-		@Schema(description = "인증 시간", example = "2025-09-20T23:58:00")
+		@Schema(description = "인증 시간", example = "2025-09-20T23:58:00.000000Z")
 		LocalDateTime selfieTime,
 
 		@Schema(description = "총 달린 거리 (m)", example = "5100")
@@ -125,7 +125,7 @@ public record SelfieFeedResponse(
 		@Schema(description = "내 반응 여부", example = "true")
 		Boolean isMe,
 
-		@Schema(description = "반응 시간 (마지막 반응 시간)", example = "2025-10-16T14:30:00")
+		@Schema(description = "반응 시간 (마지막 반응 시간)", example = "2025-10-16T14:30:00.000000Z")
 		LocalDateTime reactedAt
 	) {
 

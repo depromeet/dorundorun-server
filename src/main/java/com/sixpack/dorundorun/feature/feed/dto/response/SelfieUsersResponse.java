@@ -22,7 +22,7 @@ public record SelfieUsersResponse(
 		@Schema(description = "유저 프로필 이미지 URL", example = "https://example.com/profile.jpg")
 		String userImageUrl,
 
-		@Schema(description = "셀피 업로드 시간", example = "2025-10-16T14:30:00")
+		@Schema(description = "셀피 업로드 시간", example = "2025-10-16T14:30:00.000000Z")
 		LocalDateTime postingTime,
 
 		@Schema(description = "내 셀피 여부", example = "true")
