@@ -12,8 +12,10 @@ import com.sixpack.dorundorun.feature.feed.domain.Reaction;
 import com.sixpack.dorundorun.feature.feed.dto.request.SelfieReactionRequest;
 import com.sixpack.dorundorun.feature.feed.dto.response.ReactionAction;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieReactionResponse;
+import com.sixpack.dorundorun.feature.feed.event.FeedReactionRequestedEvent;
 import com.sixpack.dorundorun.feature.feed.exception.FeedErrorCode;
 import com.sixpack.dorundorun.feature.user.domain.User;
+import com.sixpack.dorundorun.infra.redis.stream.publisher.RedisStreamPublisher;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +25,7 @@ public class ReactToSelfieService {
 
 	private final FeedJpaRepository feedJpaRepository;
 	private final ReactionJpaRepository reactionJpaRepository;
+	private final RedisStreamPublisher redisStreamPublisher;
 
 	@Transactional
 	public SelfieReactionResponse execute(User user, SelfieReactionRequest request) {
@@ -38,6 +41,16 @@ public class ReactToSelfieService {
 
 		ReactionAction action = toggleReaction(existingReaction, user, feed, request);
 		int totalReactionCount = reactionJpaRepository.countByFeedIdAndDeletedAtIsNull(request.feedId());
+
+		// Reaction이 추가된 경우 알림 발송
+		if (action == ReactionAction.ADDED) {
+			FeedReactionRequestedEvent event = FeedReactionRequestedEvent.builder()
+				.feedId(request.feedId())
+				.reactorId(user.getId())
+				.feedOwnerId(feed.getUser().getId())
+				.build();
+			redisStreamPublisher.publishAfterCommit(event);
+		}
 
 		return new SelfieReactionResponse(
 			request.feedId(),
