@@ -108,11 +108,7 @@ public class FcmServiceImpl implements FcmService {
 
 	@Override
 	public boolean isValidToken(String deviceToken) {
-		if (deviceToken == null || deviceToken.trim().isEmpty()) {
-			return false;
-		}
-		// FCM 토큰은 일반적으로 152자 이상의 문자열
-		return deviceToken.length() >= 152;
+		return deviceToken != null && !deviceToken.trim().isEmpty();
 	}
 
 	private Message buildMessage(FcmMessage message) {
