@@ -24,4 +24,8 @@ public interface RunSegmentJpaRepository extends JpaRepository<RunSegment, Long>
 	@Modifying
 	@Query("DELETE FROM RunSegment rs WHERE rs.runSession.user.id = :userId")
 	int deleteByUserId(@Param("userId") Long userId);
+
+	@Modifying(clearAutomatically = true)
+	@Query("DELETE FROM RunSegment rs WHERE rs.runSession.id = :runSessionId")
+	void deleteByRunSessionId(@Param("runSessionId") Long runSessionId);
 }

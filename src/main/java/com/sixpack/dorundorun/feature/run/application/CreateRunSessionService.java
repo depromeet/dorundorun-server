@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sixpack.dorundorun.feature.run.dao.RunSessionJpaRepository;
 import com.sixpack.dorundorun.feature.run.domain.RunSession;
-import com.sixpack.dorundorun.feature.run.exception.RunErrorCode;
 import com.sixpack.dorundorun.feature.user.application.FindUserByIdService;
 import com.sixpack.dorundorun.feature.user.domain.User;
 
@@ -17,6 +16,7 @@ public class CreateRunSessionService {
 
 	private final FindUserByIdService findUserByIdService;
 	private final FindActiveRunSessionService findActiveRunSessionService;
+	private final DeleteRunSessionByIdService deleteRunSessionByIdService;
 	private final RunSessionJpaRepository runSessionJpaRepository;
 
 	@Transactional
@@ -31,7 +31,7 @@ public class CreateRunSessionService {
 
 	private void validateNoActiveRunSession(Long userId) {
 		findActiveRunSessionService.find(userId).ifPresent(activeSession -> {
-			throw RunErrorCode.ALREADY_EXISTS_ACTIVE_RUN_SESSION.format(activeSession.getId());
+			deleteRunSessionByIdService.delete(activeSession.getId());
 		});
 	}
 
