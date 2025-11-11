@@ -70,6 +70,7 @@ public class SecurityConfig {
 					.requestMatchers("/api/auth/sms/**").permitAll()
 					.requestMatchers("/api/auth/signup").permitAll()
 					.requestMatchers("/api/auth/refresh").permitAll()
+					.requestMatchers("/api/images/**").permitAll()
 					.anyRequest().authenticated());
 
 		return http.build();
