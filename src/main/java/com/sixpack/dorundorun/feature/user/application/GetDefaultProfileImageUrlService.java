@@ -9,7 +9,10 @@ public class GetDefaultProfileImageUrlService {
 	@Value("${app.default-profile-image-url}")
 	private String defaultProfileImageUrl;
 
+	@Value("${app.base-url}")
+	private String baseUrl;
+
 	public String get() {
-		return defaultProfileImageUrl;
+		return baseUrl + defaultProfileImageUrl;
 	}
 }
