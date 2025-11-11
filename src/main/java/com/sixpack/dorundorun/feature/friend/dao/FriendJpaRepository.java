@@ -30,7 +30,7 @@ public interface FriendJpaRepository extends JpaRepository<Friend, Long> {
 		SELECT u.id as userId,
 		       CASE WHEN u.id = :userId THEN 1 ELSE 0 END as isMe,
 		       u.nickname as nickname,
-		       CAST(NULL AS string) as profileImage,
+		       u.profileImageUrl as profileImage,
 		       rs.createdAt as latestRanAt,
 		       CAST(NULL AS long) as distance,
 		       CAST(NULL AS double) as latitude,
@@ -39,11 +39,11 @@ public interface FriendJpaRepository extends JpaRepository<Friend, Long> {
 		FROM User u
 		LEFT JOIN Friend f ON f.friend.id = u.id AND f.user.id = :userId AND f.deletedAt IS NULL
 		LEFT JOIN RunSegment rs ON rs.id = (
-		    SELECT rs2.id 
-		    FROM RunSegment rs2 
-		    JOIN rs2.runSession sess 
-		    WHERE sess.user.id = u.id 
-		    ORDER BY rs2.createdAt DESC 
+		    SELECT rs2.id
+		    FROM RunSegment rs2
+		    JOIN rs2.runSession sess
+		    WHERE sess.user.id = u.id
+		    ORDER BY rs2.createdAt DESC
 		    LIMIT 1
 		)
 		WHERE u.id = :userId OR f.id IS NOT NULL

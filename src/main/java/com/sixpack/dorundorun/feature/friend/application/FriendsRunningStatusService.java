@@ -16,6 +16,7 @@ import com.sixpack.dorundorun.feature.user.application.GetDefaultProfileImageUrl
 import com.sixpack.dorundorun.global.config.webclient.naver.ReverseGeocodingProperties;
 import com.sixpack.dorundorun.global.response.PaginationResponse;
 import com.sixpack.dorundorun.infra.naver.dto.AddressInfo;
+import com.sixpack.dorundorun.infra.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +29,7 @@ public class FriendsRunningStatusService {
 	private final CoordinateAddressService coordinateAddressService;
 	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
 	private final ReverseGeocodingProperties reverseGeocodingProperties;
+	private final S3Service s3Service;
 
 	@Transactional(readOnly = true)
 	public PaginationResponse<FriendRunningStatusResponse> find(Long userId, Integer page, Integer size) {
@@ -83,9 +85,10 @@ public class FriendsRunningStatusService {
 		CoordinateAddressService.CoordinateData coordinates,
 		LocalDateTime latestCheeredAt) {
 
-		String profileImageUrl = projection.getProfileImage() != null
-			? projection.getProfileImage()
-			: getDefaultProfileImageUrlService.get();
+		String profileImageUrl =
+			projection.getProfileImage() != null
+				? s3Service.getImageUrl(projection.getProfileImage())
+				: getDefaultProfileImageUrlService.get();
 
 		boolean isMe = projection.getIsMe() != null && projection.getIsMe() != 0;
 

@@ -19,7 +19,7 @@ import lombok.Getter;
 		  "title": "친구 응원",
 		  "message": "이 당신을 응원합니다!",
 		  "sender": "김철수",
-		  "profileImage": "/api/images/defaultProfileImage.jpg",
+		  "profileImage": "https://api.dorundorun.store/api/images/defaultProfileImage.jpg",
 		  "type": "CHEER_FRIEND",
 		  "isRead": false,
 		  "readAt": null,
@@ -43,7 +43,7 @@ public class NotificationResponse {
 	@Schema(description = "발신자 닉네임", example = "김철수")
 	private String sender;
 
-	@Schema(description = "발신자 프로필 이미지", example = "/api/images/defaultProfileImage.jpg")
+	@Schema(description = "발신자 프로필 이미지 (완전한 HTTPS URL 또는 S3 Presigned URL)", example = "https://api.dorundorun.store/api/images/defaultProfileImage.jpg")
 	private String profileImage;
 
 	@Schema(description = "알림 유형 - 7가지 타입 지원:\n" +
@@ -74,7 +74,7 @@ public class NotificationResponse {
 		example = "123")
 	private Long relatedId;
 
-	@Schema(description = "셀피 이미지 (FEED_UPLOADED 타입일 때만 값 있음, 나머지는 null)", example = "null")
+	@Schema(description = "셀피 이미지 URL (FEED_UPLOADED, FEED_REACTION 타입일 때만 S3 Presigned URL 반환, 나머지는 null)", example = "https://s3.amazonaws.com/...")
 	private String selfieImage;
 
 	@Schema(description = "생성 시간", example = "2025-10-29T14:35:13.000000Z")

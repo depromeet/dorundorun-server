@@ -11,8 +11,10 @@ import com.sixpack.dorundorun.feature.notification.dao.NotificationJpaRepository
 import com.sixpack.dorundorun.feature.notification.domain.Notification;
 import com.sixpack.dorundorun.feature.notification.domain.NotificationType;
 import com.sixpack.dorundorun.feature.notification.dto.response.NotificationResponse;
+import com.sixpack.dorundorun.feature.user.application.FindUserByIdService;
+import com.sixpack.dorundorun.feature.user.application.GetDefaultProfileImageUrlService;
 import com.sixpack.dorundorun.feature.user.domain.User;
-import com.sixpack.dorundorun.global.utils.S3ImageUrlUtil;
+import com.sixpack.dorundorun.infra.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,9 @@ public class NotificationsService {
 
 	private final NotificationJpaRepository notificationRepository;
 	private final FeedJpaRepository feedRepository;
+	private final FindUserByIdService findUserByIdService;
+	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
+	private final S3Service s3Service;
 
 	@Transactional(readOnly = true)
 	public Page<NotificationResponse> getNotifications(User user, Pageable pageable) {
@@ -38,21 +43,54 @@ public class NotificationsService {
 	}
 
 	private NotificationResponse buildNotificationResponse(Notification notification) {
-		String profileImage = "/api/images/defaultProfileImage.jpg";
+		String profileImage = getDefaultProfileImageUrlService.get();
 		String selfieImage = null;
 
-		// FEED_UPLOADED 타입일 때만 feed의 selfieImage 조회
-		if (notification.getType() == NotificationType.FEED_UPLOADED) {
+		if (notification.getType() == NotificationType.CHEER_FRIEND) {
+			profileImage = getProfileImageBySenderId(notification);
+		} else if (notification.getType() == NotificationType.FEED_UPLOADED ||
+			notification.getType() == NotificationType.FEED_REACTION) {
 			Long feedId = getFeedIdFromNotification(notification);
 			if (feedId != null) {
 				Feed feed = feedRepository.findById(feedId).orElse(null);
-				if (feed != null && feed.getSelfieImage() != null) {
-					selfieImage = S3ImageUrlUtil.getPresignedImageUrl(feed.getSelfieImage());
+				if (feed != null) {
+					profileImage = getProfileImageFromUser(feed.getUser());
+					if (feed.getSelfieImage() != null) {
+						selfieImage = s3Service.getImageUrl(feed.getSelfieImage());
+					}
 				}
 			}
 		}
 
 		return NotificationResponse.from(notification, profileImage, selfieImage);
+	}
+
+	private String getProfileImageBySenderId(Notification notification) {
+		if (notification.getData().getAdditionalData() == null) {
+			return getDefaultProfileImageUrlService.get();
+		}
+
+		Object senderId = notification.getData().getAdditionalData().get("senderId");
+		if (senderId != null) {
+			try {
+				Long userId = Long.valueOf(senderId.toString());
+				User user = findUserByIdService.find(userId);
+				return getProfileImageFromUser(user);
+			} catch (Exception e) {
+				log.warn("Failed to fetch sender profile image for notification: {}", e.getMessage());
+				return getDefaultProfileImageUrlService.get();
+			}
+		}
+
+		return getDefaultProfileImageUrlService.get();
+	}
+
+	private String getProfileImageFromUser(User user) {
+		if (user == null || user.getProfileImageUrl() == null) {
+			return getDefaultProfileImageUrlService.get();
+		}
+
+		return s3Service.getImageUrl(user.getProfileImageUrl());
 	}
 
 	private Long getFeedIdFromNotification(Notification notification) {
