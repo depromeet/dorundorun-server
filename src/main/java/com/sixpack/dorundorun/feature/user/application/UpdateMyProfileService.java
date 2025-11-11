@@ -24,6 +24,7 @@ public class UpdateMyProfileService {
 	private final S3Service s3Service;
 	private final ObjectMapper objectMapper;
 	private final UpdateUserProfileTransactionService transactionService;
+	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
 
 	public NewProfileResponse updateProfile(User user, String dataJson, MultipartFile profileImage) {
 		MyProfileUpdateRequest request = parseRequest(dataJson);
@@ -36,10 +37,11 @@ public class UpdateMyProfileService {
 
 		deleteOldImageIfNeeded(option, currentImageUrl);
 
-		if (newImageUrl == null) {
-			return null;
-		}
-		return new NewProfileResponse(s3Service.getImageUrl(newImageUrl));
+		String responseImageUrl = newImageUrl != null
+			? s3Service.getImageUrl(newImageUrl)
+			: getDefaultProfileImageUrlService.get();
+
+		return new NewProfileResponse(responseImageUrl);
 	}
 
 	private MyProfileUpdateRequest parseRequest(String dataJson) {
