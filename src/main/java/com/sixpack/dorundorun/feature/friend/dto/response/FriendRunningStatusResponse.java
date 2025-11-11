@@ -15,7 +15,7 @@ public record FriendRunningStatusResponse(
 	@Schema(description = "닉네임", example = "두런이")
 	String nickname,
 
-	@Schema(description = "프로필 이미지 URL (앞에 https://api.dorundorun.store 를 붙이면 이미지 조회가 됩니다.)", example = "https://api.dorundorun.store/api/images/defaultProfileImage.jpg")
+	@Schema(description = "프로필 이미지 URL (완전한 HTTPS URL 또는 S3 Presigned URL)", example = "https://api.dorundorun.store/api/images/defaultProfileImage.jpg")
 	String profileImage,
 
 	@Schema(description = "최근 러닝 시각 (ISO 8601 형식)", example = "2025-09-13T19:57:13.000000Z")
