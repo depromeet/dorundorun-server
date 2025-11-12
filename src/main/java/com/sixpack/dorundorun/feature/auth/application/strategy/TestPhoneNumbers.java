@@ -8,6 +8,8 @@ package com.sixpack.dorundorun.feature.auth.application.strategy;
 public final class TestPhoneNumbers {
 
 	public static final String TEST_NUMBER = "00011112222";
+	public static final String REVIEW_NUMBER_ANDROID = "00011111111";
+	public static final String REVIEW_NUMBER_IOS = "00022222222";
 
 	private TestPhoneNumbers() {
 	}
