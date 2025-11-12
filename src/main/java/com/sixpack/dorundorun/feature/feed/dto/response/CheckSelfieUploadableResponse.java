@@ -8,7 +8,7 @@ public record CheckSelfieUploadableResponse(
 	boolean isUploadable,
 
 	@Schema(description = "인증 불가능 사유 (업로드 가능하면 null)", example = "ALREADY_UPLOADED_TODAY", allowableValues = {
-		"ALREADY_UPLOADED_TODAY", "RUN_NOT_TODAY", "RUN_SESSION_NOT_FOUND"})
+		"ALREADY_UPLOADED_TODAY", "RUN_NOT_TODAY"})
 	String reason
 ) {
 	public static CheckSelfieUploadableResponse uploadable() {
