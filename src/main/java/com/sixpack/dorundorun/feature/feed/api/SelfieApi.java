@@ -167,14 +167,13 @@ public interface SelfieApi {
 			- 러닝 시작 시간이 오늘인 경우
 			- 오늘 이미 인증 피드를 업로드하지 않은 경우
 
-			**업로드 불가능 사유:**
+			**업로드 불가능 사유 (200 OK 응답의 reason 필드):**
 			- RUN_NOT_TODAY: 러닝 시작 시간이 오늘이 아님 (어제 이전)
 			- ALREADY_UPLOADED_TODAY: 오늘 이미 인증 피드를 업로드함
-			- RUN_SESSION_NOT_FOUND: 러닝 세션을 찾을 수 없음
 			""")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "OK - 인증 업로드 가능 여부 확인에 성공하였습니다"),
-		@ApiResponse(responseCode = "404", description = "NOT_FOUND - 해당 러닝 세션을 찾을 수 없습니다"),
+		@ApiResponse(responseCode = "404", description = "NOT_FOUND - 해당 러닝 세션을 찾을 수 없습니다 (에러 응답)"),
 	})
 	DorunResponse<CheckSelfieUploadableResponse> checkSelfieUploadable(
 		@Parameter(hidden = true) @CurrentUser User user,
