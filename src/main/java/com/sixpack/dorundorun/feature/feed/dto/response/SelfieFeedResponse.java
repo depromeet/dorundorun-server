@@ -42,6 +42,9 @@ public record SelfieFeedResponse(
 		@Schema(description = "피드 ID", example = "1")
 		Long feedId,
 
+		@Schema(description = "피드 작성자 유저 ID", example = "123")
+		Long userId,
+
 		@Schema(description = "날짜", example = "2025-09-20")
 		String date,
 
@@ -80,6 +83,7 @@ public record SelfieFeedResponse(
 		                          String profileImageUrl, String selfieImageUrl) {
 			return new FeedItem(
 				feed.getId(),
+				feed.getUser().getId(),
 				feed.getCreatedAt().toLocalDate().toString(),
 				feed.getUser().getNickname(),
 				profileImageUrl,
