@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixpack.dorundorun.feature.feed.application.CheckSelfieUploadableService;
+import com.sixpack.dorundorun.global.exception.CustomException;
+import com.sixpack.dorundorun.global.exception.GlobalErrorCode;
 import com.sixpack.dorundorun.feature.feed.application.CreateSelfieService;
 import com.sixpack.dorundorun.feature.feed.application.DeleteSelfieService;
 import com.sixpack.dorundorun.feature.feed.application.FindAllWeeklySelfiesService;
@@ -85,7 +87,7 @@ public class SelfieController implements SelfieApi {
 
 			return DorunResponse.success("인증 업로드에 성공하였습니다");
 		} catch (JsonProcessingException e) {
-			throw new IllegalArgumentException("잘못된 JSON 형식입니다.", e);
+			throw new CustomException(GlobalErrorCode.INVALID_INPUT, "잘못된 JSON 형식입니다.");
 		}
 	}
 
@@ -136,7 +138,7 @@ public class SelfieController implements SelfieApi {
 			String selfieImageUrl = updateSelfieService.update(feedId, user, data, selfieImage);
 			return DorunResponse.success("셀피 수정에 성공하였습니다", new UpdateSelfieResponse(selfieImageUrl));
 		} catch (JsonProcessingException e) {
-			throw new IllegalArgumentException("잘못된 JSON 형식입니다.", e);
+			throw new CustomException(GlobalErrorCode.INVALID_INPUT, "잘못된 JSON 형식입니다.");
 		}
 	}
 

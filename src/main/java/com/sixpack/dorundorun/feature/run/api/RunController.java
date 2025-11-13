@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixpack.dorundorun.feature.run.application.CompleteRunSessionService;
+import com.sixpack.dorundorun.global.exception.CustomException;
+import com.sixpack.dorundorun.global.exception.GlobalErrorCode;
 import com.sixpack.dorundorun.feature.run.application.CreateRunSessionService;
 import com.sixpack.dorundorun.feature.run.application.FindAllRunSessionsService;
 import com.sixpack.dorundorun.feature.run.application.FindRunSessionDetailService;
@@ -91,7 +93,7 @@ public class RunController implements RunApi {
 
 			return DorunResponse.success("러닝 세션이 성공적으로 완료되었습니다.", response);
 		} catch (JsonProcessingException e) {
-			throw new IllegalArgumentException("잘못된 JSON 형식입니다.", e);
+			throw new CustomException(GlobalErrorCode.INVALID_INPUT, "잘못된 JSON 형식입니다.");
 		}
 	}
 

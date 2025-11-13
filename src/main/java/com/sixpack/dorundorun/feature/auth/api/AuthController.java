@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixpack.dorundorun.feature.auth.application.LogoutService;
 import com.sixpack.dorundorun.feature.auth.application.RefreshAccessTokenService;
 import com.sixpack.dorundorun.feature.auth.application.SignUpService;
@@ -16,6 +18,7 @@ import com.sixpack.dorundorun.feature.auth.application.SmsSendService;
 import com.sixpack.dorundorun.feature.auth.application.SmsVerificationService;
 import com.sixpack.dorundorun.feature.auth.application.WithdrawService;
 import com.sixpack.dorundorun.feature.auth.dto.request.RefreshTokenRequest;
+import com.sixpack.dorundorun.feature.auth.dto.request.SignUpRequest;
 import com.sixpack.dorundorun.feature.auth.dto.request.SmsSendRequest;
 import com.sixpack.dorundorun.feature.auth.dto.request.SmsVerificationRequest;
 import com.sixpack.dorundorun.feature.auth.dto.response.SignUpResponse;
@@ -23,6 +26,8 @@ import com.sixpack.dorundorun.feature.auth.dto.response.SmsVerificationResponse;
 import com.sixpack.dorundorun.feature.auth.dto.response.TokenResponse;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
+import com.sixpack.dorundorun.global.exception.CustomException;
+import com.sixpack.dorundorun.global.exception.GlobalErrorCode;
 import com.sixpack.dorundorun.global.response.DorunResponse;
 
 import jakarta.validation.Valid;
@@ -39,6 +44,7 @@ public class AuthController implements AuthApi {
 	private final SmsVerificationService smsVerificationService;
 	private final LogoutService logoutService;
 	private final WithdrawService withdrawService;
+	private final ObjectMapper objectMapper;
 
 	@Override
 	@PostMapping("/sms/send")
@@ -64,8 +70,13 @@ public class AuthController implements AuthApi {
 		@RequestPart(value = "data") String dataJson,
 		@RequestPart(value = "profileImage", required = false) MultipartFile profileImage
 	) {
-		SignUpResponse response = signUpService.signUp(dataJson, profileImage);
-		return DorunResponse.created("회원가입에 성공하였습니다", response);
+		try {
+			SignUpRequest data = objectMapper.readValue(dataJson, SignUpRequest.class);
+			SignUpResponse response = signUpService.signUp(data, profileImage);
+			return DorunResponse.created("회원가입에 성공하였습니다", response);
+		} catch (JsonProcessingException e) {
+			throw new CustomException(GlobalErrorCode.INVALID_INPUT, "잘못된 JSON 형식입니다.");
+		}
 	}
 
 	@Override
