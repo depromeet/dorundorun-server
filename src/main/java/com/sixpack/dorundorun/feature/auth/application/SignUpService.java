@@ -4,8 +4,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixpack.dorundorun.feature.auth.dto.request.SignUpRequest;
 import com.sixpack.dorundorun.feature.auth.dto.response.SignUpResponse;
 import com.sixpack.dorundorun.feature.auth.exception.AuthErrorCode;
@@ -38,12 +36,9 @@ public class SignUpService {
 	private final RedisTokenRepository redisTokenRepository;
 	private final UserJpaRepository userJpaRepository;
 	private final RedisStreamPublisher eventPublisher;
-	private final ObjectMapper objectMapper;
 
 	@Transactional
-	public SignUpResponse signUp(String dataJson, MultipartFile profileImage) {
-		SignUpRequest request = parseRequest(dataJson);
-
+	public SignUpResponse signUp(SignUpRequest request, MultipartFile profileImage) {
 		String normalizedPhoneNumber = phoneNumberNormalizationUtil.normalize(request.phoneNumber());
 
 		validatePhoneNumberService.validate(normalizedPhoneNumber);
@@ -70,14 +65,6 @@ public class SignUpService {
 			accessToken,
 			refreshToken
 		);
-	}
-
-	private SignUpRequest parseRequest(String dataJson) {
-		try {
-			return objectMapper.readValue(dataJson, SignUpRequest.class);
-		} catch (JsonProcessingException e) {
-			throw new IllegalArgumentException("Invalid JSON format", e);
-		}
 	}
 
 	private User createUser(SignUpRequest request, String profileImageUrl, String userCode,
