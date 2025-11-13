@@ -80,7 +80,7 @@ public class KoreaTimeHandler {
 			return null;
 		}
 		return date.atStartOfDay(KOREA_ZONE)
-			.withZoneSameInstant(ZoneId.of("UTC"))
+			.withZoneSameInstant(UTC_ZONE)
 			.toLocalDateTime();
 	}
 
@@ -96,7 +96,7 @@ public class KoreaTimeHandler {
 		}
 		return date.atTime(LocalTime.MAX)
 			.atZone(KOREA_ZONE)
-			.withZoneSameInstant(ZoneId.of("UTC"))
+			.withZoneSameInstant(UTC_ZONE)
 			.toLocalDateTime();
 	}
 

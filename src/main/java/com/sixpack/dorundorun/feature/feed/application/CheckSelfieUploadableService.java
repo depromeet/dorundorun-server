@@ -1,6 +1,5 @@
 package com.sixpack.dorundorun.feature.feed.application;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
@@ -31,9 +30,7 @@ public class CheckSelfieUploadableService {
 		RunSession runSession = findRunSessionByIdAndUserIdService.find(request.runSessionId(), user.getId());
 
 		LocalDateTime runStartTime = runSession.getCreatedAt();
-		LocalDate koreaToday = koreaTimeHandler.now();
-		LocalDate runStartKoreaDate = koreaTimeHandler.toKoreaDate(runStartTime);
-		log.info("[시간 처리 로그] 오늘 러닝인가? {}", koreaTimeHandler.isTodayInKorea(runStartTime));
+		log.debug("[시간 처리 로그] 오늘 러닝인가? {}", koreaTimeHandler.isTodayInKorea(runStartTime));
 
 		if (!koreaTimeHandler.isTodayInKorea(runStartTime)) {
 			return CheckSelfieUploadableResponse.notUploadable("RUN_NOT_TODAY");
@@ -50,7 +47,7 @@ public class CheckSelfieUploadableService {
 			org.springframework.data.domain.PageRequest.of(0, 1)
 		).hasContent();
 
-		log.info("[시간 처리 로그] 오늘 이미 업로드했는가? {}", hasUploadedToday);
+		log.debug("[시간 처리 로그] 오늘 이미 업로드했는가? {}", hasUploadedToday);
 
 		if (hasUploadedToday) {
 			return CheckSelfieUploadableResponse.notUploadable("ALREADY_UPLOADED_TODAY");
