@@ -1,5 +1,6 @@
 package com.sixpack.dorundorun.feature.feed.application;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
@@ -29,30 +30,39 @@ public class CheckSelfieUploadableService {
 	public CheckSelfieUploadableResponse execute(User user, CheckSelfieUploadableRequest request) {
 		RunSession runSession = findRunSessionByIdAndUserIdService.find(request.runSessionId(), user.getId());
 
-		LocalDateTime runStartTime = runSession.getCreatedAt();
-		log.debug("[시간 처리 로그] 오늘 러닝인가? {}", koreaTimeHandler.isTodayInKorea(runStartTime));
+		LocalDate koreaToday = koreaTimeHandler.now();
 
-		if (!koreaTimeHandler.isTodayInKorea(runStartTime)) {
+		if (!isRunOnDate(runSession.getCreatedAt(), koreaToday)) {
 			return CheckSelfieUploadableResponse.notUploadable("RUN_NOT_TODAY");
 		}
 
-		LocalDateTime todayStartInUtc = koreaTimeHandler.todayStartInUtc();
-		LocalDateTime todayEndInUtc = koreaTimeHandler.todayEndInUtc();
-
-		boolean hasUploadedToday = feedJpaRepository.findByUserIdAndDateRangeWithReactions(
-			user.getId(),
-			user.getId(),
-			todayStartInUtc,
-			todayEndInUtc,
-			org.springframework.data.domain.PageRequest.of(0, 1)
-		).hasContent();
-
-		log.debug("[시간 처리 로그] 오늘 이미 업로드했는가? {}", hasUploadedToday);
-
-		if (hasUploadedToday) {
+		if (hasUploadedOnDate(user.getId(), koreaToday)) {
 			return CheckSelfieUploadableResponse.notUploadable("ALREADY_UPLOADED_TODAY");
 		}
 
 		return CheckSelfieUploadableResponse.uploadable();
+	}
+
+	private boolean isRunOnDate(LocalDateTime runStartTime, LocalDate baseDate) {
+		LocalDate runStartKoreaDate = koreaTimeHandler.toKoreaDate(runStartTime);
+		boolean isRunOnDate = baseDate.equals(runStartKoreaDate);
+		log.debug("[시간 처리 로그] 기준 날짜({})에 러닝했는가? {}", baseDate, isRunOnDate);
+		return isRunOnDate;
+	}
+
+	private boolean hasUploadedOnDate(Long userId, LocalDate baseDate) {
+		LocalDateTime dateStartInUtc = koreaTimeHandler.startOfDayInUtc(baseDate);
+		LocalDateTime dateEndInUtc = koreaTimeHandler.endOfDayInUtc(baseDate);
+
+		boolean hasUploaded = feedJpaRepository.findByUserIdAndDateRangeWithReactions(
+			userId,
+			userId,
+			dateStartInUtc,
+			dateEndInUtc,
+			org.springframework.data.domain.PageRequest.of(0, 1)
+		).hasContent();
+
+		log.debug("[시간 처리 로그] 기준 날짜({})에 이미 업로드했는가? {}", baseDate, hasUploaded);
+		return hasUploaded;
 	}
 }
