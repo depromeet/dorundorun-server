@@ -33,13 +33,10 @@ public class SolapiProvider implements SmsProvider {
 
 	@PostConstruct
 	public void init() {
-		// Solapi SDK 초기화 (API 키, API Secret 키 설정)
 		this.messageService = SolapiClient.INSTANCE.createInstance(
 			solapiProperties.getApiKey(),
 			solapiProperties.getApiSecret()
 		);
-		log.info("[Solapi] Message service initialized with API key: {}***",
-			solapiProperties.getApiKey().substring(0, Math.min(8, solapiProperties.getApiKey().length())));
 	}
 
 	@Override
