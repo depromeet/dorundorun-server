@@ -2,7 +2,6 @@ package com.sixpack.dorundorun.feature.feed.application;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -18,6 +17,7 @@ import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse.FeedI
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieFeedResponse.UserSummary;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.response.PaginationResponse;
+import com.sixpack.dorundorun.global.utils.KoreaTimeHandler;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +28,7 @@ public class FindSelfiesByDateService {
 	private final FindAllFeedsWithReactionsByUserIdAndDateRangeService findAllFeedsWithReactionsByUserIdAndDateRangeService;
 	private final FindUserSummaryService findUserSummaryService;
 	private final FeedItemMapper feedItemMapper;
+	private final KoreaTimeHandler koreaTimeHandler;
 
 	@Transactional(readOnly = true)
 	public SelfieFeedResponse find(User currentUser, FeedListRequest request) {
@@ -53,11 +54,11 @@ public class FindSelfiesByDateService {
 	}
 
 	private Page<Feed> loadFeedsByCondition(Long userId, Long currentUserId, LocalDate targetDate, Pageable pageable) {
-		LocalDateTime startOfDay = targetDate != null ? targetDate.atStartOfDay() : null;
-		LocalDateTime endOfDay = targetDate != null ? targetDate.atTime(LocalTime.MAX) : null;
+		LocalDateTime startOfDayInUtc = targetDate != null ? koreaTimeHandler.startOfDayInUtc(targetDate) : null;
+		LocalDateTime endOfDayInUtc = targetDate != null ? koreaTimeHandler.endOfDayInUtc(targetDate) : null;
 
 		// userId가 null이면 나와 친구들의 피드 조회, null이 아니면 해당 유저의 피드만 조회
-		return findAllFeedsWithReactionsByUserIdAndDateRangeService.find(userId, currentUserId, startOfDay,
-			endOfDay, pageable);
+		return findAllFeedsWithReactionsByUserIdAndDateRangeService.find(userId, currentUserId, startOfDayInUtc,
+			endOfDayInUtc, pageable);
 	}
 }

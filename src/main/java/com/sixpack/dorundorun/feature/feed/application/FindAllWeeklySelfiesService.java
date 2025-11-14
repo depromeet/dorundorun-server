@@ -13,6 +13,7 @@ import com.sixpack.dorundorun.feature.feed.dto.projection.FeedCountByDateProject
 import com.sixpack.dorundorun.feature.feed.dto.request.SelfieWeekListRequest;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieWeekResponse;
 import com.sixpack.dorundorun.feature.user.domain.User;
+import com.sixpack.dorundorun.global.utils.KoreaTimeHandler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,14 +24,18 @@ import lombok.extern.slf4j.Slf4j;
 public class FindAllWeeklySelfiesService {
 
 	private final FeedJpaRepository feedJpaRepository;
+	private final KoreaTimeHandler koreaTimeHandler;
 
 	@Transactional(readOnly = true)
 	public SelfieWeekResponse execute(User user, SelfieWeekListRequest request) {
-		LocalDateTime startDateTime = request.startDate() != null ? request.startDate().atStartOfDay() : null;
-		LocalDateTime endDateTime = request.endDate() != null ? request.endDate().atTime(23, 59, 59) : null;
+
+		LocalDateTime startDateTimeInUtc = request.startDate() != null
+			? koreaTimeHandler.startOfDayInUtc(request.startDate()) : null;
+		LocalDateTime endDateTimeInUtc = request.endDate() != null
+			? koreaTimeHandler.endOfDayInUtc(request.endDate()) : null;
 
 		List<FeedCountByDateProjection> queryResults = feedJpaRepository.countFriendFeedsByDateRange(
-			user.getId(), startDateTime, endDateTime);
+			user.getId(), startDateTimeInUtc, endDateTimeInUtc);
 
 		if (queryResults.isEmpty()) {
 			return createEmptyResponse(request.startDate(), request.endDate());
@@ -39,7 +44,7 @@ public class FindAllWeeklySelfiesService {
 		DailyCertifications certifications = DailyCertifications.from(queryResults);
 		List<SelfieWeekResponse.DailyCertification> data = certifications.toResponseList(
 			request.startDate(), request.endDate());
-		
+
 		return new SelfieWeekResponse(data);
 	}
 

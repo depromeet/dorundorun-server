@@ -1,7 +1,6 @@
 package com.sixpack.dorundorun.feature.feed.application;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -14,6 +13,7 @@ import com.sixpack.dorundorun.feature.feed.dto.response.SelfieUsersResponse;
 import com.sixpack.dorundorun.feature.feed.dto.response.SelfieUsersResponse.PostingUserState;
 import com.sixpack.dorundorun.feature.user.application.GetDefaultProfileImageUrlService;
 import com.sixpack.dorundorun.feature.user.domain.User;
+import com.sixpack.dorundorun.global.utils.KoreaTimeHandler;
 import com.sixpack.dorundorun.infra.s3.S3Service;
 
 import lombok.RequiredArgsConstructor;
@@ -25,16 +25,17 @@ public class FindSelfieUsersByDateService {
 	private final FeedJpaRepository feedJpaRepository;
 	private final S3Service s3Service;
 	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
+	private final KoreaTimeHandler koreaTimeHandler;
 
 	@Transactional(readOnly = true)
 	public SelfieUsersResponse find(User currentUser, SelfieUsersRequest request) {
-		LocalDateTime startOfDay = request.date().atStartOfDay();
-		LocalDateTime endOfDay = request.date().atTime(LocalTime.MAX);
+		LocalDateTime startOfDayInUtc = koreaTimeHandler.startOfDayInUtc(request.date());
+		LocalDateTime endOfDayInUtc = koreaTimeHandler.endOfDayInUtc(request.date());
 
 		List<Feed> feeds = feedJpaRepository.findByCurrentUserAndFriendsAndDateRange(
 			currentUser.getId(),
-			startOfDay,
-			endOfDay
+			startOfDayInUtc,
+			endOfDayInUtc
 		);
 
 		List<PostingUserState> users = feeds.stream()
