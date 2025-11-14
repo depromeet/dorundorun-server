@@ -1,5 +1,7 @@
 package com.sixpack.dorundorun.feature.feed.application;
 
+import java.time.LocalDate;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,6 +14,8 @@ import com.sixpack.dorundorun.feature.feed.exception.FeedErrorCode;
 import com.sixpack.dorundorun.feature.run.application.FindRunSessionByIdAndUserIdService;
 import com.sixpack.dorundorun.feature.run.domain.RunSession;
 import com.sixpack.dorundorun.feature.user.domain.User;
+import com.sixpack.dorundorun.global.exception.CustomException;
+import com.sixpack.dorundorun.global.utils.KoreaTimeHandler;
 import com.sixpack.dorundorun.infra.redis.stream.publisher.RedisStreamPublisher;
 import com.sixpack.dorundorun.infra.s3.S3Service;
 
@@ -27,10 +31,14 @@ public class CreateSelfieService {
 	private final FeedJpaRepository feedJpaRepository;
 	private final S3Service s3Service;
 	private final RedisStreamPublisher redisStreamPublisher;
+	private final KoreaTimeHandler koreaTimeHandler;
 
 	@Transactional
 	public Feed create(User user, CreateSelfieRequest request, MultipartFile selfieImage) {
 		RunSession runSession = findRunSessionByIdAndUserIdService.find(request.runSessionId(), user.getId());
+
+		// 러닝 세션이 오늘 진행된 것인지 검증
+		validateRunSessionIsToday(runSession);
 
 		// 한 러닝 세션에 이미 셀피가 존재하는지 확인
 		feedJpaRepository.findByRunSessionIdAndDeletedAtIsNull(request.runSessionId())
@@ -66,5 +74,14 @@ public class CreateSelfieService {
 			uploadedSelfieImage = s3Service.uploadImage(selfieImage);
 		}
 		return uploadedSelfieImage;
+	}
+
+	private void validateRunSessionIsToday(RunSession runSession) {
+		LocalDate koreaToday = koreaTimeHandler.now();
+		LocalDate runSessionDate = koreaTimeHandler.toKoreaDate(runSession.getCreatedAt());
+
+		if (!koreaToday.equals(runSessionDate)) {
+			throw FeedErrorCode.RUN_SESSION_NOT_TODAY.format();
+		}
 	}
 }
