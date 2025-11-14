@@ -41,7 +41,9 @@ public class ProductionSmsVerificationStrategy implements SmsVerificationStrateg
 	@Override
 	public boolean supports(String phoneNumber) {
 		String normalized = phoneNumber.replaceAll("-", "");
-		return !TestPhoneNumbers.TEST_NUMBER.equals(normalized);
+		return !TestPhoneNumbers.TEST_NUMBER.equals(normalized)
+			&& !TestPhoneNumbers.REVIEW_NUMBER_ANDROID.equals(normalized)
+			&& !TestPhoneNumbers.REVIEW_NUMBER_IOS.equals(normalized);
 	}
 
 	@Override
