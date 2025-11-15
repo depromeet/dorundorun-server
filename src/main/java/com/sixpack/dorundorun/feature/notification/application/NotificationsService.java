@@ -49,8 +49,9 @@ public class NotificationsService {
 
 		if (notification.getType() == NotificationType.CHEER_FRIEND) {
 			profileImage = getProfileImageBySenderId(notification);
-		} else if (notification.getType() == NotificationType.FEED_UPLOADED ||
-			notification.getType() == NotificationType.FEED_REACTION) {
+		} else if (notification.getType() == NotificationType.FEED_REACTION) {
+			profileImage = getProfileImageBySenderId(notification);
+		} else if (notification.getType() == NotificationType.FEED_UPLOADED) {
 			Long feedId = getFeedIdFromNotification(notification);
 			if (feedId != null) {
 				Feed feed = feedRepository.findById(feedId).orElse(null);
