@@ -99,9 +99,7 @@ public class NotificationResponse {
 			.isRead(notification.getIsRead())
 			.readAt(notification.getReadAt())
 			.deepLink(notification.getDeepLink())
-			.relatedId(notification.getData().getAdditionalData() != null ?
-				Long.valueOf(notification.getData().getAdditionalData().getOrDefault("relatedId", 0).toString()) :
-				null)
+			.relatedId(getRelatedId(notification))
 			.selfieImage(null)
 			.createdAt(notification.getCreatedAt())
 			.build();
@@ -126,6 +124,23 @@ public class NotificationResponse {
 		return null;
 	}
 
+	private static Long getRelatedId(Notification notification) {
+		if (notification.getData().getAdditionalData() == null) {
+			return null;
+		}
+
+		Object relatedId = notification.getData().getAdditionalData().get("relatedId");
+		if (relatedId != null) {
+			try {
+				return Long.valueOf(relatedId.toString());
+			} catch (NumberFormatException e) {
+				return null;
+			}
+		}
+
+		return null;
+	}
+
 	public static NotificationResponse from(Notification notification, String profileImage, String selfieImage) {
 		String message = notification.getData().getMessage();
 		String sender = getSenderName(notification);
@@ -145,9 +160,7 @@ public class NotificationResponse {
 			.isRead(notification.getIsRead())
 			.readAt(notification.getReadAt())
 			.deepLink(notification.getDeepLink())
-			.relatedId(notification.getData().getAdditionalData() != null ?
-				Long.valueOf(notification.getData().getAdditionalData().getOrDefault("relatedId", 0).toString()) :
-				null)
+			.relatedId(getRelatedId(notification))
 			.selfieImage(selfieImage)
 			.createdAt(notification.getCreatedAt())
 			.build();
