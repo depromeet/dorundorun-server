@@ -5,10 +5,10 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixpack.dorundorun.feature.feed.event.FeedReactionRequestedEvent;
+import com.sixpack.dorundorun.feature.notification.event.PushNotificationRequestedEvent;
 import com.sixpack.dorundorun.feature.user.application.FindUserByIdService;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.infra.redis.stream.annotation.RedisStreamEventListener;
-import com.sixpack.dorundorun.feature.notification.event.PushNotificationRequestedEvent;
 import com.sixpack.dorundorun.infra.redis.stream.handler.AbstractRedisStreamEventHandler;
 import com.sixpack.dorundorun.infra.redis.stream.publisher.RedisStreamPublisher;
 
@@ -47,11 +47,16 @@ public class FeedReactionEventHandler
 		log.info("Processing feed reaction event: feedId={}, reactorId={}, feedOwnerId={}",
 			event.feedId(), event.reactorId(), event.feedOwnerId());
 
+		if (event.reactorId().equals(event.feedOwnerId())) {
+			return;
+		}
+
 		try {
 			User reactor = findUserByIdService.find(event.reactorId());
 
 			// 메타데이터 생성
 			Map<String, Object> metadata = new HashMap<>();
+			metadata.put("senderId", event.reactorId());
 			metadata.put("reactorName", reactor.getNickname());
 			metadata.put("feedId", event.feedId());
 
