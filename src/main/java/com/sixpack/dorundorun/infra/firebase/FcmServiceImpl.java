@@ -39,13 +39,11 @@ public class FcmServiceImpl implements FcmService {
 		try {
 			Message fcmMessage = buildMessage(message);
 			String messageId = firebaseMessaging.send(fcmMessage);
-			log.info("Successfully sent FCM message to device token: {} (messageId: {})",
-				message.deviceToken(), messageId);
+			log.info("Successfully sent FCM message (messageId: {})", messageId);
 			return messageId;
 
 		} catch (Exception e) {
-			log.error("Failed to send FCM message to device token: {}, error: {}",
-				message.deviceToken(), e.getMessage(), e);
+			log.error("Failed to send FCM message, error: {}", e.getMessage(), e);
 			throw new CustomException(FcmErrorCode.FCM_SEND_FAILED);
 		}
 	}

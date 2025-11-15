@@ -39,6 +39,7 @@ public class NotificationsService {
 			pageable
 		);
 
+		log.debug("Found {} notifications for user: {}", notifications.getTotalElements(), user.getId());
 		return notifications.map(notification -> buildNotificationResponse(notification));
 	}
 
