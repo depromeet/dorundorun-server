@@ -76,7 +76,7 @@ public class PushNotificationContentDeterminer {
 	}
 
 	private String buildFeedReactionMessage(Map<String, Object> metadata) {
-		String reactionUserName = (String)metadata.getOrDefault("reactionUserName", "친구");
+		String reactionUserName = (String)metadata.getOrDefault("reactorName", "친구");
 		return reactionUserName + "님이 회원님의 피드에 리액션을 남겼어요";
 	}
 
