@@ -96,7 +96,7 @@ public class NotificationResponse {
 			.title(notification.getData().getTitle())
 			.message(message)
 			.sender(sender)
-			.profileImage("/api/images/defaultProfileImage.jpg")
+			.profileImage(DEFAULT_PROFILE_IMAGE)
 			.type(notification.getType())
 			.isRead(notification.getIsRead())
 			.readAt(notification.getReadAt())

@@ -58,11 +58,6 @@ public class NotificationsService {
 				if (feed != null) {
 					if (feed.getUser() != null) {
 						profileImage = getProfileImageFromUser(feed.getUser());
-					} else {
-						// 업로더가 탈퇴한 경우 uploaderName을 null로 설정
-						if (notification.getData().getAdditionalData() != null) {
-							notification.getData().getAdditionalData().put("uploaderName", null);
-						}
 					}
 					if (feed.getSelfieImage() != null) {
 						selfieImage = s3Service.getImageUrl(feed.getSelfieImage());
