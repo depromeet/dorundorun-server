@@ -11,8 +11,8 @@ import com.sixpack.dorundorun.feature.notification.dao.NotificationJpaRepository
 import com.sixpack.dorundorun.feature.notification.domain.Notification;
 import com.sixpack.dorundorun.feature.notification.domain.NotificationType;
 import com.sixpack.dorundorun.feature.notification.dto.response.NotificationResponse;
-import com.sixpack.dorundorun.feature.user.application.FindUserByIdService;
 import com.sixpack.dorundorun.feature.user.application.GetDefaultProfileImageUrlService;
+import com.sixpack.dorundorun.feature.user.dao.UserJpaRepository;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.infra.s3.S3Service;
 
@@ -26,7 +26,7 @@ public class NotificationsService {
 
 	private final NotificationJpaRepository notificationRepository;
 	private final FeedJpaRepository feedRepository;
-	private final FindUserByIdService findUserByIdService;
+	private final UserJpaRepository userRepository;
 	private final GetDefaultProfileImageUrlService getDefaultProfileImageUrlService;
 	private final S3Service s3Service;
 
@@ -56,7 +56,14 @@ public class NotificationsService {
 			if (feedId != null) {
 				Feed feed = feedRepository.findById(feedId).orElse(null);
 				if (feed != null) {
-					profileImage = getProfileImageFromUser(feed.getUser());
+					if (feed.getUser() != null) {
+						profileImage = getProfileImageFromUser(feed.getUser());
+					} else {
+						// 업로더가 탈퇴한 경우 uploaderName을 null로 설정
+						if (notification.getData().getAdditionalData() != null) {
+							notification.getData().getAdditionalData().put("uploaderName", null);
+						}
+					}
 					if (feed.getSelfieImage() != null) {
 						selfieImage = s3Service.getImageUrl(feed.getSelfieImage());
 					}
@@ -76,11 +83,12 @@ public class NotificationsService {
 		if (senderId != null) {
 			try {
 				Long userId = Long.valueOf(senderId.toString());
-				User user = findUserByIdService.find(userId);
-				return getProfileImageFromUser(user);
-			} catch (Exception e) {
-				log.warn("Failed to fetch sender profile image for notification: {}", e.getMessage());
-				return getDefaultProfileImageUrlService.get();
+				User user = userRepository.findById(userId).orElse(null);
+				if (user != null) {
+					return getProfileImageFromUser(user);
+				}
+			} catch (NumberFormatException e) {
+				log.warn("Failed to parse senderId from notification data: {}", senderId);
 			}
 		}
 

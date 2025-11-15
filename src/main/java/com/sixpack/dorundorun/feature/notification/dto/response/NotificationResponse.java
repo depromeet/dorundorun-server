@@ -31,6 +31,8 @@ import lombok.Getter;
 		""")
 public class NotificationResponse {
 
+	private static final String DEFAULT_PROFILE_IMAGE = "/api/images/defaultProfileImage.jpg";
+
 	@Schema(description = "알림 ID", example = "1")
 	private Long id;
 
@@ -145,6 +147,12 @@ public class NotificationResponse {
 		String message = notification.getData().getMessage();
 		String sender = getSenderName(notification);
 
+		// 발신자가 탈퇴한 경우 "알 수 없음" 표시
+		if (sender == null && isNotificationRequiresSender(notification)) {
+			sender = "알 수 없음";
+			profileImage = DEFAULT_PROFILE_IMAGE;
+		}
+
 		// 응답에서는 메시지에서 발신자 이름과 "님" 제거
 		if (sender != null && message != null) {
 			message = message.replace(sender + "님", "");
@@ -164,5 +172,11 @@ public class NotificationResponse {
 			.selfieImage(selfieImage)
 			.createdAt(notification.getCreatedAt())
 			.build();
+	}
+
+	private static boolean isNotificationRequiresSender(Notification notification) {
+		return notification.getType() == NotificationType.CHEER_FRIEND
+			|| notification.getType() == NotificationType.FEED_REACTION
+			|| notification.getType() == NotificationType.FEED_UPLOADED;
 	}
 }
