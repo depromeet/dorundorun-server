@@ -31,6 +31,12 @@ public class SmsSendService {
 	public void sendVerificationCode(SmsSendRequest request) {
 		String phoneNumber = phoneNumberNormalizationUtil.normalize(request.phoneNumber());
 
+		// 임시 인증번호 발송 처리 (TODO: 런칭데이 이후 제거)
+		if (true) {
+			codeManager.saveCode(phoneNumber, "000000");
+			return;
+		}
+
 		SmsVerificationStrategy strategy = strategyFactory.getStrategy(phoneNumber);
 
 		strategy.checkDailySendLimit(phoneNumber);

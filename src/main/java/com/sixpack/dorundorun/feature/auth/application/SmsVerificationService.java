@@ -44,8 +44,10 @@ public class SmsVerificationService {
 		String phoneNumber = phoneNumberNormalizationUtil.normalize(request.phoneNumber());
 		String verificationCode = request.verificationCode();
 
-		// 1. 인증 시도 횟수 확인 및 증가
-		codeManager.checkAndIncrementAttempts(phoneNumber);
+		// 1. 임시 인증번호가 아닌 경우에만 인증 시도 횟수 확인 및 증가 (TODO: 런칭데이 이후 제거)
+		if (!"000000".equals(verificationCode)) {
+			codeManager.checkAndIncrementAttempts(phoneNumber);
+		}
 
 		// 2. 인증 코드 검증
 		boolean isValid = codeManager.verifyCode(phoneNumber, verificationCode);
