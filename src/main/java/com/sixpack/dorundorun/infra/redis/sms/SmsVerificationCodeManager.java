@@ -133,8 +133,7 @@ public class SmsVerificationCodeManager {
 
 		// 시도 횟수 증가 (인증 코드와 동일한 TTL)
 		redisTemplate.opsForValue().set(key, String.valueOf(attempts + 1), CODE_EXPIRATION);
-		log.info("Verification attempt {}/{} for phone: {}", attempts + 1, MAX_VERIFICATION_ATTEMPTS,
-			PhoneNumberMaskUtil.mask(phoneNumber));
+		log.info("Verification attempt {}/{} for phone: {}", attempts + 1, MAX_VERIFICATION_ATTEMPTS, PhoneNumberMaskUtil.mask(phoneNumber));
 	}
 
 	/**
@@ -145,12 +144,6 @@ public class SmsVerificationCodeManager {
 	 * @return 검증 성공 여부
 	 */
 	public boolean verifyCode(String phoneNumber, String verificationCode) {
-		// 임시 코드 검증 (TODO: 런칭데이 이후 제거)
-		if ("000000".equals(verificationCode)) {
-			redisTemplate.delete(ATTEMPT_KEY_PREFIX + phoneNumber);
-			return true;
-		}
-
 		String key = CODE_KEY_PREFIX + phoneNumber;
 		String savedCode = redisTemplate.opsForValue().get(key);
 
