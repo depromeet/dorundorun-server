@@ -67,7 +67,7 @@ public class SecurityConfig {
 				authorize
 					.requestMatchers("/public/**").permitAll()
 					.requestMatchers("/api/health").permitAll()
-					.requestMatchers("/actuator/health", "/actuator/prometheus").permitAll()
+					.requestMatchers("/actuator/**").permitAll()
 					.requestMatchers("/api/auth/sms/**").permitAll()
 					.requestMatchers("/api/auth/signup").permitAll()
 					.requestMatchers("/api/auth/refresh").permitAll()
