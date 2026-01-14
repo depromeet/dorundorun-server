@@ -121,8 +121,13 @@ public class FcmServiceImpl implements FcmService {
 		builder.setNotification(notification);
 
 		if (message.data() != null) {
-			builder.putData("notificationType", message.data().notificationType());
-			builder.putData("relatedId", message.data().relatedId());
+			if (message.data().notificationType() != null) {
+				builder.putData("notificationType", message.data().notificationType());
+			}
+
+			if (message.data().relatedId() != null) {
+				builder.putData("relatedId", message.data().relatedId());
+			}
 
 			if (message.data().metadata() != null && !message.data().metadata().isEmpty()) {
 				builder.putAllData(message.data().metadata());
@@ -154,8 +159,13 @@ public class FcmServiceImpl implements FcmService {
 		builder.setNotification(notification);
 
 		if (message.data() != null) {
-			builder.putData("notificationType", message.data().notificationType());
-			builder.putData("relatedId", message.data().relatedId());
+			if (message.data().notificationType() != null) {
+				builder.putData("notificationType", message.data().notificationType());
+			}
+
+			if (message.data().relatedId() != null) {
+				builder.putData("relatedId", message.data().relatedId());
+			}
 
 			if (message.data().metadata() != null && !message.data().metadata().isEmpty()) {
 				builder.putAllData(message.data().metadata());
