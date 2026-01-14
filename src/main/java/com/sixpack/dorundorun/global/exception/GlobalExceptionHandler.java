@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.sixpack.dorundorun.global.response.DorunResponse;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,6 +24,15 @@ public class GlobalExceptionHandler {
 		return ResponseEntity
 			.status(e.getErrorCode().getStatus())
 			.body(DorunResponse.error(e.getErrorCode(), e.getMessage()));
+	}
+
+	@ExceptionHandler(ExpiredJwtException.class)
+	public ResponseEntity<DorunResponse<Void>> handleExpiredJwtException(ExpiredJwtException e,
+		HttpServletRequest req) {
+		log.warn("{} {} - JWT token expired", req.getMethod(), req.getRequestURI());
+		return ResponseEntity
+			.status(HttpStatus.UNAUTHORIZED)
+			.body(DorunResponse.error(GlobalErrorCode.UNAUTHORIZED, "토큰이 만료되었습니다."));
 	}
 
 	@ExceptionHandler(Exception.class)
