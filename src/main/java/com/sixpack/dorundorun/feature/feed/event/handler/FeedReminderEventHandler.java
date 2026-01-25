@@ -1,5 +1,6 @@
 package com.sixpack.dorundorun.feature.feed.event.handler;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
@@ -47,6 +48,16 @@ public class FeedReminderEventHandler
 	protected void onMessage(FeedReminderRequestedEvent event) throws Exception {
 		log.info("Processing feed reminder event: userId={}, runSessionId={}",
 			event.userId(), event.runSessionId());
+
+		// 중복 스케줄 방지: 이미 스케줄된 알림인지 Redis에서 확인
+		String scheduleCheckKey = "schedule:check:FEED_REMINDER:" + event.userId() + ":" + event.runSessionId();
+		Boolean isNew = redisTemplate.opsForValue().setIfAbsent(scheduleCheckKey, "1", Duration.ofHours(25));
+
+		if (!Boolean.TRUE.equals(isNew)) {
+			log.info("Feed reminder already scheduled, skipping: userId={}, runSessionId={}",
+				event.userId(), event.runSessionId());
+			return;
+		}
 
 		try {
 			// 예약 시간 계산: 지금 + 23시간 (러닝 완료 후 23시간)

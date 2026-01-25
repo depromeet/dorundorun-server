@@ -2,10 +2,11 @@ package com.sixpack.dorundorun.feature.notification.event.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixpack.dorundorun.feature.notification.application.PushNotificationContentDeterminer;
+import com.sixpack.dorundorun.feature.notification.application.PushNotificationDeduplicationService;
 import com.sixpack.dorundorun.feature.notification.application.SaveNotificationService;
 import com.sixpack.dorundorun.feature.notification.application.SendPushNotificationService;
-import com.sixpack.dorundorun.infra.redis.stream.annotation.RedisStreamEventListener;
 import com.sixpack.dorundorun.feature.notification.event.PushNotificationRequestedEvent;
+import com.sixpack.dorundorun.infra.redis.stream.annotation.RedisStreamEventListener;
 import com.sixpack.dorundorun.infra.redis.stream.handler.AbstractRedisStreamEventHandler;
 
 import lombok.extern.slf4j.Slf4j;
@@ -14,17 +15,20 @@ import lombok.extern.slf4j.Slf4j;
 @RedisStreamEventListener
 public class PushNotificationEventListener extends AbstractRedisStreamEventHandler<PushNotificationRequestedEvent> {
 
+	private final PushNotificationDeduplicationService deduplicationService;
 	private final SaveNotificationService saveNotificationService;
 	private final SendPushNotificationService sendPushNotificationService;
 	private final PushNotificationContentDeterminer contentDeterminer;
 
 	public PushNotificationEventListener(
 		ObjectMapper objectMapper,
+		PushNotificationDeduplicationService deduplicationService,
 		SaveNotificationService saveNotificationService,
 		SendPushNotificationService sendPushNotificationService,
 		PushNotificationContentDeterminer contentDeterminer
 	) {
 		super(objectMapper);
+		this.deduplicationService = deduplicationService;
 		this.saveNotificationService = saveNotificationService;
 		this.sendPushNotificationService = sendPushNotificationService;
 		this.contentDeterminer = contentDeterminer;
@@ -44,6 +48,13 @@ public class PushNotificationEventListener extends AbstractRedisStreamEventHandl
 	protected void onMessage(PushNotificationRequestedEvent event) throws Exception {
 		log.info("Processing push notification event: recipientId={}, type={}",
 			event.recipientUserId(), event.notificationType());
+
+		// Redis SETNX 중복 체크 - 푸시 보내기 "직전"에
+		if (!deduplicationService.tryAcquireLock(event)) {
+			log.info("Duplicate notification skipped: recipientId={}, type={}",
+				event.recipientUserId(), event.notificationType());
+			return; // ACK 처리됨 (onMessage가 정상 종료되면 ACK)
+		}
 
 		try {
 			// 알림 콘텐츠 결정
