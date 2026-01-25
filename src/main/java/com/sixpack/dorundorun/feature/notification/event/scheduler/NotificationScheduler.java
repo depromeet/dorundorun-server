@@ -167,6 +167,7 @@ public class NotificationScheduler {
 						.notificationType(scheduledData.getNotificationType())
 						.relatedId(null)
 						.metadata(new HashMap<>())
+						.idempotencyKey(eventId)  // 스케줄러의 eventId를 idempotencyKey로 사용
 						.build();
 					redisStreamPublisher.publishAfterCommit(pushEvent);
 
