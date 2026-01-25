@@ -12,7 +12,8 @@ public record PushNotificationRequestedEvent(
 	Long recipientUserId,
 	String notificationType,
 	String relatedId,
-	Map<String, Object> metadata
+	Map<String, Object> metadata,
+	String idempotencyKey
 ) implements RedisStreamEvent {
 
 	public static final String TYPE = RedisStreamEventType.PUSH_NOTIFICATION_REQUESTED;

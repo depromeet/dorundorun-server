@@ -193,12 +193,12 @@ public class NotificationIntegrationTest extends ServiceTest {
 		// given
 		int count = 5;
 
-		// when
+		// when - 각 알림마다 다른 relatedId 사용 (중복 방지 키가 다르도록)
 		for (int i = 0; i < count; i++) {
 			PushNotificationRequestedEvent event = PushNotificationRequestedEvent.builder()
 				.recipientUserId(testUser.getId())
 				.notificationType("CHEER_FRIEND")
-				.relatedId(String.valueOf(testFriend.getId()))
+				.relatedId(String.valueOf(testFriend.getId() + i))  // 각기 다른 relatedId
 				.metadata(new HashMap<>())
 				.build();
 

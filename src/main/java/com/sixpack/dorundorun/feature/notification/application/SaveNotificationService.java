@@ -9,9 +9,9 @@ import com.sixpack.dorundorun.feature.notification.dao.NotificationJpaRepository
 import com.sixpack.dorundorun.feature.notification.domain.Notification;
 import com.sixpack.dorundorun.feature.notification.domain.NotificationData;
 import com.sixpack.dorundorun.feature.notification.domain.NotificationType;
+import com.sixpack.dorundorun.feature.notification.event.PushNotificationRequestedEvent;
 import com.sixpack.dorundorun.feature.user.application.FindUserByIdService;
 import com.sixpack.dorundorun.feature.user.domain.User;
-import com.sixpack.dorundorun.feature.notification.event.PushNotificationRequestedEvent;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,6 @@ public class SaveNotificationService {
 			.additionalData(additionalData)
 			.build();
 
-		// 알림 타입을 문자열에서 NotificationType enum으로 변환
 		NotificationType notificationType = convertToNotificationType(event.notificationType());
 
 		Notification notification = Notification.builder()
