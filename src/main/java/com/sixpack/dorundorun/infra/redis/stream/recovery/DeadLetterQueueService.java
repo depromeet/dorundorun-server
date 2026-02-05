@@ -27,8 +27,9 @@ public class DeadLetterQueueService {
 
 	/**
 	 * 실패한 메시지를 DLQ로 이동
+	 * @return true면 DLQ 이동 성공, false면 실패
 	 */
-	public void moveToDeadLetterQueue(
+	public boolean moveToDeadLetterQueue(
 		String recordId,
 		String messageJson,
 		String errorMessage,
@@ -56,8 +57,10 @@ public class DeadLetterQueueService {
 			log.warn("Message moved to DLQ: recordId={}, retryCount={}, error={}",
 				recordId, retryCount, errorMessage);
 
+			return true;
 		} catch (Exception e) {
 			log.error("Failed to move message to DLQ: recordId={}", recordId, e);
+			return false;
 		}
 	}
 
