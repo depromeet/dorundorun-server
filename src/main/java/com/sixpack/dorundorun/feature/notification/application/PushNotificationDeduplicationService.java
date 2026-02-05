@@ -40,14 +40,26 @@ public class PushNotificationDeduplicationService {
 		String dedupKey = generateDedupKey(event);
 		Duration ttl = getTtlForType(event.notificationType());
 
-		Boolean acquired = redisTemplate.opsForValue().setIfAbsent(dedupKey, "1", ttl);
+		try {
+			Boolean acquired = redisTemplate.opsForValue().setIfAbsent(dedupKey, "1", ttl);
 
-		if (Boolean.TRUE.equals(acquired)) {
-			log.debug("Dedup lock acquired: key={}", dedupKey);
+			if (acquired == null) {
+				// Redis 오류로 null 반환 시 fail-open (알림 발송 허용)
+				log.warn("Redis returned null for dedup check, proceeding with notification: key={}", dedupKey);
+				return true;
+			}
+
+			if (acquired) {
+				log.debug("Dedup lock acquired: key={}", dedupKey);
+				return true;
+			} else {
+				log.info("Duplicate notification detected, skipping: key={}", dedupKey);
+				return false;
+			}
+		} catch (Exception e) {
+			// Redis 연결 오류 시 fail-open (알림 발송 허용)
+			log.warn("Redis error during dedup check, proceeding with notification: key={}", dedupKey, e);
 			return true;
-		} else {
-			log.info("Duplicate notification detected, skipping: key={}", dedupKey);
-			return false;
 		}
 	}
 
@@ -55,6 +67,11 @@ public class PushNotificationDeduplicationService {
 	 * 이벤트로부터 중복 방지 키 생성
 	 */
 	public String generateDedupKey(PushNotificationRequestedEvent event) {
+		// idempotencyKey가 명시적으로 설정된 경우 이를 우선 사용
+		if (event.idempotencyKey() != null && !event.idempotencyKey().isEmpty()) {
+			return DEDUP_KEY_PREFIX + event.idempotencyKey();
+		}
+
 		StringBuilder keyBuilder = new StringBuilder(DEDUP_KEY_PREFIX)
 			.append(event.notificationType())
 			.append(":")
