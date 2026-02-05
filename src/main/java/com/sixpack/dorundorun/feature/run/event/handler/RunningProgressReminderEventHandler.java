@@ -107,6 +107,8 @@ public class RunningProgressReminderEventHandler
 				eventId, event.userId(), event.runSessionId(), scheduledTime);
 
 		} catch (Exception e) {
+			// 실패 시 중복 방지 키 해제하여 재시도 가능하게 함
+			redisTemplate.delete(scheduleCheckKey);
 			log.error("Failed to schedule running progress reminder event: userId={}, runSessionId={}",
 				event.userId(), event.runSessionId(), e);
 			throw e;
