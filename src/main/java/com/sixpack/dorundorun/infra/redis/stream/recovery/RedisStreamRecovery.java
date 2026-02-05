@@ -110,21 +110,24 @@ public class RedisStreamRecovery {
 			}
 
 			// DLQ로 이동
-			deadLetterQueueService.moveToDeadLetterQueue(
+			boolean movedToDlq = deadLetterQueueService.moveToDeadLetterQueue(
 				pm.getId().getValue(),
 				messageJson,
 				"Max retry count exceeded: " + MAX_RETRY_COUNT,
 				pm.getTotalDeliveryCount()
 			);
 
-			// ACK 처리하여 PEL에서 제거
-			redisTemplate.opsForStream().acknowledge(
-				properties.key(),
-				properties.group(),
-				pm.getId()
-			);
-
-			log.warn("Message moved to DLQ after {} retries: id={}", MAX_RETRY_COUNT, pm.getId());
+			// DLQ 이동 성공 시에만 ACK 처리하여 PEL에서 제거
+			if (movedToDlq) {
+				redisTemplate.opsForStream().acknowledge(
+					properties.key(),
+					properties.group(),
+					pm.getId()
+				);
+				log.warn("Message moved to DLQ after {} retries: id={}", MAX_RETRY_COUNT, pm.getId());
+			} else {
+				log.error("Failed to move message to DLQ, keeping in PEL for retry: id={}", pm.getId());
+			}
 
 		} catch (Exception e) {
 			log.error("Failed to handle max retry exceeded: id={}", pm.getId(), e);
