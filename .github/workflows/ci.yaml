@@ -22,6 +22,7 @@ jobs:
           mkdir -p ./src/main/resources
           echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > ./src/main/resources/application.yml
           echo "${{ secrets.APPLICATION_YML_PROD }}" | base64 --decode > ./src/main/resources/application-prod.yml
+          echo "${{ secrets.APPLICATION_YML_CI }}" | base64 --decode > ./src/main/resources/application-ci.yml
 
       - name: Cache Gradle packages
         uses: actions/cache@v3
@@ -53,22 +54,28 @@ jobs:
 
       - name: Test Docker image
         run: |
-          docker run --rm -d --name test-container \
-            -e SPRING_PROFILES_ACTIVE=prod \
+          set -e
+
+          docker rm -f test-container || true
+
+          docker run -d --name test-container \
+            -e SPRING_PROFILES_ACTIVE=ci \
             ${{ secrets.DOCKERHUB_USERNAME }}/sixpack:pr-${{ github.event.pull_request.number }}
-          
+
           echo "컨테이너 시작 대기 중..."
           sleep 30
-          
-          if docker ps | grep test-container; then
+
+          if docker ps | grep -q test-container; then
             echo "✅ Docker 컨테이너 정상 실행"
-            docker logs test-container --tail 50
-            docker stop test-container
+            docker logs test-container --tail 200
           else
             echo "❌ Docker 컨테이너 실행 실패"
-            docker logs test-container
+            docker ps -a | grep test-container || true
+            docker logs test-container || true
             exit 1
           fi
+
+          docker rm -f test-container || true
 
       - name: Notify Slack of CI Result
         if: always()
