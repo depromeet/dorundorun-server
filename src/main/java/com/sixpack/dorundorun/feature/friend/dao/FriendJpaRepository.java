@@ -42,7 +42,7 @@ public interface FriendJpaRepository extends JpaRepository<Friend, Long> {
 		    SELECT rs2.id
 		    FROM RunSegment rs2
 		    JOIN rs2.runSession sess
-		    WHERE sess.user.id = u.id
+		    WHERE sess.user.id = u.id AND (sess.manual = false OR sess.manual IS NULL)
 		    ORDER BY rs2.createdAt DESC
 		    LIMIT 1
 		)
