@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.sixpack.dorundorun.feature.run.dto.request.CompleteRunRequest;
+import com.sixpack.dorundorun.feature.run.dto.request.ManualRunSessionCompleteRequest;
 import com.sixpack.dorundorun.feature.run.dto.request.RunSessionListRequest;
 import com.sixpack.dorundorun.feature.run.dto.request.SaveRunSegmentRequest;
+import com.sixpack.dorundorun.feature.run.dto.response.ManualRunSessionCompleteResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.RunSessionDetailResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.RunSessionListResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.RunSessionResponse;
@@ -97,5 +99,14 @@ public interface RunApi {
 	DorunResponse<RunSessionDetailResponse> getRunSessionDetail(
 		@Parameter(description = "세션 ID", required = true) @PathVariable Long sessionId,
 		@Parameter(hidden = true) @CurrentUser User user
+	);
+
+	@Operation(summary = "수기 러닝 기록", description = "수기로 러닝 기록을 저장합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "수기 러닝 기록 성공"),
+	})
+	DorunResponse<ManualRunSessionCompleteResponse> completeManualRunSession(
+		@Parameter(hidden = true) @CurrentUser User user,
+		@Valid @RequestBody ManualRunSessionCompleteRequest request
 	);
 }
