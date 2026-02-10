@@ -19,7 +19,7 @@ public record ManualRunSessionCompleteResponse(
 	Long distanceTotal,
 
 	@Schema(description = "평균 페이스 (초/km)")
-	Double paceAvg,
+	Long paceAvg,
 
 	@Schema(description = "평균 케이던스 (걸음/분)")
 	Integer cadenceAvg
