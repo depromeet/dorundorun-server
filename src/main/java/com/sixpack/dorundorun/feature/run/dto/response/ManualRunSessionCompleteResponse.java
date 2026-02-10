@@ -6,6 +6,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "수기 러닝 기록 응답 DTO")
 public record ManualRunSessionCompleteResponse(
+	@Schema(description = "세션 id")
+	Long id,
+
 	@Schema(description = "러닝 종료 시간")
 	LocalDateTime finishedAt,
 

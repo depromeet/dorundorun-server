@@ -36,6 +36,7 @@ public class CreateRunSessionManualService {
 		runSessionJpaRepository.save(runSession);
 
 		return new ManualRunSessionCompleteResponse(
+			runSession.getId(),
 			runSession.getFinishedAt(),
 			runSession.getDurationTotal(),
 			runSession.getDistanceTotal(),
