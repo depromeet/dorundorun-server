@@ -40,7 +40,7 @@ public class CreateRunSessionManualService {
 			runSession.getFinishedAt(),
 			runSession.getDurationTotal(),
 			runSession.getDistanceTotal(),
-			request.paceAvg(),
+			runSession.getPaceAvg(),
 			runSession.getCadenceAvg()
 		);
 	}
