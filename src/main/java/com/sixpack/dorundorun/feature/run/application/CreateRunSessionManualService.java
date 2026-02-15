@@ -34,6 +34,7 @@ public class CreateRunSessionManualService {
 			.build();
 
 		runSessionJpaRepository.save(runSession);
+		runSessionJpaRepository.updateCreatedAt(runSession.getId(), request.startedAt());
 
 		return new ManualRunSessionCompleteResponse(
 			runSession.getId(),

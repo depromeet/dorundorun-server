@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -143,4 +144,8 @@ public interface RunSessionJpaRepository extends JpaRepository<RunSession, Long>
 		  AND rs.finishedAt IS NOT NULL
 		""")
 	boolean existsByUserIdAndFinishedAtIsNotNull(@Param("userId") Long userId);
+
+	@Modifying(clearAutomatically = true)
+	@Query(value = "UPDATE run_session SET created_at = :createdAt WHERE id = :id", nativeQuery = true)
+	void updateCreatedAt(@Param("id") Long id, @Param("createdAt") LocalDateTime createdAt);
 }
