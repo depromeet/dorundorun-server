@@ -58,6 +58,9 @@ dependencies {
     // SMS
     implementation 'com.solapi:sdk:1.0.3'
 
+    // Testcontainers 버전 고정 (Docker 29 대응)
+    testImplementation platform("org.testcontainers:testcontainers-bom:2.0.3")
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
