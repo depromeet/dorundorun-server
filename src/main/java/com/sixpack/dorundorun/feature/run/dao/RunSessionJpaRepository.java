@@ -145,7 +145,7 @@ public interface RunSessionJpaRepository extends JpaRepository<RunSession, Long>
 		""")
 	boolean existsByUserIdAndFinishedAtIsNotNull(@Param("userId") Long userId);
 
-	@Modifying(clearAutomatically = true)
+	@Modifying(flushAutomatically = true, clearAutomatically = true)
 	@Query(value = "UPDATE run_session SET created_at = :createdAt WHERE id = :id", nativeQuery = true)
 	void updateCreatedAt(@Param("id") Long id, @Param("createdAt") LocalDateTime createdAt);
 }
