@@ -67,6 +67,10 @@ public class RunSession extends BaseTimeEntity {
 	@Column(name = "map_image")
 	private String mapImage;
 
+	@Column(name = "manual")
+	@Builder.Default
+	private Boolean manual = false;
+
 	public String getMapImageUrl() {
 		return S3ImageUrlUtil.getPresignedImageUrl(this.mapImage);
 	}

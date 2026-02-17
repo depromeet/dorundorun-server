@@ -22,7 +22,7 @@ public class RedisStreamRecoveryConfig {
 	private final RedisStreamRecovery recovery;
 	private final RedisStreamRecoveryProperties props;
 
-	@Scheduled(fixedDelayString = "${redis.stream.recovery.interval-ms:5000}", initialDelayString = "${redis.stream.recovery.interval-ms:5000}")
+	@Scheduled(fixedDelayString = "${redis.stream.recovery.interval-ms:60000}", initialDelayString = "${redis.stream.recovery.interval-ms:60000}")
 	public void runOnceSafely() {
 		if (!props.isEnabled())
 			return;

@@ -15,8 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sixpack.dorundorun.feature.run.application.CompleteRunSessionService;
-import com.sixpack.dorundorun.global.exception.CustomException;
-import com.sixpack.dorundorun.global.exception.GlobalErrorCode;
+import com.sixpack.dorundorun.feature.run.application.CreateRunSessionManualService;
 import com.sixpack.dorundorun.feature.run.application.CreateRunSessionService;
 import com.sixpack.dorundorun.feature.run.application.FindAllRunSessionsService;
 import com.sixpack.dorundorun.feature.run.application.FindRunSessionDetailService;
@@ -24,8 +23,10 @@ import com.sixpack.dorundorun.feature.run.application.SaveRunSegmentService;
 import com.sixpack.dorundorun.feature.run.domain.RunSegment;
 import com.sixpack.dorundorun.feature.run.domain.RunSession;
 import com.sixpack.dorundorun.feature.run.dto.request.CompleteRunRequest;
+import com.sixpack.dorundorun.feature.run.dto.request.ManualRunSessionCompleteRequest;
 import com.sixpack.dorundorun.feature.run.dto.request.RunSessionListRequest;
 import com.sixpack.dorundorun.feature.run.dto.request.SaveRunSegmentRequest;
+import com.sixpack.dorundorun.feature.run.dto.response.ManualRunSessionCompleteResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.RunSessionDetailResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.RunSessionListResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.RunSessionResponse;
@@ -33,6 +34,8 @@ import com.sixpack.dorundorun.feature.run.dto.response.SaveRunSegmentResponse;
 import com.sixpack.dorundorun.feature.run.dto.response.SaveRunSessionResponse;
 import com.sixpack.dorundorun.feature.user.domain.User;
 import com.sixpack.dorundorun.global.aop.annotation.CurrentUser;
+import com.sixpack.dorundorun.global.exception.CustomException;
+import com.sixpack.dorundorun.global.exception.GlobalErrorCode;
 import com.sixpack.dorundorun.global.response.DorunResponse;
 
 import jakarta.validation.Valid;
@@ -43,6 +46,7 @@ import lombok.RequiredArgsConstructor;
 public class RunController implements RunApi {
 
 	private final CreateRunSessionService createRunSessionService;
+	private final CreateRunSessionManualService createRunSessionManualService;
 	private final SaveRunSegmentService saveRunSegmentService;
 	private final CompleteRunSessionService completeRunSessionService;
 	private final FindAllRunSessionsService findRunSessionListService;
@@ -113,5 +117,14 @@ public class RunController implements RunApi {
 	) {
 		RunSessionDetailResponse runSessionDetail = findRunSessionDetailService.find(sessionId, user.getId());
 		return DorunResponse.success("러닝 상세 기록 조회가 성공적으로 완료되었습니다.", runSessionDetail);
+	}
+
+	@PostMapping("/api/runs/sessions/manual/complete")
+	public DorunResponse<ManualRunSessionCompleteResponse> completeManualRunSession(
+		@CurrentUser User user,
+		@Valid @RequestBody ManualRunSessionCompleteRequest request
+	) {
+		ManualRunSessionCompleteResponse response = createRunSessionManualService.create(user.getId(), request);
+		return DorunResponse.success("수기 러닝 기록이 성공적으로 저장되었습니다.", response);
 	}
 }
