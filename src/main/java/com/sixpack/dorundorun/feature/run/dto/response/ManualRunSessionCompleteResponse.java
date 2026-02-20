@@ -9,6 +9,9 @@ public record ManualRunSessionCompleteResponse(
 	@Schema(description = "세션 id")
 	Long id,
 
+	@Schema(description = "러닝 시작 시간")
+	LocalDateTime startedAt,
+
 	@Schema(description = "러닝 종료 시간")
 	LocalDateTime finishedAt,
 
