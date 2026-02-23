@@ -38,6 +38,7 @@ public class CreateRunSessionManualService {
 
 		return new ManualRunSessionCompleteResponse(
 			runSession.getId(),
+			request.startedAt(),
 			runSession.getFinishedAt(),
 			runSession.getDurationTotal(),
 			runSession.getDistanceTotal(),
