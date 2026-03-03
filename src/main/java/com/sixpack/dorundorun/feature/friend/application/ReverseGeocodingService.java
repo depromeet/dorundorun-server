@@ -3,13 +3,14 @@ package com.sixpack.dorundorun.feature.friend.application;
 import java.nio.channels.ClosedChannelException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sixpack.dorundorun.feature.friend.exception.ReverseGeocodingErrorCode;
 import com.sixpack.dorundorun.global.config.webclient.naver.ReverseGeocodingProperties;
 import com.sixpack.dorundorun.global.utils.CoordinateUtil;
 import com.sixpack.dorundorun.infra.naver.api.NaverReverseGeocodingApi;
@@ -32,25 +33,38 @@ public class ReverseGeocodingService {
 
 	private static final String CACHE_KEY_PREFIX = "reverse-geocoding:";
 
-	public AddressInfo addressByCoordinates(Double latitude, Double longitude) {
-		if (latitude == null || longitude == null) {
-			throw ReverseGeocodingErrorCode.REVERSE_GEOCODING_FAILED.format(latitude, longitude);
-		}
+	/**
+	 * 비동기 좌표→주소 변환.
+	 * Redis 캐시 조회(blocking)는 Executor에서 실행하고,
+	 * 캐시 미스 시 WebClient Mono를 .toFuture()로 변환하여 논블로킹 API 호출 수행.
+	 */
+	public CompletableFuture<AddressInfo> addressByCoordinatesAsync(
+		Double latitude, Double longitude, Executor executor) {
 
 		String cacheKey = CACHE_KEY_PREFIX + CoordinateUtil.roundToKey(latitude, longitude);
 
-		String cachedJson = redisTemplate.opsForValue().get(cacheKey);
-		// 캐시가 있으면 즉시 반환
-		if (cachedJson != null) {
-			return parseFromCacheSync(cachedJson);
-		}
+		// 1단계: Redis 캐시 조회 (blocking I/O → Executor 스레드에서 실행)
+		return CompletableFuture.supplyAsync(() -> {
+			try {
+				String cachedJson = redisTemplate.opsForValue().get(cacheKey);
+				if (cachedJson != null) {
+					return parseFromCache(cachedJson);
+				}
+			} catch (Exception e) {
+				log.warn("Redis 캐시 조회 실패, API 호출로 대체: key={}, error={}", cacheKey, e.getMessage());
+			}
+			return null;
+		}, executor).thenCompose(cached -> {
+			// 2단계: 캐시 히트 시 즉시 반환
+			if (cached != null) {
+				return CompletableFuture.completedFuture(cached);
+			}
 
-		// 캐시 없으면 API 호출
-		int retryAttempts = (int)reverseGeocodingProperties.api().retryAttempts();
-		long retryDelayMillis = reverseGeocodingProperties.api().retryDelayMillis();
+			// 3단계: 캐시 미스 → WebClient Mono.toFuture() (논블로킹)
+			int retryAttempts = (int)reverseGeocodingProperties.api().retryAttempts();
+			long retryDelayMillis = reverseGeocodingProperties.api().retryDelayMillis();
 
-		try {
-			ReverseGeocodingResponse response = naverReverseGeocodingApi
+			return naverReverseGeocodingApi
 				.reverseGeocode(latitude, longitude)
 				.retryWhen(
 					Retry.backoff(retryAttempts, Duration.ofMillis(retryDelayMillis))
@@ -60,16 +74,10 @@ public class ReverseGeocodingService {
 								throwable instanceof ClosedChannelException
 						)
 				)
-				.block();  // 동기 대기
-
-			AddressInfo addressInfo = toAddressInfo(response);
-			cacheAddressInfo(cacheKey, addressInfo);
-			return addressInfo;
-		} catch (Exception e) {
-			log.error("Reverse geocoding API 호출 실패: latitude={}, longitude={}, error={}",
-				latitude, longitude, e.getMessage());
-			throw ReverseGeocodingErrorCode.REVERSE_GEOCODING_FAILED.format(latitude, longitude);
-		}
+				.map(this::toAddressInfo)
+				.doOnNext(addressInfo -> cacheAddressInfo(cacheKey, addressInfo))
+				.toFuture();
+		});
 	}
 
 	private AddressInfo toAddressInfo(ReverseGeocodingResponse response) {
@@ -82,12 +90,9 @@ public class ReverseGeocodingService {
 		}
 
 		ReverseGeocodingResponse.Region region = response.results().get(0).region();
-		// 시/도 명 추출
 		String area1 = region.area1() != null ? region.area1().name() : "";
-		// 시/군/구 명 추출
 		String area2 = region.area2() != null ? region.area2().name() : "";
 
-		// "서울특별시" → "서울", "경기도" → "경기" 정제
 		area1 = cleanAreaName(area1);
 
 		String address = (area1 + " " + area2).trim();
@@ -112,18 +117,16 @@ public class ReverseGeocodingService {
 			long ttlHours = reverseGeocodingProperties.cache().ttlHours();
 			redisTemplate.opsForValue().set(cacheKey, json, Duration.ofHours(ttlHours));
 		} catch (Exception e) {
-			log.error("Redis 캐시 저장 실패: {}, error={}", cacheKey, e.getMessage());
-			throw ReverseGeocodingErrorCode.CACHE_OPERATION_FAILED.format(cacheKey);
+			log.warn("Redis 캐시 저장 실패 (무시): key={}, error={}", cacheKey, e.getMessage());
 		}
 	}
 
-	private AddressInfo parseFromCacheSync(String json) {
+	private AddressInfo parseFromCache(String json) {
 		try {
-			// JSON을 AddressInfo 객체로 역직렬화
 			return objectMapper.readValue(json, AddressInfo.class);
 		} catch (Exception e) {
-			log.error("Redis 캐시 파싱 실패: {}, error={}", json, e.getMessage());
-			throw ReverseGeocodingErrorCode.CACHE_OPERATION_FAILED.format(json);
+			log.warn("Redis 캐시 파싱 실패, API 호출로 대체: error={}", e.getMessage());
+			return null;
 		}
 	}
 

@@ -1,11 +1,13 @@
 package com.sixpack.dorundorun.global.config.webclient.naver;
 
 import java.time.Duration;
+import java.util.concurrent.Executor;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,5 +55,19 @@ public class NaverWebClientConfig {
 				httpHeaders.set("Content-Type", "application/json");
 			})
 			.build();
+	}
+
+	@Bean
+	public Executor reverseGeocodingExecutor(ReverseGeocodingProperties properties) {
+		int maxConcurrent = properties.api().maxConcurrentRequests();
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(maxConcurrent);
+		executor.setMaxPoolSize(maxConcurrent);
+		executor.setQueueCapacity(100);
+		executor.setThreadNamePrefix("reverse-geocoding-");
+		executor.setWaitForTasksToCompleteOnShutdown(true);
+		executor.setAwaitTerminationSeconds(30);
+		executor.initialize();
+		return executor;
 	}
 }
