@@ -22,7 +22,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import com.sixpack.dorundorun.feature.friend.dao.projection.FriendRunningStatusProjection;
 import com.sixpack.dorundorun.feature.run.domain.RunSegmentData;
 import com.sixpack.dorundorun.feature.run.domain.RunSegmentInfo;
-import com.sixpack.dorundorun.global.config.webclient.naver.ReverseGeocodingProperties;
+import com.sixpack.dorundorun.global.config.naver.ReverseGeocodingProperties;
 import com.sixpack.dorundorun.infra.naver.dto.AddressInfo;
 
 @DisplayName("CoordinateAddressService 성능 비교 테스트")

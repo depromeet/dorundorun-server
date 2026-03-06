@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sixpack.dorundorun.feature.friend.dao.projection.FriendRunningStatusProjection;
 import com.sixpack.dorundorun.feature.friend.dto.response.FriendRunningStatusResponse;
 import com.sixpack.dorundorun.feature.user.application.GetDefaultProfileImageUrlService;
-import com.sixpack.dorundorun.global.config.webclient.naver.ReverseGeocodingProperties;
+import com.sixpack.dorundorun.global.config.naver.ReverseGeocodingProperties;
 import com.sixpack.dorundorun.global.response.PaginationResponse;
 import com.sixpack.dorundorun.infra.naver.dto.AddressInfo;
 import com.sixpack.dorundorun.infra.s3.S3Service;
