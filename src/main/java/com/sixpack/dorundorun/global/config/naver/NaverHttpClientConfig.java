@@ -1,12 +1,13 @@
 package com.sixpack.dorundorun.global.config.naver;
 
+import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.concurrent.Executor;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestClient;
 
@@ -16,8 +17,11 @@ public class NaverHttpClientConfig {
 
 	@Bean
 	public RestClient naverMapsRestClient(NaverMapsProperties naverMapsProperties) {
-		SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-		factory.setConnectTimeout(Duration.ofSeconds(5));
+		HttpClient httpClient = HttpClient.newBuilder()
+			.connectTimeout(Duration.ofSeconds(5))
+			.build();
+
+		JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(httpClient);
 		factory.setReadTimeout(Duration.ofSeconds(naverMapsProperties.timeoutSeconds()));
 
 		return RestClient.builder()
