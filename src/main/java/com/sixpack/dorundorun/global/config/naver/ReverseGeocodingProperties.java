@@ -1,4 +1,4 @@
-package com.sixpack.dorundorun.global.config.webclient.naver;
+package com.sixpack.dorundorun.global.config.naver;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
