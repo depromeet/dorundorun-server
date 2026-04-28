@@ -165,7 +165,7 @@ public class NotificationScheduler {
                     PushNotificationRequestedEvent pushEvent = PushNotificationRequestedEvent.builder()
                             .recipientUserId(scheduledData.getUserId())
                             .notificationType(scheduledData.getNotificationType())
-                            .relatedId((String) metadata.get("relatedId"))
+                            .relatedId(metadata.get("relatedId") != null ? metadata.get("relatedId").toString() : null)
                             .metadata(metadata)
                             .idempotencyKey(eventId)  // 스케줄러의 eventId를 idempotencyKey로 사용
                             .build();
