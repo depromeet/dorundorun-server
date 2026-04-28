@@ -75,6 +75,7 @@ public class PushNotificationEventListener extends AbstractRedisStreamEventHandl
 		} catch (Exception e) {
 			log.error("Failed to process push notification: recipientId={}, type={}",
 				event.recipientUserId(), event.notificationType(), e);
+			deduplicationService.releaseLock(event);
 			throw e;
 		}
 	}

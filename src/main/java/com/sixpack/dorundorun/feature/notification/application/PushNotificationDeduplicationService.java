@@ -100,6 +100,16 @@ public class PushNotificationDeduplicationService {
 		return keyBuilder.toString();
 	}
 
+	public void releaseLock(PushNotificationRequestedEvent event) {
+		String dedupKey = generateDedupKey(event);
+		try {
+			redisTemplate.delete(dedupKey);
+		} catch (Exception e) {
+			log.error("Failed to release dedup lock: key={}", dedupKey, e);
+			throw e;
+		}
+	}
+
 	private Duration getTtlForType(String notificationType) {
 		return TTL_BY_TYPE.getOrDefault(notificationType, DEFAULT_TTL);
 	}

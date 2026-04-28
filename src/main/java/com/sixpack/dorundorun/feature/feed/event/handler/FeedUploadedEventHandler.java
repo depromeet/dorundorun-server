@@ -67,7 +67,7 @@ public class FeedUploadedEventHandler
 				return;
 			}
 
-			User uploader = feed.getUser();
+			User uploader = findUserByIdService.find(event.userId());
 
 			// 게시물 업로드 사용자의 모든 친구 ID 조회
 			List<Long> friendIds = friendJpaRepository.findFriendIdsByUserId(uploader.getId());
@@ -85,9 +85,6 @@ public class FeedUploadedEventHandler
 			// 각 친구에게 PushNotificationRequestedEvent 발행
 			for (Long friendId : friendIds) {
 				try {
-					// 친구가 실제 사용자인지 확인
-					User friend = findUserByIdService.find(friendId);
-
 					PushNotificationRequestedEvent pushEvent = PushNotificationRequestedEvent.builder()
 						.recipientUserId(friendId)
 						.notificationType("FEED_UPLOADED")

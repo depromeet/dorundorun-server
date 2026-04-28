@@ -1,5 +1,6 @@
 package com.sixpack.dorundorun.feature.user.event.handler;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
@@ -47,6 +48,13 @@ public class NewUserRunningReminderEventHandler
 	protected void onMessage(NewUserRunningReminderRequestedEvent event) throws Exception {
 		log.info("Processing new user running reminder event: userId={}", event.userId());
 
+		String scheduleCheckKey = "schedule:check:NEW_USER_RUNNING_REMINDER:" + event.userId();
+		Boolean isNew = redisTemplate.opsForValue().setIfAbsent(scheduleCheckKey, "1", Duration.ofDays(9));
+		if (!Boolean.TRUE.equals(isNew)) {
+			log.info("New user running reminder already scheduled, skipping: userId={}", event.userId());
+			return;
+		}
+
 		try {
 			// 예약 시간 계산: 지금 + 24시간 (가입 후 24시간)
 			LocalDateTime scheduledTime = LocalDateTime.now().plusHours(24);
@@ -85,6 +93,7 @@ public class NewUserRunningReminderEventHandler
 				eventId, event.userId(), scheduledTime);
 
 		} catch (Exception e) {
+			redisTemplate.delete(scheduleCheckKey);
 			log.error("Failed to schedule new user running reminder event: userId={}",
 				event.userId(), e);
 			throw e;
