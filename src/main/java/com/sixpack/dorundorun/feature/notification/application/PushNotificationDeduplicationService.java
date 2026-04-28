@@ -105,7 +105,8 @@ public class PushNotificationDeduplicationService {
 		try {
 			redisTemplate.delete(dedupKey);
 		} catch (Exception e) {
-			log.warn("Failed to release dedup lock: key={}", dedupKey, e);
+			log.error("Failed to release dedup lock: key={}", dedupKey, e);
+			throw e;
 		}
 	}
 
