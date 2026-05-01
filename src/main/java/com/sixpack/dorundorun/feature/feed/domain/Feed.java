@@ -48,7 +48,7 @@ public class Feed extends BaseTimeEntity {
 	@JoinColumn(name = "run_session_id", nullable = false)
 	private RunSession runSession;
 
-	@Column(name = "map_image", nullable = false)
+	@Column(name = "map_image")
 	private String mapImage;
 
 	@Column(name = "selfie_image")
