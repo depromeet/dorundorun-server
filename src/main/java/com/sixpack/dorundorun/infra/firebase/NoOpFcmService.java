@@ -26,13 +26,13 @@ public class NoOpFcmService implements FcmService {
 	}
 
 	@Override
-	public List<String> sendMulticastMessage(FcmMessage message, List<String> deviceTokens) {
+	public FcmMulticastResult sendMulticastMessage(FcmMessage message, List<String> deviceTokens) {
 		log.warn("FCM is disabled. Message would have been sent to {} devices", deviceTokens.size());
 		List<String> mockIds = new ArrayList<>();
 		for (int i = 0; i < deviceTokens.size(); i++) {
 			mockIds.add("mock-message-id-" + i + "-" + System.nanoTime());
 		}
-		return mockIds;
+		return new FcmMulticastResult(mockIds, Collections.emptyList());
 	}
 
 	@Override
