@@ -5,6 +5,7 @@ import com.sixpack.dorundorun.infra.redis.stream.dto.RedisStreamMessage;
 import com.sixpack.dorundorun.infra.redis.stream.handler.RedisStreamEventHandler;
 import com.sixpack.dorundorun.infra.redis.stream.handler.RedisStreamEventHandlerRegistry;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,6 +20,7 @@ public class RedisStreamMessageProcessor {
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final RedisStreamEventHandlerRegistry handlerRegistry;
 	private final RedisStreamProperties properties;
+	private final MeterRegistry meterRegistry;
 
 	public void process(String recordId, RedisStreamMessage message) {
 		String type = message.getType();
@@ -34,8 +36,10 @@ public class RedisStreamMessageProcessor {
 			log.debug("Dispatch to handler: type={}, handler={}", type, handler.getClass().getSimpleName());
 			handler.handle(message);
 			this.ack(recordId);
+			meterRegistry.counter("notification.stream.processed", "type", type, "result", "success").increment();
 		} catch (Exception e) {
 			log.error("Handler failed: type={}, id={}", type, recordId, e);
+			meterRegistry.counter("notification.stream.processed", "type", type, "result", "failure").increment();
 			// ACK 하지 않음 → PEL 유지 → Recovery 가 재처리
 			throw e;
 		}
