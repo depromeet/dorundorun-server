@@ -1,12 +1,13 @@
 package com.sixpack.dorundorun.feature.friend.application;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.benmanes.caffeine.cache.AsyncCache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.sixpack.dorundorun.global.config.naver.ReverseGeocodingProperties;
 import com.sixpack.dorundorun.global.utils.CoordinateUtil;
 import com.sixpack.dorundorun.infra.naver.api.NaverReverseGeocodingApi;
 import com.sixpack.dorundorun.infra.naver.dto.AddressInfo;
 import com.sixpack.dorundorun.infra.naver.dto.response.ReverseGeocodingResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -18,44 +19,69 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ReverseGeocodingService {
 
-    private final StringRedisTemplate redisTemplate;
-    private final NaverReverseGeocodingApi naverReverseGeocodingApi;
-    private final ObjectMapper objectMapper;
-    private final ReverseGeocodingProperties reverseGeocodingProperties;
+	private static final String CACHE_KEY_PREFIX = "reverse-geocoding:";
+	private static final long LOCAL_CACHE_MAX_SIZE = 10_000;
+	private static final double TTL_JITTER_RATIO = 0.1;
 
-    private static final String CACHE_KEY_PREFIX = "reverse-geocoding:";
+	private final StringRedisTemplate redisTemplate;
+	private final NaverReverseGeocodingApi naverReverseGeocodingApi;
+	private final ObjectMapper objectMapper;
+	private final ReverseGeocodingProperties reverseGeocodingProperties;
 
-    public CompletableFuture<AddressInfo> addressByCoordinatesAsync(
-            Double latitude, Double longitude, Executor executor) {
+	// 동일 좌표에 대한 동시 요청을 하나의 계산으로 합쳐 캐시 스탬피드를 방지하는 in-process single-flight 캐시
+	private final AsyncCache<String, AddressInfo> localCache;
 
-        String cacheKey = CACHE_KEY_PREFIX + CoordinateUtil.roundToKey(latitude, longitude);
+	public ReverseGeocodingService(
+			StringRedisTemplate redisTemplate,
+			NaverReverseGeocodingApi naverReverseGeocodingApi,
+			ObjectMapper objectMapper,
+			ReverseGeocodingProperties reverseGeocodingProperties) {
+		this.redisTemplate = redisTemplate;
+		this.naverReverseGeocodingApi = naverReverseGeocodingApi;
+		this.objectMapper = objectMapper;
+		this.reverseGeocodingProperties = reverseGeocodingProperties;
+		this.localCache = Caffeine.newBuilder()
+				.maximumSize(LOCAL_CACHE_MAX_SIZE)
+				.expireAfterWrite(Duration.ofHours(reverseGeocodingProperties.cache().ttlHours()))
+				.buildAsync();
+	}
 
-        return CompletableFuture.supplyAsync(() -> {
-            // 1단계: Redis 캐시 조회
-            try {
-                String cachedJson = redisTemplate.opsForValue().get(cacheKey);
-                if (cachedJson != null) {
-                    AddressInfo cached = parseFromCache(cachedJson);
-                    if (cached != null) {
-                        return cached;
-                    }
-                }
-            } catch (Exception e) {
-                log.warn("Redis 캐시 조회 실패, API 호출로 대체: key={}, error={}", cacheKey, e.getMessage());
-            }
+	public CompletableFuture<AddressInfo> addressByCoordinatesAsync(
+			Double latitude, Double longitude, Executor executor) {
 
-            // 2단계: 캐시 미스 → API 호출 (retry 포함)
-            AddressInfo result = callWithRetry(latitude, longitude);
-            cacheAddressInfo(cacheKey, result);
-            return result;
-        }, executor);
-    }
+		String cacheKey = CACHE_KEY_PREFIX + CoordinateUtil.roundToKey(latitude, longitude);
+
+		// 같은 키로 동시에 들어온 요청은 진행 중인 future에 합류하며, 로딩 함수는 키당 한 번만 실행됨
+		return localCache.get(cacheKey,
+				(key, ignoredExecutor) -> CompletableFuture.supplyAsync(
+						() -> loadAddress(key, latitude, longitude), executor));
+	}
+
+	private AddressInfo loadAddress(String cacheKey, Double latitude, Double longitude) {
+		// 1단계: Redis 캐시 조회
+		try {
+			String cachedJson = redisTemplate.opsForValue().get(cacheKey);
+			if (cachedJson != null) {
+				AddressInfo cached = parseFromCache(cachedJson);
+				if (cached != null) {
+					return cached;
+				}
+			}
+		} catch (Exception e) {
+			log.warn("Redis 캐시 조회 실패, API 호출로 대체: key={}, error={}", cacheKey, e.getMessage());
+		}
+
+		// 2단계: 캐시 미스 → API 호출 (retry 포함)
+		AddressInfo result = callWithRetry(latitude, longitude);
+		cacheAddressInfo(cacheKey, result);
+		return result;
+	}
 
     private AddressInfo callWithRetry(Double latitude, Double longitude) {
         int retryAttempts = reverseGeocodingProperties.api().retryAttempts();
@@ -121,15 +147,22 @@ public class ReverseGeocodingService {
                 .trim();
     }
 
-    private void cacheAddressInfo(String cacheKey, AddressInfo addressInfo) {
-        try {
-            String json = objectMapper.writeValueAsString(addressInfo);
-            long ttlHours = reverseGeocodingProperties.cache().ttlHours();
-            redisTemplate.opsForValue().set(cacheKey, json, Duration.ofHours(ttlHours));
-        } catch (Exception e) {
-            log.warn("Redis 캐시 저장 실패 (무시): key={}, error={}", cacheKey, e.getMessage());
-        }
-    }
+	private void cacheAddressInfo(String cacheKey, AddressInfo addressInfo) {
+		try {
+			String json = objectMapper.writeValueAsString(addressInfo);
+			redisTemplate.opsForValue().set(cacheKey, json, jitteredTtl());
+		} catch (Exception e) {
+			log.warn("Redis 캐시 저장 실패 (무시): key={}, error={}", cacheKey, e.getMessage());
+		}
+	}
+
+	// 같은 시점에 채워진 캐시 키들이 한꺼번에 만료되어 API 호출이 몰리는 것을 방지하기 위한 TTL 지터(±10%)
+	private Duration jitteredTtl() {
+		long ttlSeconds = Duration.ofHours(reverseGeocodingProperties.cache().ttlHours()).toSeconds();
+		long jitterRangeSeconds = (long) (ttlSeconds * TTL_JITTER_RATIO);
+		long jitterSeconds = ThreadLocalRandom.current().nextLong(-jitterRangeSeconds, jitterRangeSeconds + 1);
+		return Duration.ofSeconds(ttlSeconds + jitterSeconds);
+	}
 
     private AddressInfo parseFromCache(String json) {
         try {
