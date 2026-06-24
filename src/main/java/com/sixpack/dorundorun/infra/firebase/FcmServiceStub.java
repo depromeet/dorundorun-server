@@ -32,7 +32,7 @@ public class FcmServiceStub implements FcmService {
     }
 
     @Override
-    public List<String> sendMulticastMessage(FcmMessage message, List<String> deviceTokens) {
+    public FcmMulticastResult sendMulticastMessage(FcmMessage message, List<String> deviceTokens) {
         try {
             Thread.sleep(FCM_LATENCY_MS);
         } catch (InterruptedException e) {
@@ -42,7 +42,7 @@ public class FcmServiceStub implements FcmService {
         for (int i = 0; i < deviceTokens.size(); i++) {
             ids.add("stub-" + i + "-" + System.nanoTime());
         }
-        return ids;
+        return new FcmMulticastResult(ids, new ArrayList<>());
     }
 
     @Override

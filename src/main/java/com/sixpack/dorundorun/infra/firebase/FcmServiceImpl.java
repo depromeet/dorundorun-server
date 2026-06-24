@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import io.micrometer.core.instrument.MeterRegistry;
 
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.MessagingErrorCode;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
 import com.sixpack.dorundorun.global.config.firebase.FirebaseProperties;
@@ -46,6 +48,19 @@ public class FcmServiceImpl implements FcmService {
 			meterRegistry.counter("fcm.send", "result", "success").increment();
 			return messageId;
 
+		} catch (FirebaseMessagingException e) {
+			meterRegistry.counter("fcm.send", "result", "failure").increment();
+
+			// 토큰이 영구적으로 무효화된 경우(앱 삭제, 토큰 회전 등)는 재시도해도 절대 성공하지 않는다.
+			// 일반 전송 실패와 구분해서 호출부가 재시도 대신 토큰을 정리하도록 알린다.
+			if (e.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
+				log.warn("FCM token unregistered, error: {}", e.getMessage());
+				throw new CustomException(FcmErrorCode.FCM_TOKEN_UNREGISTERED);
+			}
+
+			log.error("Failed to send FCM message, error: {}", e.getMessage(), e);
+			throw new CustomException(FcmErrorCode.FCM_SEND_FAILED);
+
 		} catch (Exception e) {
 			log.error("Failed to send FCM message, error: {}", e.getMessage(), e);
 			meterRegistry.counter("fcm.send", "result", "failure").increment();
@@ -54,13 +69,13 @@ public class FcmServiceImpl implements FcmService {
 	}
 
 	@Override
-	public List<String> sendMulticastMessage(FcmMessage message, List<String> deviceTokens) {
+	public FcmMulticastResult sendMulticastMessage(FcmMessage message, List<String> deviceTokens) {
 		if (!isEnabled()) {
 			throw new CustomException(FcmErrorCode.FCM_DISABLED);
 		}
 
 		if (deviceTokens == null || deviceTokens.isEmpty()) {
-			return new ArrayList<>();
+			return new FcmMulticastResult(new ArrayList<>(), new ArrayList<>());
 		}
 
 		List<String> uniqueTokens = deviceTokens.stream()
@@ -69,7 +84,7 @@ public class FcmServiceImpl implements FcmService {
 			.collect(Collectors.toList());
 
 		if (uniqueTokens.isEmpty()) {
-			return new ArrayList<>();
+			return new FcmMulticastResult(new ArrayList<>(), new ArrayList<>());
 		}
 
 		validateMessage(message);
@@ -80,14 +95,26 @@ public class FcmServiceImpl implements FcmService {
 
 			List<String> successMessageIds = new ArrayList<>();
 			List<String> failedTokens = new ArrayList<>();
+			List<String> unregisteredTokens = new ArrayList<>();
 
-			response.getResponses().forEach(sendResponse -> {
+			var sendResponses = response.getResponses();
+			for (int i = 0; i < sendResponses.size(); i++) {
+				var sendResponse = sendResponses.get(i);
+				String token = uniqueTokens.get(i);
+
 				if (sendResponse.isSuccessful()) {
 					successMessageIds.add(sendResponse.getMessageId());
-				} else {
-					failedTokens.add(sendResponse.getException().getMessage());
+					continue;
 				}
-			});
+
+				FirebaseMessagingException exception = sendResponse.getException();
+				failedTokens.add(exception.getMessage());
+
+				// 토큰이 영구적으로 무효화된 경우 - 재시도 대상이 아니라 호출부가 정리하도록 별도로 모은다.
+				if (exception.getMessagingErrorCode() == MessagingErrorCode.UNREGISTERED) {
+					unregisteredTokens.add(token);
+				}
+			}
 
 			log.info("Multicast message sent. Success: {}, Failed: {}",
 				successMessageIds.size(), failedTokens.size());
@@ -99,7 +126,7 @@ public class FcmServiceImpl implements FcmService {
 			meterRegistry.counter("fcm.send", "result", "success").increment(successMessageIds.size());
 			meterRegistry.counter("fcm.send", "result", "failure").increment(failedTokens.size());
 
-			return successMessageIds;
+			return new FcmMulticastResult(successMessageIds, unregisteredTokens);
 
 		} catch (Exception e) {
 			log.error("Failed to send multicast FCM message, error: {}", e.getMessage(), e);

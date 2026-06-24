@@ -12,6 +12,7 @@ import lombok.Getter;
 public enum FcmErrorCode implements ErrorCode {
 
 	FCM_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "FCM 푸시 알림 전송에 실패했습니다."),
+	FCM_TOKEN_UNREGISTERED(HttpStatus.GONE, "FCM 토큰이 더 이상 유효하지 않습니다."),
 	FCM_INITIALIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Firebase 초기화에 실패했습니다."),
 
 	FCM_DISABLED(HttpStatus.SERVICE_UNAVAILABLE, "FCM 서비스가 비활성화되어 있습니다."),
