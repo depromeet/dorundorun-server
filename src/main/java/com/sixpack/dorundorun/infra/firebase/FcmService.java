@@ -4,7 +4,7 @@ public interface FcmService {
 
 	String sendMessage(FcmMessage message);
 
-	java.util.List<String> sendMulticastMessage(FcmMessage message, java.util.List<String> deviceTokens);
+	FcmMulticastResult sendMulticastMessage(FcmMessage message, java.util.List<String> deviceTokens);
 
 	boolean isEnabled();
 
