@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+import io.micrometer.core.instrument.MeterRegistry;
+
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MulticastMessage;
@@ -25,6 +27,7 @@ public class FcmServiceImpl implements FcmService {
 
 	private final FirebaseMessaging firebaseMessaging;
 	private final FirebaseProperties firebaseProperties;
+	private final MeterRegistry meterRegistry;
 
 	@Override
 	public String sendMessage(FcmMessage message) {
@@ -40,10 +43,12 @@ public class FcmServiceImpl implements FcmService {
 			Message fcmMessage = buildMessage(message);
 			String messageId = firebaseMessaging.send(fcmMessage);
 			log.info("Successfully sent FCM message (messageId: {})", messageId);
+			meterRegistry.counter("fcm.send", "result", "success").increment();
 			return messageId;
 
 		} catch (Exception e) {
 			log.error("Failed to send FCM message, error: {}", e.getMessage(), e);
+			meterRegistry.counter("fcm.send", "result", "failure").increment();
 			throw new CustomException(FcmErrorCode.FCM_SEND_FAILED);
 		}
 	}
@@ -91,10 +96,14 @@ public class FcmServiceImpl implements FcmService {
 				log.warn("Some tokens failed: {}", failedTokens);
 			}
 
+			meterRegistry.counter("fcm.send", "result", "success").increment(successMessageIds.size());
+			meterRegistry.counter("fcm.send", "result", "failure").increment(failedTokens.size());
+
 			return successMessageIds;
 
 		} catch (Exception e) {
 			log.error("Failed to send multicast FCM message, error: {}", e.getMessage(), e);
+			meterRegistry.counter("fcm.send", "result", "failure").increment(uniqueTokens.size());
 			throw new CustomException(FcmErrorCode.FCM_SEND_FAILED);
 		}
 	}

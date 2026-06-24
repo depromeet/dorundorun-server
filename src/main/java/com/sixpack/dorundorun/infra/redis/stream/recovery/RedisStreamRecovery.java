@@ -5,6 +5,8 @@ import com.sixpack.dorundorun.infra.redis.stream.consumer.RedisStreamMessageProc
 import com.sixpack.dorundorun.infra.redis.stream.dto.RedisStreamMessage;
 import com.sixpack.dorundorun.infra.redis.stream.util.RedisStreamMessageMapper;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Component
@@ -32,14 +35,27 @@ public class RedisStreamRecovery {
 	private final RedisStreamMessageProcessor processor;
 	private final RedisStreamMessageMapper mapper;
 	private final DeadLetterQueueService deadLetterQueueService;
+	private final MeterRegistry meterRegistry;
+
+	// 매 recovery 주기(properties.recovery().intervalMs())마다 갱신되는 PEL 적체 개수.
+	// Prometheus가 스크랩할 때마다 Redis를 직접 조회하지 않도록 캐시된 값을 게이지로 노출한다.
+	private final AtomicLong pendingMessages = new AtomicLong(0);
+
+	@PostConstruct
+	private void registerGauge() {
+		meterRegistry.gauge("notification.stream.pending", pendingMessages);
+	}
 
 	public void reprocessPending(long minIdleMs, long count) {
 		PendingMessagesSummary summary = redisTemplate.opsForStream()
 			.pending(properties.key(), properties.group());
 
 		if (summary == null || summary.getTotalPendingMessages() == 0) {
+			pendingMessages.set(0);
 			return;
 		}
+
+		pendingMessages.set(summary.getTotalPendingMessages());
 
 		log.info("Pending messages: total={}, minId={}, maxId={}",
 			summary.getTotalPendingMessages(),
@@ -124,6 +140,7 @@ public class RedisStreamRecovery {
 					properties.group(),
 					pm.getId()
 				);
+				meterRegistry.counter("notification.stream.dlq").increment();
 				log.warn("Message moved to DLQ after {} retries: id={}", MAX_RETRY_COUNT, pm.getId());
 			} else {
 				log.error("Failed to move message to DLQ, keeping in PEL for retry: id={}", pm.getId());
