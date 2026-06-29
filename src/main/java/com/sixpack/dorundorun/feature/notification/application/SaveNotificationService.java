@@ -2,7 +2,9 @@ package com.sixpack.dorundorun.feature.notification.application;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.sixpack.dorundorun.feature.notification.dao.NotificationJpaRepository;
@@ -30,9 +32,18 @@ public class SaveNotificationService {
 		String message,
 		String deepLink
 	) {
+		String deduplicationKey = event.idempotencyKey();
+
+		if (deduplicationKey != null) {
+			Optional<Notification> existing = notificationRepository.findByDeduplicationKey(deduplicationKey);
+			if (existing.isPresent()) {
+				log.info("Duplicate notification in DB, returning existing: id={}", existing.get().getId());
+				return existing.get();
+			}
+		}
+
 		User recipient = findUserByIdService.find(event.recipientUserId());
 
-		// metadata와 함께 additionalData 생성
 		Map<String, Object> additionalData = new HashMap<>();
 		additionalData.put("notificationType", event.notificationType());
 		additionalData.put("relatedId", event.relatedId());
@@ -55,16 +66,23 @@ public class SaveNotificationService {
 			.data(notificationData)
 			.isRead(false)
 			.deepLink(deepLink)
+			.deduplicationKey(deduplicationKey)
 			.build();
 
-		Notification saved = notificationRepository.save(notification);
-		log.debug("Notification saved: id={}, recipientId={}, type={}, deepLink={}",
-			saved.getId(), event.recipientUserId(), event.notificationType(), deepLink);
-
-		return saved;
+		try {
+			Notification saved = notificationRepository.save(notification);
+			log.debug("Notification saved: id={}, recipientId={}, type={}, deepLink={}",
+				saved.getId(), event.recipientUserId(), event.notificationType(), deepLink);
+			return saved;
+		} catch (DataIntegrityViolationException e) {
+			if (deduplicationKey == null) throw e;
+			log.warn("Deduplication key conflict, returning existing: recipientId={}, type={}",
+				event.recipientUserId(), event.notificationType());
+			return notificationRepository.findByDeduplicationKey(deduplicationKey)
+				.orElseThrow(() -> e);
+		}
 	}
 
-	// PushNotificationRequestedEvent의 notificationType 문자열을 NotificationType enum으로 변환
 	private NotificationType convertToNotificationType(String notificationTypeString) {
 		return switch (notificationTypeString) {
 			case "CHEER_FRIEND" -> NotificationType.CHEER_FRIEND;
@@ -74,7 +92,7 @@ public class SaveNotificationService {
 			case "RUNNING_PROGRESS_REMINDER" -> NotificationType.RUNNING_PROGRESS_REMINDER;
 			case "NEW_USER_RUNNING_REMINDER" -> NotificationType.NEW_USER_RUNNING_REMINDER;
 			case "NEW_USER_FRIEND_REMINDER" -> NotificationType.NEW_USER_FRIEND_REMINDER;
-			default -> NotificationType.CHEER_FRIEND; // 기본값
+			default -> throw new IllegalArgumentException("Unknown notification type: " + notificationTypeString);
 		};
 	}
 }

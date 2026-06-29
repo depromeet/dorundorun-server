@@ -58,4 +58,7 @@ public class Notification extends BaseTimeEntity {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
+
+	@Column(name = "deduplication_key", unique = true)
+	private String deduplicationKey;
 }

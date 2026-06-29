@@ -1,6 +1,7 @@
 package com.sixpack.dorundorun.feature.feed.application;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +61,7 @@ public class CreateSelfieService {
 		FeedUploadedRequestedEvent event = FeedUploadedRequestedEvent.builder()
 			.userId(user.getId())
 			.feedId(savedFeed.getId())
+			.idempotencyKey(UUID.randomUUID().toString())
 			.build();
 
 		redisStreamPublisher.publishAfterCommit(event);

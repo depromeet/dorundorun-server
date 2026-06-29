@@ -1,5 +1,7 @@
 package com.sixpack.dorundorun.feature.friend.application;
 
+import java.util.UUID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class CheerFriendService {
 		CheerRequestedEvent event = CheerRequestedEvent.builder()
 			.cheererId(userId)
 			.cheeringUserId(friendUserId)
+			.idempotencyKey(UUID.randomUUID().toString())
 			.build();
 
 		redisStreamPublisher.publishAfterCommit(event);

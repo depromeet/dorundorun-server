@@ -66,6 +66,7 @@ public class FeedReactionEventHandler
 				.notificationType("FEED_REACTION")
 				.relatedId(String.valueOf(event.feedId()))
 				.metadata(metadata)
+				.idempotencyKey(event.idempotencyKey())
 				.build();
 
 			redisStreamPublisher.publishAfterCommit(pushEvent);

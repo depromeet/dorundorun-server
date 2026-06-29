@@ -8,7 +8,8 @@ import lombok.Builder;
 @Builder
 public record CheerRequestedEvent(
 	Long cheererId,
-	Long cheeringUserId
+	Long cheeringUserId,
+	String idempotencyKey
 ) implements RedisStreamEvent {
 
 	public static final String TYPE = RedisStreamEventType.CHEER_NOTIFICATION_REQUESTED;

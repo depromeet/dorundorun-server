@@ -60,6 +60,7 @@ public class CheerEventHandler extends AbstractRedisStreamEventHandler<CheerRequ
 				.notificationType("CHEER_FRIEND")
 				.relatedId(String.valueOf(event.cheererId()))
 				.metadata(metadata)
+				.idempotencyKey(event.idempotencyKey())
 				.build();
 
 			redisStreamPublisher.publishAfterCommit(pushEvent);

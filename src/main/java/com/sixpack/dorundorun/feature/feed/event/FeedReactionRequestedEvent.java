@@ -9,7 +9,8 @@ import lombok.Builder;
 public record FeedReactionRequestedEvent(
 	Long feedId,
 	Long reactorId,
-	Long feedOwnerId
+	Long feedOwnerId,
+	String idempotencyKey
 ) implements RedisStreamEvent {
 
 	public static final String TYPE = RedisStreamEventType.FEED_REACTION_NOTIFICATION_REQUESTED;

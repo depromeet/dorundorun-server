@@ -1,6 +1,7 @@
 package com.sixpack.dorundorun.feature.feed.application;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,6 +49,7 @@ public class ReactToSelfieService {
 				.feedId(request.feedId())
 				.reactorId(user.getId())
 				.feedOwnerId(feed.getUser().getId())
+				.idempotencyKey(UUID.randomUUID().toString())
 				.build();
 			redisStreamPublisher.publishAfterCommit(event);
 		}

@@ -34,8 +34,8 @@ public class NotificationsService {
 	public Page<NotificationResponse> getNotifications(User user, Pageable pageable) {
 		log.debug("Fetching notifications for user: {}", user.getId());
 
-		Page<Notification> notifications = notificationRepository.findByUserDeviceTokenAndDeletedAtIsNull(
-			user.getDeviceToken(),
+		Page<Notification> notifications = notificationRepository.findByRecipientUserIdAndDeletedAtIsNull(
+			user.getId(),
 			pageable
 		);
 

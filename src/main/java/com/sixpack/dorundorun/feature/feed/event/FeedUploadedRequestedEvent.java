@@ -8,7 +8,8 @@ import lombok.Builder;
 @Builder
 public record FeedUploadedRequestedEvent(
 	Long userId,
-	Long feedId
+	Long feedId,
+	String idempotencyKey
 ) implements RedisStreamEvent {
 
 	public static final String TYPE = RedisStreamEventType.FEED_UPLOADED_NOTIFICATION_REQUESTED;

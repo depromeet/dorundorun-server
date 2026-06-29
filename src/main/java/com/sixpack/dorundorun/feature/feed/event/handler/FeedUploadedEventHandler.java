@@ -90,6 +90,7 @@ public class FeedUploadedEventHandler
 						.notificationType("FEED_UPLOADED")
 						.relatedId(String.valueOf(feed.getId()))
 						.metadata(metadata)
+						.idempotencyKey(event.idempotencyKey() + ":" + friendId)
 						.build();
 
 					redisStreamPublisher.publishAfterCommit(pushEvent);

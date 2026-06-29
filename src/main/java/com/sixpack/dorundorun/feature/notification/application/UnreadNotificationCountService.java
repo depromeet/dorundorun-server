@@ -16,7 +16,7 @@ public class UnreadNotificationCountService {
 
 	@Transactional(readOnly = true)
 	public int getUnreadCount(User user) {
-		long count = notificationRepository.countUnreadByUserDeviceToken(user.getDeviceToken());
+		long count = notificationRepository.countUnreadByRecipientUserId(user.getId());
 		return (int)count;
 	}
 }
