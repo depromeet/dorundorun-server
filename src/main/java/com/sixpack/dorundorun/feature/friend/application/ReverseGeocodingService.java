@@ -46,6 +46,9 @@ public class ReverseGeocodingService {
 		this.objectMapper = objectMapper;
 		this.reverseGeocodingProperties = reverseGeocodingProperties;
 		this.localCache = Caffeine.newBuilder()
+				// 로딩 작업(Redis 조회, Naver API 호출, 재시도 sleep)이 블로킹 I/O이므로
+				// JVM 공용 ForkJoinPool.commonPool() 대신 호출 스레드에서 직접 실행
+				.executor(Runnable::run)
 				.maximumSize(LOCAL_CACHE_MAX_SIZE)
 				.expireAfterWrite(Duration.ofHours(reverseGeocodingProperties.cache().ttlHours()))
 				.buildAsync();
