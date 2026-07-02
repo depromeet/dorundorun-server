@@ -5,11 +5,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.sixpack.dorundorun.feature.friend.dao.projection.FriendRunningStatusProjection;
@@ -25,16 +22,13 @@ public class CoordinateAddressService {
 
 	private final ReverseGeocodingService reverseGeocodingService;
 	private final ReverseGeocodingProperties reverseGeocodingProperties;
-	private final Executor reverseGeocodingExecutor;
 
 	public CoordinateAddressService(
 		ReverseGeocodingService reverseGeocodingService,
-		ReverseGeocodingProperties reverseGeocodingProperties,
-		@Qualifier("reverseGeocodingExecutor") Executor reverseGeocodingExecutor
+		ReverseGeocodingProperties reverseGeocodingProperties
 	) {
 		this.reverseGeocodingService = reverseGeocodingService;
 		this.reverseGeocodingProperties = reverseGeocodingProperties;
-		this.reverseGeocodingExecutor = reverseGeocodingExecutor;
 	}
 
 	public record CoordinateData(
@@ -87,33 +81,27 @@ public class CoordinateAddressService {
 	}
 
 	private Map<Long, AddressInfo> convertCoordinates(Map<Long, CoordinateData> coordinateMap) {
-		Map<Long, CompletableFuture<AddressInfo>> futures = new HashMap<>();
+		Map<Long, AddressInfo> addressMap = new HashMap<>();
 
 		for (Map.Entry<Long, CoordinateData> entry : coordinateMap.entrySet()) {
 			CoordinateData coord = entry.getValue();
-			CompletableFuture<AddressInfo> future;
 
 			if (coord.latitude() == null || coord.longitude() == null) {
-				future = CompletableFuture.completedFuture(fallbackAddressInfo());
-			} else {
-				future = reverseGeocodingService
-					.addressByCoordinatesAsync(coord.latitude(), coord.longitude(), reverseGeocodingExecutor)
-					.exceptionally(ex -> {
-						log.warn("주소 변환 실패, 기본값 반환: lat={}, lon={}, error={}",
-							coord.latitude(), coord.longitude(), ex.getMessage());
-						return fallbackAddressInfo();
-					});
+				addressMap.put(entry.getKey(), fallbackAddressInfo());
+				continue;
 			}
 
-			futures.put(entry.getKey(), future);
+			AddressInfo addressInfo = reverseGeocodingService
+				.addressByCoordinatesAsync(coord.latitude(), coord.longitude())
+				.exceptionally(ex -> {
+					log.warn("주소 변환 실패, 기본값 반환: lat={}, lon={}, error={}",
+						coord.latitude(), coord.longitude(), ex.getMessage());
+					return fallbackAddressInfo();
+				})
+				.join();
+
+			addressMap.put(entry.getKey(), addressInfo);
 		}
-
-		// 모든 비동기 작업 완료 대기
-		CompletableFuture.allOf(futures.values().toArray(new CompletableFuture[0])).join();
-
-		// 결과 수집
-		Map<Long, AddressInfo> addressMap = new HashMap<>();
-		futures.forEach((key, future) -> addressMap.put(key, future.join()));
 
 		return addressMap;
 	}

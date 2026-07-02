@@ -18,7 +18,6 @@ import org.springframework.web.client.ResourceAccessException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
@@ -52,14 +51,13 @@ public class ReverseGeocodingService {
 				.buildAsync();
 	}
 
-	public CompletableFuture<AddressInfo> addressByCoordinatesAsync(
-			Double latitude, Double longitude, Executor executor) {
+	public CompletableFuture<AddressInfo> addressByCoordinatesAsync(Double latitude, Double longitude) {
 
 		String cacheKey = CACHE_KEY_PREFIX + CoordinateUtil.roundToKey(latitude, longitude);
 
 		// 같은 키로 동시에 들어온 요청은 진행 중인 future에 합류하며, 로딩 함수는 키당 한 번만 실행됨
 		return localCache.get(cacheKey,
-				(key, ignoredExecutor) -> CompletableFuture.supplyAsync(
+				(key, executor) -> CompletableFuture.supplyAsync(
 						() -> loadAddress(key, latitude, longitude), executor));
 	}
 
