@@ -84,7 +84,8 @@ class ReverseGeocodingServiceStampedeTest {
 	void concurrentRequestsForSameCoordinate_shouldCallApiOnlyOnce() {
 		CompletableFuture<?>[] futures = new CompletableFuture[CONCURRENT_REQUESTS];
 		for (int i = 0; i < CONCURRENT_REQUESTS; i++) {
-			futures[i] = reverseGeocodingService.addressByCoordinatesAsync(LATITUDE, LONGITUDE, executor);
+			futures[i] = CompletableFuture.runAsync(
+				() -> reverseGeocodingService.addressByCoordinatesAsync(LATITUDE, LONGITUDE).join(), executor);
 		}
 
 		CompletableFuture.allOf(futures).join();
