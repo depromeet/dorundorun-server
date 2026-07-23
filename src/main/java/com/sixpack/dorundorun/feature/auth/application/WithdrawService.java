@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sixpack.dorundorun.feature.attendance.dao.AttendanceStreakJpaRepository;
 import com.sixpack.dorundorun.feature.feed.dao.FeedJpaRepository;
 import com.sixpack.dorundorun.feature.feed.dao.ReactionJpaRepository;
 import com.sixpack.dorundorun.feature.feed.domain.Feed;
@@ -32,6 +33,7 @@ public class WithdrawService {
 	private final RunSessionJpaRepository runSessionJpaRepository;
 	private final RunSegmentJpaRepository runSegmentJpaRepository;
 	private final NotificationJpaRepository notificationJpaRepository;
+	private final AttendanceStreakJpaRepository attendanceStreakJpaRepository;
 	private final RedisTokenRepository redisTokenRepository;
 	private final S3Service s3Service;
 
@@ -42,6 +44,7 @@ public class WithdrawService {
 		deleteReactions(userId);
 		deleteFeeds(userId);
 		deleteFriends(userId);
+		deleteAttendanceStreak(userId);
 		deleteRunSegments(userId);
 		deleteRunSessions(userId);
 		deleteNotifications(userId);
@@ -61,6 +64,10 @@ public class WithdrawService {
 	private void deleteFriends(Long userId) {
 		friendJpaRepository.deleteByUserId(userId);
 		friendJpaRepository.deleteByFriendId(userId);
+	}
+
+	private void deleteAttendanceStreak(Long userId) {
+		attendanceStreakJpaRepository.deleteByUserId(userId);
 	}
 
 	private void deleteRunSegments(Long userId) {
