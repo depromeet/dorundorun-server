@@ -3,9 +3,12 @@ package com.sixpack.dorundorun.feature.attendance.application;
 import static org.assertj.core.api.Assertions.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterEach;
@@ -59,7 +62,7 @@ class CheckInConcurrencyIntegrationTest extends ServiceTest {
 
 	@Test
 	@DisplayName("같은 유저가 동시에 여러 번 체크인해도 스트릭은 정확히 1만 증가한다")
-	void checkIn_concurrentRequests_incrementsStreakExactlyOnce() throws InterruptedException {
+	void checkIn_concurrentRequests_incrementsStreakExactlyOnce() throws Exception {
 		LocalDate today = koreaTimeHandler.now();
 		attendanceStreakJpaRepository.save(AttendanceStreak.builder()
 			.user(testUser)
@@ -68,36 +71,50 @@ class CheckInConcurrencyIntegrationTest extends ServiceTest {
 			.longestStreak(4)
 			.build());
 
-		ExecutorService executor = Executors.newFixedThreadPool(CONCURRENT_REQUESTS);
-		CountDownLatch readyLatch = new CountDownLatch(CONCURRENT_REQUESTS);
-		CountDownLatch startLatch = new CountDownLatch(1);
-		CountDownLatch doneLatch = new CountDownLatch(CONCURRENT_REQUESTS);
-
-		for (int i = 0; i < CONCURRENT_REQUESTS; i++) {
-			executor.submit(() -> {
-				readyLatch.countDown();
-				try {
-					startLatch.await();
-					checkInService.checkIn(testUser);
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				} finally {
-					doneLatch.countDown();
-				}
-			});
-		}
-
-		readyLatch.await();
-		startLatch.countDown();
-		boolean completed = doneLatch.await(30, TimeUnit.SECONDS);
-		executor.shutdown();
-
-		assertThat(completed).isTrue();
+		runConcurrentCheckIns();
 
 		AttendanceStreak result = attendanceStreakJpaRepository.findByUserId(testUser.getId())
 			.orElseThrow();
 		assertThat(result.getStreakCount()).isEqualTo(5);
 		assertThat(result.getLongestStreak()).isEqualTo(5);
 		assertThat(result.getLastCheckinDate()).isEqualTo(today);
+	}
+
+	@Test
+	@DisplayName("완전히 새 유저가 동시에 여러 번 최초 체크인해도 row는 1개만 생성되고 스트릭은 1이다")
+	void checkIn_concurrentFirstEverCheckIn_createsExactlyOneStreakOfOne() throws Exception {
+		// 이 유저는 attendance_streak row가 아예 없는 상태에서 시작한다.
+		runConcurrentCheckIns();
+
+		AttendanceStreak result = attendanceStreakJpaRepository.findByUserId(testUser.getId())
+			.orElseThrow();
+		assertThat(result.getStreakCount()).isEqualTo(1);
+		assertThat(result.getLongestStreak()).isEqualTo(1);
+		assertThat(result.getLastCheckinDate()).isEqualTo(koreaTimeHandler.now());
+	}
+
+	private void runConcurrentCheckIns() throws Exception {
+		ExecutorService executor = Executors.newFixedThreadPool(CONCURRENT_REQUESTS);
+		CountDownLatch readyLatch = new CountDownLatch(CONCURRENT_REQUESTS);
+		CountDownLatch startLatch = new CountDownLatch(1);
+		List<Future<?>> futures = new ArrayList<>();
+
+		for (int i = 0; i < CONCURRENT_REQUESTS; i++) {
+			futures.add(executor.submit(() -> {
+				readyLatch.countDown();
+				startLatch.await();
+				checkInService.checkIn(testUser);
+				return null;
+			}));
+		}
+
+		readyLatch.await();
+		startLatch.countDown();
+
+		// future.get()이 각 스레드의 예외를 그대로 전파하므로, 락이 깨져 일부 요청이 실패하면 테스트도 실패한다.
+		for (Future<?> future : futures) {
+			future.get(30, TimeUnit.SECONDS);
+		}
+		executor.shutdown();
 	}
 }

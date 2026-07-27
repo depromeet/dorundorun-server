@@ -59,7 +59,7 @@ class CheckInServiceTest {
 		assertThat(response.streakCount()).isEqualTo(5);
 		assertThat(response.longestStreak()).isEqualTo(5);
 		assertThat(response.isFirstCheckInToday()).isFalse();
-		verify(attendanceStreakJpaRepository, never()).save(any());
+		verify(attendanceStreakJpaRepository, never()).insertIfAbsent(any(), any());
 	}
 
 	@Test
@@ -78,6 +78,7 @@ class CheckInServiceTest {
 		assertThat(response.streakCount()).isEqualTo(5);
 		assertThat(response.longestStreak()).isEqualTo(5);
 		assertThat(response.isFirstCheckInToday()).isTrue();
+		verify(attendanceStreakJpaRepository, never()).insertIfAbsent(any(), any());
 	}
 
 	@Test
@@ -96,17 +97,26 @@ class CheckInServiceTest {
 		assertThat(response.streakCount()).isEqualTo(1);
 		assertThat(response.longestStreak()).isEqualTo(10);
 		assertThat(response.isFirstCheckInToday()).isTrue();
+		verify(attendanceStreakJpaRepository, never()).insertIfAbsent(any(), any());
 	}
 
 	@Test
 	@DisplayName("처음 체크인하는 유저는 스트릭 1로 새로 생성된다")
 	void checkIn_firstEverCheckIn_createsStreakWithOne() {
-		when(attendanceStreakJpaRepository.findByUserIdForUpdate(1L)).thenReturn(Optional.empty());
-		when(attendanceStreakJpaRepository.save(any(AttendanceStreak.class)))
-			.thenAnswer(invocation -> invocation.getArgument(0));
+		// insertIfAbsent가 만들어낸 직후 상태를 그대로 모킹 (last_checkin_date = 어제, streak/longest = 0)
+		AttendanceStreak upsertedStreak = AttendanceStreak.builder()
+			.user(testUser)
+			.lastCheckinDate(TODAY.minusDays(1))
+			.streakCount(0)
+			.longestStreak(0)
+			.build();
+		when(attendanceStreakJpaRepository.findByUserIdForUpdate(1L))
+			.thenReturn(Optional.empty())
+			.thenReturn(Optional.of(upsertedStreak));
 
 		CheckInResponse response = checkInService.checkIn(testUser);
 
+		verify(attendanceStreakJpaRepository).insertIfAbsent(1L, TODAY.minusDays(1));
 		assertThat(response.streakCount()).isEqualTo(1);
 		assertThat(response.longestStreak()).isEqualTo(1);
 		assertThat(response.isFirstCheckInToday()).isTrue();

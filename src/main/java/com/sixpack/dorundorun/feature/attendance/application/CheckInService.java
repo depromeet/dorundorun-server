@@ -2,8 +2,8 @@ package com.sixpack.dorundorun.feature.attendance.application;
 
 import java.time.LocalDate;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sixpack.dorundorun.feature.attendance.dao.AttendanceStreakJpaRepository;
@@ -21,12 +21,14 @@ public class CheckInService {
 	private final AttendanceStreakJpaRepository attendanceStreakJpaRepository;
 	private final KoreaTimeHandler koreaTimeHandler;
 
-	@Transactional
+	// 존재하지 않는 유니크 키에 여러 트랜잭션이 동시에 INSERT ON DUPLICATE KEY UPDATE를 시도할 때
+	// REPEATABLE READ의 갭 락으로 인한 데드락을 피하기 위해 READ COMMITTED로 낮춘다.
+	@Transactional(isolation = Isolation.READ_COMMITTED)
 	public CheckInResponse checkIn(User user) {
 		LocalDate today = koreaTimeHandler.now();
 
 		AttendanceStreak streak = attendanceStreakJpaRepository.findByUserIdForUpdate(user.getId())
-			.orElseGet(() -> createInitialStreak(user));
+			.orElseGet(() -> createStreakForFirstEverCheckIn(user, today));
 
 		if (streak.isCheckedInToday(today)) {
 			return toResponse(streak, false);
@@ -41,18 +43,11 @@ public class CheckInService {
 		return toResponse(streak, true);
 	}
 
-	private AttendanceStreak createInitialStreak(User user) {
-		try {
-			return attendanceStreakJpaRepository.save(AttendanceStreak.builder()
-				.user(user)
-				.lastCheckinDate(LocalDate.MIN)
-				.streakCount(0)
-				.longestStreak(0)
-				.build());
-		} catch (DataIntegrityViolationException e) {
-			return attendanceStreakJpaRepository.findByUserIdForUpdate(user.getId())
-				.orElseThrow(() -> e);
-		}
+	private AttendanceStreak createStreakForFirstEverCheckIn(User user, LocalDate today) {
+		attendanceStreakJpaRepository.insertIfAbsent(user.getId(), today.minusDays(1));
+		return attendanceStreakJpaRepository.findByUserIdForUpdate(user.getId())
+			.orElseThrow(() -> new IllegalStateException(
+				"attendance streak row missing after upsert, userId=" + user.getId()));
 	}
 
 	private CheckInResponse toResponse(AttendanceStreak streak, boolean isFirstCheckInToday) {
