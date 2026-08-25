@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.sixpack.dorundorun.global.response.DorunResponse;
 
@@ -41,6 +42,15 @@ public class GlobalExceptionHandler {
 		return ResponseEntity
 			.status(GlobalErrorCode.INTERNAL_SERVER_ERROR.getStatus())
 			.body(DorunResponse.error(GlobalErrorCode.INTERNAL_SERVER_ERROR));
+	}
+
+	@ExceptionHandler(NoResourceFoundException.class)
+	public ResponseEntity<DorunResponse<Void>> handleNoResourceFoundException(NoResourceFoundException e,
+		HttpServletRequest req) {
+		log.warn("Resource not found on {} {}", req.getMethod(), req.getRequestURI());
+		return ResponseEntity
+			.status(HttpStatus.NOT_FOUND)
+			.body(DorunResponse.error(GlobalErrorCode.NOT_FOUND));
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
